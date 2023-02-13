@@ -13,12 +13,11 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ceremonies', function (Blueprint $table) {
+        Schema::create('decorations', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('budget_id');
-            $table->double('total_negotiated_amount');
-            $table->double('entry_amount');
-            $table->double('remaining_amount');
+            $table->string('name');
+            $table->string('code')->unique();
+            $table->text('description')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ceremonies');
+        Schema::dropIfExists('decorations');
     }
 };

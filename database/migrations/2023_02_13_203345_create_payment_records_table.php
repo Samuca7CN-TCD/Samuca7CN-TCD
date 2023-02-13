@@ -15,6 +15,11 @@ return new class extends Migration
     {
         Schema::create('payment_records', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('installment_id');
+            $table->unsignedBigInteger('voucher_id');
+            $table->date('payment_date');
+            $table->double('amount');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

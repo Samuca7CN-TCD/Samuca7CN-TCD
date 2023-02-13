@@ -15,6 +15,12 @@ return new class extends Migration
     {
         Schema::create('installments', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('receipt_id');
+            $table->double('entry_amount');
+            $table->double('total_amount');
+            $table->double('remaining_amount');
+            $table->date('payment_deadline');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

@@ -15,6 +15,23 @@ return new class extends Migration
     {
         Schema::create('budgets', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('event_id');
+            $table->unsignedBigInteger('client_id');
+            $table->unsignedBigInteger('decoration_id');
+            $table->unsignedBigInteger('buffet_entry_id');
+            $table->unsignedBigInteger('buffet_id');
+            $table->boolean('beer');
+            $table->boolean('bar');
+            $table->boolean('dj');
+            $table->boolean('advisory');
+            $table->integer('guests_quantity');
+            $table->dateTimeTz('event_date');
+            $table->string('event_place');
+            $table->text('budget_comment');
+            $table->string('budget_token');
+            $table->float('budget_total_value');
+            $table->string('budget_link');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

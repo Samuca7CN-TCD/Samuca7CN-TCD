@@ -15,6 +15,10 @@ return new class extends Migration
     {
         Schema::create('accounting_statuses', function (Blueprint $table) {
             $table->id();
+            $table->string('name');
+            $table->string('code')->unique();
+            $table->string('description')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

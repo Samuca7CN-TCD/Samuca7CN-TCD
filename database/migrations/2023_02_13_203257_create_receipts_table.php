@@ -15,6 +15,10 @@ return new class extends Migration
     {
         Schema::create('receipts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('ceremony_id');
+            $table->double('total_amount');
+            $table->double('remaining_amount');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

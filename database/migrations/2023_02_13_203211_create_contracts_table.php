@@ -15,6 +15,13 @@ return new class extends Migration
     {
         Schema::create('contracts', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('debt_id');
+            $table->unsignedBigInteger('accounting_status_id');
+            $table->string('name');
+            $table->text('description')->nullable();
+            $table->double('total_amount');
+            $table->double('remaining_amount');
+            $table->softDeletes();
             $table->timestamps();
         });
     }

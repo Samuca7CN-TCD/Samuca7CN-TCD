@@ -13,12 +13,9 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('ceremonies', function (Blueprint $table) {
+        Schema::create('comments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('budget_id');
-            $table->double('total_negotiated_amount');
-            $table->double('entry_amount');
-            $table->double('remaining_amount');
+            $table->text('text');
             $table->softDeletes();
             $table->timestamps();
         });
@@ -31,6 +28,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('ceremonies');
+        Schema::dropIfExists('comments');
     }
 };

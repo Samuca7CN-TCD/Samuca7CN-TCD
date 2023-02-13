@@ -15,6 +15,9 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('contract_id');
+            $table->binary('file')->unique();
+            $table->softDeletes();
             $table->timestamps();
         });
     }

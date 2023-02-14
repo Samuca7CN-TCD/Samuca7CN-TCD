@@ -20,6 +20,7 @@ return new class extends Migration
             $table->double('remaining_amount');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('ceremony_id')->references('id')->on('ceremonies');
         });
     }
 

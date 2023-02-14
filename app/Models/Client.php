@@ -10,4 +10,12 @@ class Client extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    function clientStatus(){
+        return $this->hasOne(ClientStatus::class);
+    }
+
+    function budget(){
+        return $this->belongsToMany(Budget::class);
+    }
 }

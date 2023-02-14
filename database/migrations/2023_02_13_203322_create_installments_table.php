@@ -22,6 +22,7 @@ return new class extends Migration
             $table->date('payment_deadline');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('receipt_id')->references('id')->on('receipts');
         });
     }
 

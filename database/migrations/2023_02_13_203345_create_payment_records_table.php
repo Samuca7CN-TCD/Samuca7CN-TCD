@@ -21,6 +21,8 @@ return new class extends Migration
             $table->double('amount');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('installment_id')->references('id')->on('installments');
+            $table->foreign('voucher_id')->references('id')->on('vouchers');
         });
     }
 

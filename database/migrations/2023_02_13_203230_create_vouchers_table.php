@@ -19,6 +19,7 @@ return new class extends Migration
             $table->binary('file')->unique();
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('contract_id')->references('id')->on('contracts');
         });
     }
 

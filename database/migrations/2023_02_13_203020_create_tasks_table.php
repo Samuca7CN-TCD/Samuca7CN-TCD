@@ -28,6 +28,11 @@ return new class extends Migration
             $table->tinyInteger('priority')->nullable();
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('ceremony_id')->references('id')->on('ceremonies');
+            $table->foreign('task_id')->references('id')->on('tasks');
+            $table->foreign('tag_id')->references('id')->on('tags');
+            $table->foreign('user_id')->references('id')->on('users');
+            $table->foreign('task_status_id')->references('id')->on('task_statuses');
         });
     }
 

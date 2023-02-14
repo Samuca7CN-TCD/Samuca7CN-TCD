@@ -18,6 +18,8 @@ return new class extends Migration
             $table->unsignedBigInteger('comment_id');
             $table->unsignedBigInteger('task_id');
             $table->timestamps();
+            $table->foreign('comment_id')->references('id')->on('comments');
+            $table->foreign('task_id')->references('id')->on('tasks');
         });
     }
 

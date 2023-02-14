@@ -12,4 +12,9 @@ class ClientStatus extends Model
     use SoftDeletes;
 
     protected $table = "client_status";
+
+    function client()
+    {
+        return $this->belongsToMany(Client::class);
+    }
 }

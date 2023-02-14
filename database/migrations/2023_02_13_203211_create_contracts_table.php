@@ -23,6 +23,8 @@ return new class extends Migration
             $table->double('remaining_amount');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('debt_id')->references('id')->on('debts');
+            $table->foreign('accounting_status_id')->references('id')->on('accounting_statuses');
         });
     }
 

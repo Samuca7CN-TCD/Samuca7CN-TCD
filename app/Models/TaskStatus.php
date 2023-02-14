@@ -12,4 +12,8 @@ class TaskStatus extends Model
     use SoftDeletes;
 
     protected $table = "task_status";
+
+    function task(){
+        return $this->belongsToMany(Task::class);
+    }
 }

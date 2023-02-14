@@ -21,6 +21,7 @@ return new class extends Migration
             $table->double('remaining_amount');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('budget_id')->references('id')->on('budgets');
         });
     }
 

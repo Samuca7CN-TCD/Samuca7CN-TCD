@@ -10,4 +10,8 @@ class Buffet extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    function budget(){
+        return $this->belongsToMany(Budget::class);
+    }
 }

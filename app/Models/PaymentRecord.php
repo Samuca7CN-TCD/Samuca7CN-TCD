@@ -10,4 +10,12 @@ class PaymentRecord extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    function installment(){
+        return $this->belongsTo(Installment::class);
+    }
+
+    function voucher(){
+        return $this->hasOne(Voucher::class);
+    }
 }

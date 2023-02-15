@@ -12,4 +12,12 @@ class AccountingStatus extends Model
     use SoftDeletes;
 
     protected $table = "accounting_status";
+
+    function debt(){
+        return $this->belongsToMany(Debt::class);
+    }
+
+    function contract(){
+        return $this->belongsToMany(Contract::class);
+    }
 }

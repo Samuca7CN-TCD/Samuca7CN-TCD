@@ -34,4 +34,12 @@ class Task extends Model
     function taskStatus(){
         return $this->hasOne(TaskStatus::class);
     }
+
+    function comment(){
+        return $this->belongsToMany(Comment::class);
+    }
+
+    function user_operation(){
+        return $this->belongsToMany(User::class);
+    }
 }

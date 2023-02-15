@@ -18,4 +18,8 @@ class Ceremony extends Model
     function task(){
         return $this->hasMany(Task::class);
     }
+
+    function receipt(){
+        return $this->hasMany(Receipt::class);
+    }
 }

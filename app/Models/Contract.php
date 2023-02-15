@@ -10,4 +10,16 @@ class Contract extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    function debt(){
+        return $this->belongsTo(Debt::class);
+    }
+
+    function accountingStatus(){
+        return $this->hasOne(AccountingStatus::class);
+    }
+
+    function voucher(){
+        return $this->hasMany(Voucher::class);
+    }
 }

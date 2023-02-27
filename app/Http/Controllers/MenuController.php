@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Event;
+use App\Models\Menu;
 
-class EventController extends Controller
+class MenuController extends Controller
 {
     /**
      * Display a listing of the resource.

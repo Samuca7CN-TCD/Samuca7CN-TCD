@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Event;
+use App\Models\Buffet;
 
-class EventController extends Controller
+class BuffetCalculatorController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,7 +15,7 @@ class EventController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('BuffetCalculator');
     }
 
     /**

@@ -25,7 +25,7 @@ return [
     'ascii' => 'O :attribute deve conter apenas caracteres alfanuméricos de um byte e símbolos.',
     'before' => 'O :attribute deve ser uma data anterior a :date.',
     'before_or_equal' => 'O :attribute deve ser uma data anterior ou igual a :date.',
-    'entre' => [
+    'between' => [
         'array' => 'O :attribute deve ter entre :min e :max itens.',
         'file' => 'O :attribute deve estar entre :min e :max kilobytes.',
         'numeric' => 'O :attribute deve estar entre :min e :max.',

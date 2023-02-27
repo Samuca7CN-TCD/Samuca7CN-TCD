@@ -1,3 +1,17 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer components {
+    .flex-col-config {
+        @apply flex flex-col items-center justify-center;
+    }
+
+    .flex-row-config {
+        @apply flex flex-row items-center justify-center;
+    }
+
+    .flex-any-no-config {
+        @apply flex-none items-start justify-start;
+    }
+}

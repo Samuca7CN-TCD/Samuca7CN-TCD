@@ -4,6 +4,11 @@ use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ClientController;
+use App\Http\Controllers\TaskController;
+use App\Http\Controllers\BuffetCalculatorController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -33,7 +38,9 @@ Route::middleware([
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    Route::get('/', function () {
-        return Inertia::render('Dashboard');
-    })->name('dashboard');
+    Route::get('/', [DashboardController::class, 'index'])->name('home');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/clients', [ClientController::class, 'index'])->name('clients');
+    Route::get('/tasks/{code?}', [TaskController::class, 'index'])->name('tasks');
+    Route::get('/buffet-calculator', [BuffetCalculatorController::class, 'index'])->name('buffet-calculator');
 });

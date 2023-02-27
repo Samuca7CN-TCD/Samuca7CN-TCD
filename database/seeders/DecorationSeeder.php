@@ -34,7 +34,8 @@ class DecorationSeeder extends Seeder
             - Enfeite letras de mesa (Amor ou Love)
             - Arranjos com flores permanentes a escolher.',
             'price' => '1900',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('decorations')->insert([
@@ -43,7 +44,8 @@ class DecorationSeeder extends Seeder
             'description' => '- Mesa do Bolo
             - Centros de Mesa',
             'price' => '1500',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
     }
 }

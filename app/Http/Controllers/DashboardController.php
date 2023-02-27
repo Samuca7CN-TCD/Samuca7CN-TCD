@@ -4,24 +4,25 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Inertia\Inertia;
-use App\Models\Event;
+use App\Models\Menu;
+use App\Models\Submenu;
 
-class EventController extends Controller
+class DashboardController extends Controller
 {
     /**
      * Display a listing of the resource.
      *
-     * @return \Inertia\Response
+     * @return \Inertia\Response;
      */
     public function index()
     {
-        //
+        return Inertia::render('Dashboard');
     }
 
     /**
      * Show the form for creating a new resource.
      *
-     * @return \Inertia\Response
+     * @return \Inertia\Response;
      */
     public function create()
     {
@@ -32,7 +33,7 @@ class EventController extends Controller
      * Store a newly created resource in storage.
      *
      * @param  \Inertia\Inertia  $request
-     * @return \Inertia\Response
+     * @return \Inertia\Response;
      */
     public function store(Request $request)
     {
@@ -43,7 +44,7 @@ class EventController extends Controller
      * Display the specified resource.
      *
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return \Inertia\Response;
      */
     public function show($id)
     {
@@ -54,7 +55,7 @@ class EventController extends Controller
      * Show the form for editing the specified resource.
      *
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return \Inertia\Response;
      */
     public function edit($id)
     {

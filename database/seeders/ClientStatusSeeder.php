@@ -19,19 +19,22 @@ class ClientStatusSeeder extends Seeder
         DB::table('client_statuses')->insert([
             'name' => 'Ativo',
             'code' => 'active',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('client_statuses')->insert([
             'name' => 'Concluído',
             'code' => 'concluded',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('client_statuses')->insert([
             'name' => 'Inativo',
             'code' => 'inactive',
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
     }
 }

@@ -26,7 +26,8 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete)
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 20,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
@@ -41,7 +42,8 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete);
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 0,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
@@ -55,7 +57,8 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete);
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 0,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
@@ -72,7 +75,8 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete);
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 0,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
@@ -93,7 +97,8 @@ class BuffetSeeder extends Seeder
             - Mesa de café 
             - Petit fours ',
             'price' => 0,
-            'created_at' => Carbon::now()->format('Y-m-d H:i:s')
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
     }
 }

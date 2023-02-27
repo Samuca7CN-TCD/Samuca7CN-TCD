@@ -32,6 +32,8 @@ class DatabaseSeeder extends Seeder
             TaskStatusSeeder::class,
             DepartmentSeeder::class,
             AccountingStatusSeeder::class,
+            MenuSeeder::class,
+            SubmenuSeeder::class,
         ]);
     }
 }

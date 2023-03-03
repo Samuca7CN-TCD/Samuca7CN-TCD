@@ -9,7 +9,7 @@ class Menu extends Model
 {
     use HasFactory;
 
-    function submenu(){
+    public function submenu(){
         return $this->hasMany(Submenu::class);
     }
 }

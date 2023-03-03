@@ -11,7 +11,7 @@ class Comment extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function task(){
-        return $this->hasMany(Task::class);
+    public function task(){
+        return $this->belongsToMany(Task::class);
     }
 }

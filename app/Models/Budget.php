@@ -11,27 +11,27 @@ class Budget extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function event(){
+    public function event(){
         return $this->hasOne(Event::class);
     }
 
-    function client(){
+    public function client(){
         return $this->hasOne(Client::class);
     }
 
-    function decoration(){
+    public function decoration(){
         return $this->hasOne(Decoration::class);
     }
 
-    function buffetEntry(){
+    public function buffetEntry(){
         return $this->hasOne(BuffetEntry::class);
     }
 
-    function buffet(){
+    public function buffet(){
         return $this->hasOne(Buffet::class);
     }
 
-    function ceremony(){
+    public function ceremony(){
         return $this->belongsTo(Ceremony::class);
     }
 }

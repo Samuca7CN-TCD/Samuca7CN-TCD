@@ -11,7 +11,7 @@ class Department extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function debt(){
+    public function debt(){
         return $this->hasMany(Debt::class);
     }
 }

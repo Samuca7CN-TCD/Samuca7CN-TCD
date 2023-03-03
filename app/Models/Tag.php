@@ -11,7 +11,4 @@ class Tag extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function task(){
-        return $this->belongsToMany(Task::class);
-    }
 }

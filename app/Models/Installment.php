@@ -11,11 +11,11 @@ class Installment extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function receipt(){
+    public function receipt(){
         return $this->belongsTo(Receipt::class);
     }
 
-    function paymentRecord(){
+    public function paymentRecord(){
         return $this->hasMany(PaymentRecord::class);
     }
 }

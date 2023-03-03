@@ -41,7 +41,6 @@ const submit = () => {
 </script>
 
 <template>
-
     <Head title="Register" />
 
     <AuthenticationCard>
@@ -69,8 +68,8 @@ const submit = () => {
                         <p class="text-center text-xs">{{ profile_photo_name }}
                             <span title="Remover Foto" class="cursor-pointer inline-block align-middle"
                                 v-if="profile_photo_name" @click="removePhoto">
-                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                                    stroke-width="1.5" stroke="currentColor" class="w-3 h-3 hover:text-red-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5"
+                                    stroke="currentColor" class="w-3 h-3 hover:text-red-600">
                                     <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
                                 </svg>
                             </span>
@@ -79,10 +78,9 @@ const submit = () => {
                 </div>
                 <div class="w-full xl:w-2/3">
                     <div>
-                        <InputLabel for="name" value="Nome"
-                            class="after:content-['*'] after:ml-0.5 after:text-red-500" />
-                        <TextInput id="name" v-model="form.name" type="text" class="mt-1 block w-full" required
-                            autofocus autocomplete="name" />
+                        <InputLabel for="name" value="Nome" class="after:content-['*'] after:ml-0.5 after:text-red-500" />
+                        <TextInput id="name" v-model="form.name" type="text" class="mt-1 block w-full" required autofocus
+                            autocomplete="name" />
                         <InputError class="mt-2" :message="form.errors.name" />
                     </div>
 
@@ -100,7 +98,7 @@ const submit = () => {
                         <InputError class="mt-2" :message="form.errors.username" />
                     </div>
                 </div>
-            </div>
+        </div>
 
             <div class="mt-4">
                 <InputLabel for="email" value="E-mail" class="after:content-['*'] after:ml-0.5 after:text-red-500" />
@@ -142,8 +140,8 @@ const submit = () => {
 
             <div class="flex items-center justify-end mt-4">
                 <!-- <Link :href="route('login')" class="underline text-sm text-gray-600 hover:text-gray-900">
-                Você já é registrado?
-                </Link> -->
+                                                    Você já é registrado?
+                                                    </Link> -->
 
                 <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
                     Registrar

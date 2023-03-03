@@ -11,11 +11,11 @@ class Receipt extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function ceremony(){
+    public function ceremony(){
         return $this->belongsTo(Ceremony::class);
     }
 
-    function installment(){
+    public function installment(){
         return $this->hasMany(Installment::class);
     }
 }

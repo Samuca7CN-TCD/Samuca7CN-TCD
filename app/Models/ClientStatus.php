@@ -13,7 +13,7 @@ class ClientStatus extends Model
 
     protected $table = "client_status";
 
-    function client()
+    public function client()
     {
         return $this->belongsToMany(Client::class);
     }

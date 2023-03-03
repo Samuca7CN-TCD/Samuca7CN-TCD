@@ -11,15 +11,15 @@ class Debt extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function department(){
+    public function department(){
         return $this->belongsTo(Department::class);
     }
 
-    function accountingStatus(){
+    public function accountingStatus(){
         return $this->hasOne(AccountingStatus::class);
     }
 
-    function contract(){
+    public function contract(){
         return $this->hasMany(Contract::class);
     }
 }

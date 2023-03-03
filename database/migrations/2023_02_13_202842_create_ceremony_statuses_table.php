@@ -13,13 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('comment_task', function (Blueprint $table) {
+        Schema::create('ceremony_statuses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('comment_id');
-            $table->unsignedBigInteger('task_id');
+            $table->string('name');
+            $table->string('code')->unique();
+            $table->softDeletes();
             $table->timestamps();
-            $table->foreign('comment_id')->references('id')->on('comments');
-            $table->foreign('task_id')->references('id')->on('tasks');
         });
     }
 
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('comment_task');
+        Schema::dropIfExists('ceremony_statuses');
     }
 };

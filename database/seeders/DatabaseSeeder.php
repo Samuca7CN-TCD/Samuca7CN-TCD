@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
@@ -28,6 +29,7 @@ class DatabaseSeeder extends Seeder
             BuffetEntrySeeder::class,
             BuffetSeeder::class,
             DecorationSeeder::class,
+            CeremonyStatusSeeder::class,
             TagSeeder::class,
             TaskStatusSeeder::class,
             DepartmentSeeder::class,

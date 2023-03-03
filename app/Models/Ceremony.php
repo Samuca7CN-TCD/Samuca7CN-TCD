@@ -11,15 +11,19 @@ class Ceremony extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function budget(){
+    public function budget(){
         return $this->hasOne(Budget::class);
     }
 
-    function task(){
+    public function ceremonyStatus(){
+        return $this->hasOne(CeremonyStatus::class);
+    }
+
+    public function task(){
         return $this->hasMany(Task::class);
     }
 
-    function receipt(){
+    public function receipt(){
         return $this->hasMany(Receipt::class);
     }
 }

@@ -11,11 +11,11 @@ class Voucher extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function contract(){
+    public function contract(){
         return $this->belongsTo(Contract::class);
     }
 
-    function paymentRecord(){
+    public function paymentRecord(){
         return $this->belongsTo(PaymentRecord::class);
     }
 }

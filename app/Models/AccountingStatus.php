@@ -13,11 +13,11 @@ class AccountingStatus extends Model
 
     protected $table = "accounting_status";
 
-    function debt(){
+    public function debt(){
         return $this->belongsToMany(Debt::class);
     }
 
-    function contract(){
+    public function contract(){
         return $this->belongsToMany(Contract::class);
     }
 }

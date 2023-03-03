@@ -11,35 +11,43 @@ class Task extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function ceremony(){
+    protected $fillable = [
+        'ceremony_id',
+        'tags',
+        'user_id',
+        'task_status_id',
+        'title',
+        'deadline',
+        'description',
+        'priority',
+    ];
+
+    
+    public function ceremony(){
         return $this->belongsTo(Ceremony::class);
     }
 
-    function taskFather(){
+    public function taskFather(){
         return $this->belongsTo(Task::class);
     }
 
-    function subTask(){
+    public function subTask(){
         return $this->hasMany(Task::class);
     }
 
-    function tag(){
-        return $this->hasOne(Tag::class);
-    }
-
-    function user(){
+    public function user(){
         return $this->belongsTo(User::class);
     }
 
-    function taskStatus(){
+    public function taskStatus(){
         return $this->hasOne(TaskStatus::class);
     }
 
-    function comment(){
-        return $this->belongsToMany(Comment::class);
+    public function comment(){
+        return $this->hasOne(Comment::class);
     }
 
-    function user_operation(){
+    public function user_operation(){
         return $this->belongsToMany(User::class);
     }
 }

@@ -11,7 +11,7 @@ class Event extends Model
     use HasFactory;
     use SoftDeletes;
 
-    function budget(){
+    public function budget(){
         return $this->belongsToMany(Budget::class);
     }
 }

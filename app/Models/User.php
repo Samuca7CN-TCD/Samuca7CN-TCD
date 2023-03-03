@@ -55,11 +55,11 @@ class User extends Authenticatable
         'email_verified_at' => 'datetime',
     ];
 
-    function task(){
+    public function task(){
         return $this->hasMany(Task::class);
     }
 
-    function task_operation(){
+    public function task_operation(){
         return $this->hasMany(Task::class);
     }
 }

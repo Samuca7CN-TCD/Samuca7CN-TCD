@@ -10,8 +10,9 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 
 defineProps({
     title: String,
-    activated_page: String,
-    page_options: Object,
+    activated_page: Number,
+    page_url_base: String,
+    submenu: Object,
 });
 
 const showingNavigationDropdown = ref(false);
@@ -46,17 +47,16 @@ const logout = () => {
                         </div>
                     </div>
                     <ul class="w-full min-w-md md:pl-20 mt-20">
-                        <SubNavLink v-for="option in page_options"
-                            :href="'/' + option.menu_code + '/' + option.submenu_code"
-                            :active="(option.submenu_code == activated_page)">
+                        <SubNavLink v-for="(option, index) in submenu" :href="'/' + page_url_base + '/' + option.id"
+                            :active="(option.id == activated_page) || (!index && !activated_page)">
                             <li>
                                 <span class="inline-block mx-2">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                         stroke-width="1.5" stroke="currentColor" class="w-6 h-6 md:w-4 md:h-4">
-                                        <path stroke-linecap="round" stroke-linejoin="round" :d="option.submenu_icon" />
+                                        <path stroke-linecap="round" stroke-linejoin="round" :d="option.icon" />
                                     </svg>
                                 </span>
-                                <span class="hidden md:inline-block">{{ option.submenu_name }}</span>
+                                <span class="hidden md:inline-block">{{ option.name }}</span>
                             </li>
                         </SubNavLink>
                     </ul>

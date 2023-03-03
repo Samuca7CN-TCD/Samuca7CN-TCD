@@ -15,9 +15,11 @@ return new class extends Migration
     {
         Schema::create('comments', function (Blueprint $table) {
             $table->id();
+            $table->unsignedBigInteger('task_id');
             $table->text('text');
             $table->softDeletes();
             $table->timestamps();
+            $table->foreign('task_id')->references('id')->on('tasks');
         });
     }
 

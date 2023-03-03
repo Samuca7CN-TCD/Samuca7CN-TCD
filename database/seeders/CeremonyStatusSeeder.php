@@ -7,7 +7,7 @@ use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
 
-class TagSeeder extends Seeder
+class CeremonyStatusSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -16,26 +16,23 @@ class TagSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('tags')->insert([
-            'name' => 'Esperando',
-            'code' => 'waiting',
-            'color' => 'yellow',
+        DB::table('ceremony_statuses')->insert([
+            'name' => 'Ativo',
+            'code' => 'active',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
-        DB::table('tags')->insert([
-            'name' => 'Fazer logo',
-            'code' => 'do_soon',
-            'color' => 'orange',
+        DB::table('ceremony_statuses')->insert([
+            'name' => 'Concluído',
+            'code' => 'concluded',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
-        DB::table('tags')->insert([
-            'name' => 'Urgente',
-            'code' => 'urgent',
-            'color' => 'red',
+        DB::table('ceremony_statuses')->insert([
+            'name' => 'Cancelado',
+            'code' => 'canceled',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);

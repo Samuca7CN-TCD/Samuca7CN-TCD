@@ -112,7 +112,7 @@ return [
     'not_in' => 'O :attribute selecionado é inválido.',
     'not_regex' => 'O formato :attribute é inválido.',
     'numeric' => 'O :attribute deve ser um número.',
-    'senha' => [
+    'password' => [
         'letters' => 'O :attribute deve conter pelo menos uma letra.',
         'mixed' => 'O :attribute deve conter pelo menos uma letra maiúscula e uma minúscula.',
         'numbers' => 'O :attribute deve conter pelo menos um número.',
@@ -135,7 +135,7 @@ return [
     'required_without' => 'O campo :attribute é obrigatório quando :values não está presente.',
     'required_without_all' => 'O campo :attribute é obrigatório quando nenhum dos :values está presente.',
     'same' => 'O atributo :attribute e :other devem corresponder.',
-    'tamanho' => [
+    'size' => [
         'array' => 'O :attribute deve conter :size itens.',
         'file' => 'O :attribute deve ser :size kilobytes.',
         'numeric' => 'O :attribute deve ser :size.',

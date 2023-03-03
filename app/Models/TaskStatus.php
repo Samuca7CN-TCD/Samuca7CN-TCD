@@ -13,7 +13,7 @@ class TaskStatus extends Model
 
     protected $table = "task_status";
 
-    function task(){
+    public function task(){
         return $this->belongsToMany(Task::class);
     }
 }

@@ -15,7 +15,13 @@ class ClientController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Clients');
+        $clients = Client::all();
+        return Inertia::render('Clients', [
+            'activated_page' => 0,
+            'page_url_base' => 'clients',
+            "submenu" => $clients,
+            "clients_list" => $clients,
+        ]);
     }
 
     /**
@@ -47,7 +53,14 @@ class ClientController extends Controller
      */
     public function show($id)
     {
-        //
+        $clients = Client::all();
+        $client = Client::find($id);
+        return Inertia::render('Clients', [
+            'activated_page' => $client->id,
+            'page_url_base' => 'clients',
+            "submenu" => $clients,
+            "selected_client" => $client,
+        ]);
     }
 
     /**

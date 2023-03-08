@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\BuffetCalculatorController;
+use App\Http\Controllers\TagController;
 
 /*
 |--------------------------------------------------------------------------
@@ -40,10 +41,15 @@ Route::middleware([
 ])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/clients', [ClientController::class, 'index'])->name('clients');
+    
+    // Route::get('/clients', [ClientController::class, 'index'])->name('clients');
+    Route::resource('/clients', ClientController::class);
+
     Route::get('/tasks/{code?}', [TaskController::class, 'index'])->name('tasks')->whereNumber('code');
     Route::resource('/tasks', TaskController::class);
     Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');
     Route::patch('/tasks/done/{id}', [TaskController::class, 'task_done'])->name('task.done');
+    Route::resource('/tags', TagController::class);
+
     Route::get('/buffet-calculator', [BuffetCalculatorController::class, 'index'])->name('buffet-calculator');
 });

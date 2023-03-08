@@ -18,7 +18,6 @@ class TagSeeder extends Seeder
     {
         DB::table('tags')->insert([
             'name' => 'Esperando',
-            'code' => 'waiting',
             'color' => 'yellow',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
@@ -26,7 +25,6 @@ class TagSeeder extends Seeder
 
         DB::table('tags')->insert([
             'name' => 'Fazer logo',
-            'code' => 'do_soon',
             'color' => 'orange',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
@@ -34,7 +32,6 @@ class TagSeeder extends Seeder
 
         DB::table('tags')->insert([
             'name' => 'Urgente',
-            'code' => 'urgent',
             'color' => 'red',
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 

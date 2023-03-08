@@ -33,12 +33,16 @@ class TagController extends Controller
     /**
      * Store a newly created resource in storage.
      *
-     * @param  \Inertia\Inertia  $request
-     * @return \Inertia\Response
+     * @param  \Illuminate\Http\Request  $request
+     * @return mixed
      */
     public function store(Request $request)
     {
-        //
+        Tag::create($request->validate([
+            'name' => ['required', 'unique:tags', 'string'],
+            'color' => ['required', 'unique:tags', 'string']
+        ]));
+        return to_route('tasks', 2);
     }
 
     /**
@@ -66,23 +70,30 @@ class TagController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Inertia\Inertia  $request
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return mixed
      */
     public function update(Request $request, $id)
     {
-        //
+        $tag = Tag::find($id);
+        $tag->update($request->validate([
+            'name' => ['required', 'string'],
+            'color' => ['required', 'string'],
+        ]));
+        return to_route('tasks', 2);
     }
 
     /**
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return mixed
      */
     public function destroy($id)
     {
-        //
+        $task = Tag::find($id);
+        $task->delete();
+        return to_route('tasks', 2);
     }
 }

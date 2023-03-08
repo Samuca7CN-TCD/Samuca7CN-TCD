@@ -3,9 +3,8 @@ import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import Modal from '@/Components/Modal.vue'
+import Modal from '@/Components/Modal.vue';
 import { XMarkIcon, TagIcon, PlusIcon } from '@heroicons/vue/24/outline';
-import { computed } from '@vue/reactivity';
 
 // Variávels default
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }

@@ -15,7 +15,9 @@ class TagController extends Controller
      */
     public function index()
     {
-        //
+        return Inertia::render('Tasks', [
+            'tags' => Tag::all(),
+        ]);
     }
 
     /**

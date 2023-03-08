@@ -41,7 +41,9 @@ Route::middleware([
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
     Route::get('/clients', [ClientController::class, 'index'])->name('clients');
-    Route::get('/tasks/{code?}', [TaskController::class, 'index'])->whereNumber('code')->name('tasks');
+    Route::get('/tasks/{code?}', [TaskController::class, 'index'])->name('tasks')->whereNumber('code');
     Route::resource('/tasks', TaskController::class);
+    Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');
+    Route::patch('/tasks/done/{id}', [TaskController::class, 'task_done'])->name('task.done');
     Route::get('/buffet-calculator', [BuffetCalculatorController::class, 'index'])->name('buffet-calculator');
 });

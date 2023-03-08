@@ -62,4 +62,8 @@ class User extends Authenticatable
     public function task_operation(){
         return $this->hasMany(Task::class);
     }
+
+    public function comment(){
+        return $this->hasMany(Comment::class);
+    }
 }

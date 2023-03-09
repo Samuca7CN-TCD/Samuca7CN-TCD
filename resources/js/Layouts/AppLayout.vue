@@ -47,6 +47,7 @@ const logout = () => {
                         </div>
                     </div>
                     <ul class="w-full min-w-md md:pl-20 mt-20">
+                        <span v-if="page_url_base = 'clients'">Clientes ativos:</span>
                         <Submenu :submenu="submenu" :page_url_base="page_url_base" :activated_page="activated_page" />
                     </ul>
                 </div>

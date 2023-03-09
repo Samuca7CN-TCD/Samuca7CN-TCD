@@ -15,13 +15,12 @@ return new class extends Migration
     {
         Schema::create('clients', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('client_status_id');
             $table->string('name');
             $table->string('contact')->unique();
             $table->string('email')->unique();
+            $table->boolean('active');
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('client_status_id')->references('id')->on('client_statuses');
         });
     }
 

@@ -1,39 +1,54 @@
 <script setup>
 import { ref } from 'vue';
 import { PlusIcon } from '@heroicons/vue/24/outline';
-import Modal from '@/Components/Modal.vue';
-import { useForm } from 'in'
+import { useForm } from '@inertiajs/vue3';
+import ModalCreateClient from '@/Components/Client/Modals/ModalCreateClient.vue';
 defineProps({
     clients_list: Object,
 })
-const form = useForm({
 
-});
 const modal_create_open = ref(false);
 
-const closeModal = () => {
-    modal_create_open.value = false;
+const toggleClientActive = (client) => {
+    const form_toggle_active = useForm({
+        name: client.name,
+        contact: client.contact,
+        email: client.email,
+        active: !client.active,
+    });
+    form_toggle_active.put(route('clients.update', client.id), { preserveScroll: true });
 }
 </script>
 <template>
-    <section class="w-11/12 m-auto px-5 sm:px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white py-10 select-none">
-        <table v-if="clients_list.length" class="w-full table-auto">
+    <section
+        class="w-11/12 m-auto px-5 sm:px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
+        <table v-if="clients_list.length" class="w-full m-auto table-auto">
             <thead>
-                <tr class="bg-slate-300">
-                    <th>Nome</th>
-                    <th>Contato</th>
-                    <th>Email</th>
-                    <th>Ações</th>
+                <tr class="bg-indigo-900 text-white">
+                    <th class="py-3">Ativo</th>
+                    <th class="py-3">Nome</th>
+                    <th class="py-3">Contato</th>
+                    <th class="py-3">Email</th>
+                    <th class="py-3">Ações</th>
                 </tr>
             </thead>
             <tbody>
-                <tr v-for="client in clients_list" :key="client.id" class="bg-white"
-                    :class="{ 'bg-slate-200': client.id % 2 }">
-                    <td>{{ client.name }}</td>
-                    <td>{{ client.contact }}</td>
-                    <td>{{ client.email }}</td>
-                    <td>
-                        <a :href="route('clients', client.id)">Ver mais</a>
+                <tr v-for="client, index in clients_list" :key="client.id"
+                    class="bg-white text-center border-b-2 hover:bg-indigo-50">
+                    <td class="py-3">
+                        <div>
+                            <input
+                                class="mt-[0.3rem] mr-2 h-3.5 w-8 appearance-none rounded-[0.4375rem] bg-[rgba(0,0,0,0.25)] outline-none before:pointer-events-none before:absolute before:h-3.5 before:w-3.5 before:rounded-full before:bg-transparent before:content-[''] after:absolute after:z-[2] after:-ml-[0.4rem] after:-mt-[0.2461rem] after:h-5 after:w-5 after:rounded-full after:border-none after:bg-white after:shadow-[0_0px_3px_0_rgb(0_0_0_/_7%),_0_2px_2px_0_rgb(0_0_0_/_4%)] after:transition-[background-color_0.2s,transform_0.2s] after:content-[''] checked:bg-indigo-700 checked:after:absolute checked:after:z-[2] checked:after:-mt-[4px] checked:after:ml-[1.0625rem] checked:after:h-5 checked:after:w-5 checked:after:rounded-full checked:after:border-none checked:after:bg-indigo-700 checked:after:shadow-[0_3px_1px_-2px_rgba(0,0,0,0.2),_0_2px_2px_0_rgba(0,0,0,0.14),_0_1px_5px_0_rgba(0,0,0,0.12)] checked:after:transition-[background-color_0.2s,transform_0.2s] checked:after:content-[''] hover:cursor-pointer focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[3px_-1px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-5 focus:after:w-5 focus:after:rounded-full focus:after:content-[''] checked:focus:border-indigo-700 checked:focus:bg-indigo-700 checked:focus:before:ml-[1.0625rem] checked:focus:before:scale-100 checked:focus:before:shadow-[3px_-1px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s]"
+                                type="checkbox" role="switch" name="client_table_status" id="client-table-status"
+                                :checked="client.active" @input="toggleClientActive(client)" />
+                        </div>
+                    </td>
+                    <td class="py-3">{{ client.name }}</td>
+                    <td class="py-3"><a :href="'tel:' + client.contact">{{ client.contact }}</a></td>
+                    <td class="py-3"><a :href="'mailto:' + client.email">{{ client.email }}</a></td>
+                    <td class="py-3">
+                        <a class="text-indigo-500 hover:text-indigo-900 active:text-indigo-700"
+                            :href="route('clients.show', client.id)">Ver mais</a>
                     </td>
                 </tr>
             </tbody>
@@ -47,38 +62,5 @@ const closeModal = () => {
         <PlusIcon class="w-5 h-5" />
     </button>
 
-    <Modal :show="modal_create_open">
-        <div class="mt-5 mx-5">
-            <div class="flex flex-row align-middle items-center space-x-2">
-                <span class="bg-blue-100 p-2 rounded-full text-blue-400">
-                    <PlusIcon class="w-5 h-5" />
-                </span>
-                <h2 class="text-2xl bold">Cadastrar Tarefa</h2>
-            </div>
-            <p class="text-xm text-gray-500 mt-3">Formulário para cadastro de uma nova tarefa</p>
-        </div>
-        <form id="create_task" @submit.prevent="submit" class="w-full">
-
-            <div class="overflow-hidden border-2 m-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
-                <div class="w-full m-0 p-0">
-                    <!-- Nome -->
-                    <div class="w-full">
-                        <input type="text" name="task_title" id="task-title" autocomplete="off" placeholder="Título"
-                            class="w-full border-none focus:outline-0 sm:text-md" v-model="form.title" />
-                        <div v-if="form.errors.title" class="text-xs text-red-600 ml-3">{{ form.errors.title }}</div>
-                    </div>
-                </div>
-                <div class="w-full px-4 py-3 space-x-2 text-right sm:px-6">
-                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': form.processing }"
-                        :disabled="form.processing" @click="closeModal">
-                        Cancelar
-                    </SecondaryButton>
-
-                    <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                        Cadastrar
-                    </PrimaryButton>
-                </div>
-            </div>
-        </form>
-    </Modal>
+    <ModalCreateClient v-if="modal_create_open" @modal_open="(open) => modal_create_open = open" />
 </template>

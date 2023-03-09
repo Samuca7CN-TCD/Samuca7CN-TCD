@@ -11,6 +11,13 @@ class Client extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $fillable = [
+        'name',
+        'contact',
+        'email',
+        'active',
+    ];
+
     public function clientStatus(){
         return $this->hasOne(ClientStatus::class);
     }

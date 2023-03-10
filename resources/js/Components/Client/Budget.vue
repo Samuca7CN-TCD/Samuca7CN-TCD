@@ -159,7 +159,7 @@ calcBudgetTotal();
                             <!--Evento-->
                             <div class="min-w-fit">
                                 <label for="budget_event" class="text-xs text-slate-400">Evento</label>
-                                <select id="budget_event" class="w-full border-slate-300 outline-0 sm:text-md"
+                                <select id="budget_event" class="w-full border-slate-300 outline-0 sm:text-md" disabled
                                     v-model="form.event_id" @change="calcBudgetTotal">
                                     <option :value="null">Escolha um eventos</option>
                                     <option v-for="event in budget_selects_options.events" :key="event.id" :value="event.id"
@@ -174,7 +174,7 @@ calcBudgetTotal();
                             <!--Decoração-->
                             <div class="min-w-fit">
                                 <label for="budget_edecoration" class="text-xs text-slate-400">Decoração</label>
-                                <select ID="budget_decoration" class="w-full border-slate-300 sm:text-md"
+                                <select ID="budget_decoration" class="w-full border-slate-300 sm:text-md" disabled
                                     v-model="form.decoration_id" @change="calcBudgetTotal">
                                     <option :value="null">Escolha uma decoração</option>
                                     <option v-for="decoration in budget_selects_options.decorations" :key="decoration.id"
@@ -191,7 +191,7 @@ calcBudgetTotal();
                             <!--Entrada Buffet-->
                             <div class="min-w-fit">
                                 <label for="budget_buffet_entry" class="text-xs text-slate-400">Entrada de Buffet</label>
-                                <select id="budget_buffet_entry" class="w-full border-slate-300 sm:text-md"
+                                <select id="budget_buffet_entry" class="w-full border-slate-300 sm:text-md" disabled
                                     v-model="form.buffet_entry_id" @change="calcBudgetTotal">
                                     <option :value="null">Escolha uma entrada de buffet</option>
                                     <option v-for="buffet_entry in budget_selects_options.buffet_entries"
@@ -208,7 +208,7 @@ calcBudgetTotal();
                             <!--Buffet-->
                             <div class="min-w-fit">
                                 <label for="budget_buffet" class="text-xs text-slate-400">Buffet</label>
-                                <select id="budget_buffet" class="w-full border-slate-300 sm:text-md"
+                                <select id="budget_buffet" class="w-full border-slate-300 sm:text-md" disabled
                                     v-model="form.buffet_id" @change="calcBudgetTotal">
                                     <option :value="null">Escolha um buffet</option>
                                     <option v-for="buffet in budget_selects_options.buffets" :key="buffet.id"
@@ -229,7 +229,8 @@ calcBudgetTotal();
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                     <input
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                        type="checkbox" :checked="form.bar" v-model="form.bar" @change="calcBudgetTotal" />
+                                        type="checkbox" :checked="form.bar" v-model="form.bar" @change="calcBudgetTotal"
+                                        disabled />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                         for="checkboxChecked">Bar</label>
                                 </div>
@@ -244,7 +245,7 @@ calcBudgetTotal();
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                     <input
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                        type="checkbox" :checked="form.beer" v-model="form.beer"
+                                        type="checkbox" :checked="form.beer" v-model="form.beer" disabled
                                         @change="calcBudgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                         for="checkboxChecked">Cerveja</label>
@@ -260,7 +261,8 @@ calcBudgetTotal();
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                     <input
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                        type="checkbox" :checked="form.dj" v-model="form.dj" @change="calcBudgetTotal" />
+                                        type="checkbox" :checked="form.dj" v-model="form.dj" disabled
+                                        @change="calcBudgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                         for="checkboxChecked">Dj</label>
                                 </div>
@@ -274,7 +276,7 @@ calcBudgetTotal();
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                     <input
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                        type="checkbox" :checked="form.advisory" v-model="form.advisory"
+                                        type="checkbox" :checked="form.advisory" v-model="form.advisory" disabled
                                         @change="calcBudgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                         for="checkboxChecked">Acessoria</label>
@@ -288,7 +290,7 @@ calcBudgetTotal();
                             <!-- Data -->
                             <div class="w-3/4">
                                 <label for="budget_date" class="text-xs text-slate-700">Data da cerimônia</label>
-                                <input type="datetime-local" id="budget_date" placeholder="Data da cerimônia"
+                                <input type="datetime-local" id="budget_date" placeholder="Data da cerimônia" readonly
                                     :min="min_date" class="w-full border-slate-300 sm:text-md" v-model="form.event_date"
                                     @input="calcBudgetTotal" />
                                 <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{
@@ -299,7 +301,7 @@ calcBudgetTotal();
                             <!-- Quantidade de convidados -->
                             <div class="w-1/4">
                                 <label for="budget_guests_quantity" class="text-xs text-slate-700">Qtd. Convidados</label>
-                                <input type="number" id="budget_guests_quantity" step="1" min="1" max="150"
+                                <input type="number" id="budget_guests_quantity" step="1" min="1" max="150" readonly
                                     placeholder="Quantidade de convidados" class="w-full border-slate-300 sm:text-md"
                                     v-model="form.guests_quantity" @input="calcBudgetTotal" minlength="8" maxlength="20" />
                                 <div v-if="form.errors.guests_quantity" class="text-xs text-red-600 ml-3">{{
@@ -307,6 +309,16 @@ calcBudgetTotal();
                                 </div>
                             </div>
                         </div>
+
+                        <ul>
+                            <li v-if="budget.budget_token"><span class="font-bold">Token: </span>{{ budget.budget_token }}
+                            </li>
+                            <li v-if="budget.budget_link"><span class="font-bold">Ver PDF do orçamento: </span><a
+                                    href="https://google.com/" target="_blank" class="text-sky-600">{{
+                                        budget.budget_link }}</a></li>
+                            <li v-if="budget.budget_comment"><span class="font-bold">Comentário do cliente: </span>"{{
+                                budget.budget_comment }}"</li>
+                        </ul>
                     </div>
                 </div>
             </form>

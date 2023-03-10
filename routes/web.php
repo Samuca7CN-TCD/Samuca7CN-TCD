@@ -14,6 +14,8 @@ use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
 
 use App\Http\Controllers\BuffetCalculatorController;
+use App\Http\Controllers\BuffetController;
+use App\Http\Controllers\BuffetEntryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -58,5 +60,8 @@ Route::middleware([
     Route::patch('/tasks/done/{id}', [TaskController::class, 'task_done'])->name('task.done');
     Route::resource('/tags', TagController::class);
 
-    Route::get('/buffet-calculator', [BuffetCalculatorController::class, 'index'])->name('buffet-calculator');
+    Route::resource('/buffet-calculator', BuffetCalculatorController::class);
+    Route::get('/buffet-calculator/show-sub-itens/{id}/{type}/{buffet_type?}', [BuffetCalculatorController::class, 'show_sub_itens'])->name('buffet-calculator.sub-itens');
+    Route::resource('/buffets', BuffetController::class);
+    Route::resource('/buffet-entries', BuffetEntryController::class);
 });

@@ -47,7 +47,6 @@ const logout = () => {
                         </div>
                     </div>
                     <ul class="w-full min-w-md md:pl-20 mt-20">
-                        <span v-if="page_url_base == 'clients'">Clientes ativos:</span>
                         <Submenu :submenu="submenu" :page_url_base="page_url_base" :activated_page="activated_page" />
                     </ul>
                 </div>
@@ -108,7 +107,7 @@ const logout = () => {
                                     </div>
 
                                     <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
-                                        <NavLink :href="route('buffet-calculator')"
+                                        <NavLink :href="route('buffet-calculator.index')"
                                             :active="route().current('buffet-calculator')">
                                             <span class="inline-block mx-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
@@ -289,7 +288,7 @@ const logout = () => {
                                     Tarefas
                                 </ResponsiveNavLink>
 
-                                <ResponsiveNavLink :href="route('buffet-calculator')"
+                                <ResponsiveNavLink :href="route('buffet-calculator.index')"
                                     :active="route().current('buffet-calculator')">
                                     Calculadora de Buffet
                                 </ResponsiveNavLink>

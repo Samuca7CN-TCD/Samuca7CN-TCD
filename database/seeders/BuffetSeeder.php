@@ -18,21 +18,63 @@ class BuffetSeeder extends Seeder
     {
         DB::table('buffets')->insert([
             'name' => 'Churrasco',
-            'code' => 'barbecue',
+            // 'code' => 'barbecue',
             'description' => '- Arroz branco ou Arroz a Grega
             - Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados).
             - Carnes (Alcatra, Sobrecoxa, Asinha de Frango, Linguiça Toscana e Panceta);
             - Acompanhamento (Farofa com Calabresa)
             - Sobremesa (Bolo com Sorvete)
             - Encerramento (Mesa de Café, Petit Fours)',
-            'price' => 0,
+            'price' => 101,
+            'plates' => json_encode(array(
+                array(
+                    'name' => 'Lasanha',
+                    'description' => 'Massa com recheio dentro',
+                    'price' => 50.5,
+                    'qtd_per_ten_people' => 3,
+                    'ingredients' => array(
+                        array(
+                            'name' => 'tomate',
+                            'description' => null,
+                            'quantity' => 5,
+                            'price' => 20.50,
+                        ),
+                        array(
+                            'name' => 'abacaxi',
+                            'description' => null,
+                            'quantity' => 3,
+                            'price' => 32,
+                        ),
+                    )
+                ),
+                array(
+                    'name' => 'Lasanha',
+                    'description' => 'Massa com recheio dentro',
+                    'price' => 50.5,
+                    'qtd_per_ten_people' => 3,
+                    'ingredients' => array(
+                        array(
+                            'name' => 'tomate',
+                            'description' => null,
+                            'quantity' => 5,
+                            'price' => 20.50,
+                        ),
+                        array(
+                            'name' => 'abacaxi',
+                            'description' => null,
+                            'quantity' => 3,
+                            'price' => 32,
+                        ),
+                    )
+                ),
+            )),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
             'name' => 'Jantar',
-            'code' => 'dinner',
+            // 'code' => 'dinner',
             'description' => '- Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados);
             - Ravioli Quatro queijos ao molho (sugo ou rosê);
             - Arroz Branco;
@@ -42,13 +84,14 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete);
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 0,
+            'plates' => json_encode(array()),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
             'name' => 'Finger Food',
-            'code' => 'finger_food',
+            // 'code' => 'finger_food',
             'description' => '- Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados);
             - Mini Polentinha com ragu de linguiça
             - Mini Batata Bolinha com bacon e catupiry
@@ -57,13 +100,14 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete);
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 0,
+            'plates' => json_encode(array()),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
             'name' => 'Comida de Boteco',
-            'code' => 'bar_food',
+            // 'code' => 'bar_food',
             'description' => '- Arroz Branco
             - Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados);
             - Batata Frita
@@ -75,13 +119,14 @@ class BuffetSeeder extends Seeder
             - Sobremesa (Bolo com Sorvete);
             - Encerramento (Mesa de Café, Petit Fours)',
             'price' => 0,
+            'plates' => json_encode(array()),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
 
         DB::table('buffets')->insert([
             'name' => 'Coquetel',
-            'code' => 'cocktail',
+            // 'code' => 'cocktail',
             'description' => 'Mini-Salgados:
             - Fritos: coxinha, maravilha de queijo, croquete de carne, crespinho de milho, croquete de calabresa, mini quibe, Risoles ( pizza, palmito, calabresa com catupiry) 
             - Assados : Esfiha de carne ou frango, trouxinha de calabresa ,enroladinho de salsicha, empada (frango e palmito)
@@ -97,6 +142,7 @@ class BuffetSeeder extends Seeder
             - Mesa de café 
             - Petit fours ',
             'price' => 0,
+            'plates' => json_encode(array()),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);

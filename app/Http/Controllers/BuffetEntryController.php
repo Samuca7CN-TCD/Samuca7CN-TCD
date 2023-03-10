@@ -77,10 +77,11 @@ class BuffetEntryController extends Controller
      * Remove the specified resource from storage.
      *
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return mixed
      */
     public function destroy($id)
     {
-        //
+        $task = BuffetEntry::find($id);
+        $task->delete();
     }
 }

@@ -16,9 +16,10 @@ return new class extends Migration
         Schema::create('buffets', function (Blueprint $table) {
             $table->id();
             $table->string('name')->unique();
-            $table->string('code')->unique();
+            // $table->string('code')->unique();
             $table->text('description')->unique()->nullable();
             $table->double('price');
+            $table->json('plates')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

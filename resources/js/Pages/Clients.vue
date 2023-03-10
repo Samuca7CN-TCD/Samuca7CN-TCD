@@ -16,7 +16,7 @@ defineProps({
 })
 </script>
 <template>
-    <AppLayout title="Dashboard" :submenu='submenu' :activated_page='activated_page' :page_url_base="page_url_base">
+    <AppLayout title="Clientes" :submenu='submenu' :activated_page='activated_page' :page_url_base="page_url_base">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Clientes -

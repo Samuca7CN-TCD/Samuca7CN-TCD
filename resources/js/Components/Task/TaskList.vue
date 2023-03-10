@@ -365,7 +365,7 @@ const removeTask = (task_id, task_title) => {
                             <select id="task-ceremony" name="task_ceremony" autocomplete="off"
                                 class="w-full outline-0 border-none sm:text-xs text-white bg-gray-700"
                                 v-model="form_update.ceremony_id" @change="submit()">
-                                <option value="null" selected="selected">Nenhuma cerimônia</option>
+                                <option :value="null" selected="selected">Nenhuma cerimônia</option>
                                 <option v-for="(ceremony, index) in task_form_selects.ceremonies" :value="ceremony.id"
                                     :selected="form_update.ceremony_id == ceremony.id">{{
                                         ceremony.event_name }} de {{ ceremony.client_name }}</option>

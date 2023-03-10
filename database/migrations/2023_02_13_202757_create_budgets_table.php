@@ -27,10 +27,10 @@ return new class extends Migration
             $table->integer('guests_quantity');
             $table->dateTimeTz('event_date');
             $table->string('event_place');
-            $table->text('budget_comment');
-            $table->string('budget_token');
+            $table->text('budget_comment')->nullable();
+            $table->string('budget_token')->nullable();
             $table->float('budget_total_value');
-            $table->string('budget_link');
+            $table->string('budget_link')->nullable();
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('event_id')->references('id')->on('events');

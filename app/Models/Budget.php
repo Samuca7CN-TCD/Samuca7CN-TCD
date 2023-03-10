@@ -11,6 +11,26 @@ class Budget extends Model
     use HasFactory;
     use SoftDeletes;
 
+
+    protected $fillable = [
+        'client_id',
+        'event_id',
+        'decoration_id',
+        'buffet_entry_id',
+        'buffet_id',
+        'beer',
+        'bar',
+        'dj',
+        'advisory',
+        'guests_quantity',
+        'event_date',
+        'event_place',
+        'budget_total_value',
+        'budget_comment',
+        'budget_token',
+        'budget_link',
+    ];
+
     public function event(){
         return $this->hasOne(Event::class);
     }

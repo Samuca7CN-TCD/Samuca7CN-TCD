@@ -23,6 +23,7 @@ class ClientController extends Controller
     {
         $clients = Client::select('clients.*', 'budgets.event_date')
             ->leftJoin('budgets', 'budgets.client_id', '=', 'clients.id')
+            ->groupBy('clients.id')
             ->orderBy('clients.active', 'desc')
             ->orderBy('budgets.event_date')
             ->orderBy('clients.created_at', 'desc')
@@ -74,12 +75,9 @@ class ClientController extends Controller
     {
         $active_clients = Client::where('active', true)->get();
         $client = Client::find($id);
-        $client_budgets = Budget::where('budgets.client_id', $id)    
-            ->leftJoin('ceremonies', 'ceremonies.budget_id', '=', 'budgets.id')
+        $client_budgets = Budget::select('budgets.*', 'events.name AS event_name')
+            ->where('budgets.client_id', $id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
-            ->leftJoin('decorations', 'decorations.id', '=', 'budgets.decoration_id')
-            ->leftJoin('buffet_entries', 'buffet_entries.id', '=', 'budgets.buffet_entry_id')
-            ->leftJoin('buffets', 'buffets.id', '=', 'budgets.buffet_id')
             ->orderBy('budgets.created_at', 'desc')
             ->get();
 

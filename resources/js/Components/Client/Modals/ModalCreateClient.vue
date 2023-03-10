@@ -75,6 +75,7 @@ const submit = () => {
                                 for="client-status">Cliente
                                 Ativo</label>
                         </div>
+                        <div v-if="form.errors.active" class="text-xs text-red-600 ml-3">{{ form.errors.active }}</div>
                     </div>
                 </div>
                 <div class="w-full px-4 py-3 space-x-2 text-right sm:px-6 mt-5">

@@ -11,6 +11,14 @@ class Ceremony extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $fillable = [
+        'budget_id',
+        'ceremony_status_id',
+        'total_negotiated_amount',
+        'entry_amount',
+        'remaining_amount',
+    ];
+
     public function budget(){
         return $this->hasOne(Budget::class);
     }

@@ -25,7 +25,7 @@ class BuffetSeeder extends Seeder
             - Acompanhamento (Farofa com Calabresa)
             - Sobremesa (Bolo com Sorvete)
             - Encerramento (Mesa de Café, Petit Fours)',
-            'price' => 20,
+            'price' => 0,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);

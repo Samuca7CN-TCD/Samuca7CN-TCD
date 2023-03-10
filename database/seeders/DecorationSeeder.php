@@ -17,7 +17,7 @@ class DecorationSeeder extends Seeder
     public function run()
     {
         DB::table('decorations')->insert([
-            'name' => 'Decoração no Espaço Chicago Eventos',
+            'name' => 'Decoração completa da Chicago Eventos',
             'code' => 'chicago_eventos_space_decoration',
             'description' => 'Além de toda a decoração já existente em nosso espaço, também incluímos uma decoração completa e personalizada para sua cerimônia e mesa de bolo.
             - 20 bancos de 4 lugares + Altar estilo rústico
@@ -39,7 +39,7 @@ class DecorationSeeder extends Seeder
         ]);
 
         DB::table('decorations')->insert([
-            'name' => 'Decoração em espaço secundário',
+            'name' => 'Sem decoração (Somente mesa e centros de mesa)',
             'code' => 'secondary_space_decoration',
             'description' => '- Mesa do Bolo
             - Centros de Mesa',

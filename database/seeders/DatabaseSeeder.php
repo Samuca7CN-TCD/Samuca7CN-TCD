@@ -31,8 +31,8 @@ class DatabaseSeeder extends Seeder
             CeremonyStatusSeeder::class,
             TagSeeder::class,
             TaskStatusSeeder::class,
-            DepartmentSeeder::class,
-            AccountingStatusSeeder::class,
+            // DepartmentSeeder::class,
+            // AccountingStatusSeeder::class,
             MenuSeeder::class,
             SubmenuSeeder::class,
         ]);

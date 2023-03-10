@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue';
-import { PlusIcon } from '@heroicons/vue/24/outline';
+import { PlusIcon, EyeIcon } from '@heroicons/vue/24/solid';
 import { useForm } from '@inertiajs/vue3';
 import ModalCreateClient from '@/Components/Client/Modals/ModalCreateClient.vue';
 defineProps({
@@ -49,8 +49,10 @@ const toggleClientActive = (client) => {
                     <td class="py-3 text-center border border-r-slate-300 xl:border-none truncate"><a
                             :href="'mailto:' + client.email">{{ client.email }}</a></td>
                     <td class="py-3 text-center truncate">
-                        <a class="text-indigo-500 hover:text-indigo-900 active:text-indigo-700"
-                            :href="route('clients.show', client.id)">Ver mais</a>
+                        <a class="text-indigo-500 hover:text-indigo-900 active:text-indigo-700 flex-col-config"
+                            :href="route('clients.show', client.id)" title="Ver orçamentos do cliente">
+                            <EyeIcon class="w-6 h-6" />
+                        </a>
                     </td>
                 </tr>
             </tbody>

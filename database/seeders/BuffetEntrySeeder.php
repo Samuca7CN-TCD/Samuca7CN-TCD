@@ -20,6 +20,7 @@ class BuffetEntrySeeder extends Seeder
             'name' => 'Tábua de Frios',
             'code' => 'cold_cuts_board',
             'description' => 'Mix de azeitonas, patê de frango com ervas finas e torradas, ovinhos de codorna, queijos mussarela e prato, lombo canadense defumado e pães mini brioche.',
+            'price' => 0.0,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
@@ -28,6 +29,7 @@ class BuffetEntrySeeder extends Seeder
             'name' => 'Salgados Finos',
             'code' => 'fine_snacks',
             'description' => 'Quiche de ricota com espinafre, trouxinha de calabresa , croquete de carne, mini croissant, empada de frango/palmito, pérola de queijo  e crespinho de milho. ',
+            'price' => 0.0,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);

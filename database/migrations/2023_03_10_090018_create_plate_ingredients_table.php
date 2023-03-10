@@ -13,14 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('receipts', function (Blueprint $table) {
+        Schema::create('plate_ingredients', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('ceremony_id');
-            $table->double('total_amount');
-            $table->double('remaining_amount');
+            $table->string('name');
+            $table->string('description')->nullable();
+            $table->integer('quantity');
+            $table->double('price');
+            $table->unsignedBigInteger('buffet_plate_id')->nullable();
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('ceremony_id')->references('id')->on('ceremonies');
+            $table->foreign('buffet_plate_id')->references('id')->on('buffet_plates');
         });
     }
 
@@ -31,6 +33,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('receipts');
+        Schema::dropIfExists('plate_ingredients');
     }
 };

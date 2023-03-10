@@ -13,16 +13,18 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('payment_records', function (Blueprint $table) {
+        Schema::create('installments', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('installment_id');
-            $table->unsignedBigInteger('voucher_id');
-            $table->date('payment_date');
+            $table->unsignedBigInteger('ceremony_id');
+            $table->unsignedBigInteger('budget_id');
+            $table->boolean('entry');
+            $table->boolean('paid');
             $table->double('amount');
+            $table->date('payment_deadline');
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('installment_id')->references('id')->on('installments');
-            $table->foreign('voucher_id')->references('id')->on('vouchers');
+            $table->foreign('ceremony_id')->references('id')->on('ceremonies');
+            $table->foreign('budget_id')->references('id')->on('budgets');
         });
     }
 
@@ -33,6 +35,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('payment_records');
+        Schema::dropIfExists('installments');
     }
 };

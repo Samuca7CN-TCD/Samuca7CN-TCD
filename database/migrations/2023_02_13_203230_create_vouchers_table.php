@@ -15,11 +15,11 @@ return new class extends Migration
     {
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('contract_id');
-            $table->binary('file')->unique();
+            $table->unsignedBigInteger('installment_id');
+            $table->string('file_name')->unique();
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('contract_id')->references('id')->on('contracts');
+            $table->foreign('installment_id')->references('id')->on('installments');
         });
     }
 

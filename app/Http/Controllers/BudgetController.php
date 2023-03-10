@@ -59,10 +59,7 @@ class BudgetController extends Controller
             'advisory' => ['required', 'boolean'],
 
             'guests_quantity' => ['required', 'numeric'],
-
             'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
-            'event_place' => ['required', 'string'],
-
             'budget_total_value' => ['nullable', 'numeric'],
 
             'budget_comment' => ['nullable', 'string'],
@@ -74,8 +71,8 @@ class BudgetController extends Controller
             'budget_id' => $budget->id,
             'ceremony_status_id' => 1,
             'total_negotiated_amount' => $budget->budget_total_value,
-            'entry_amount' => $budget->budget_total_value * 0.1,
-            'remaining_amount' => $budget->budget_total_value - ($budget->budget_total_value * 0.1),
+            'entry_amount' => 0.0,
+            'remaining_amount' => $budget->budget_total_value,
         ]);
 
         $client = Client::find($request->client_id);
@@ -111,13 +108,19 @@ class BudgetController extends Controller
     public function show($id)
     {
         $budget = Budget::find($id);
+        $ceremony = Ceremony::where('budget_id', $budget->id)->first();
+
         $active_clients = Client::where('active', true)->get();
         $client = Client::find($budget->client_id);
-        $client_budgets = Budget::select('budgets.*', 'events.name AS event_name')
+        $client_budgets = Budget::select('budgets.*', 'events.name AS event_name', 'ceremony_statuses.name AS ceremony_status')
             ->where('budgets.client_id', $budget->client_id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
+            ->leftJoin('ceremonies', 'ceremonies.budget_id', '=', 'budgets.id')
+            ->leftJoin('ceremony_statuses', 'ceremony_statuses.id', '=', 'ceremonies.ceremony_status_id')
+            ->orderBy('ceremonies.ceremony_status_id', 'asc')
             ->orderBy('budgets.created_at', 'desc')
             ->get();
+            
 
         $budget_selects_options = array(
             "events" => Event::all(),
@@ -132,6 +135,7 @@ class BudgetController extends Controller
             "submenu" => $active_clients,
             "selected_client" => $client,
             "client_budgets" => $client_budgets,
+            "ceremony" => $ceremony,
             "budget" => $budget,
             "budget_selects_options" => $budget_selects_options,
         ]);
@@ -151,13 +155,34 @@ class BudgetController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Inertia\Inertia  $request
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return mixed
      */
     public function update(Request $request, $id)
     {
-        //
+        Budget::find($id)->update($request->validate([
+            'client_id' => ['required', 'numeric'],
+
+            'event_id' => ['required', 'numeric'],
+            'decoration_id' => ['required', 'numeric'],
+            'buffet_entry_id' => ['required', 'numeric'],
+            'buffet_id' => ['required', 'numeric'],
+
+            'beer' => ['required', 'boolean'],
+            'bar' => ['required', 'boolean'],
+            'dj' => ['required', 'boolean'],
+            'advisory' => ['required', 'boolean'],
+
+            'guests_quantity' => ['required', 'numeric', 'min:1'],
+            'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
+            'budget_total_value' => ['nullable', 'numeric'],
+
+            'budget_comment' => ['nullable', 'string'],
+            'budget_token' => ['nullable', 'string', 'unique:budgets'],
+            'budget_link' => ['nullable', 'string', 'unique:budgets'],
+        ]));
+        return to_route('budgets.index');
     }
 
     /**

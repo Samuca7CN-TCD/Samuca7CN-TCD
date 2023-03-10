@@ -8,6 +8,7 @@ use App\Http\Controllers\DashboardController;
 
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\BudgetController;
+use App\Http\Controllers\CeremonyController;
 
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
@@ -49,6 +50,7 @@ Route::middleware([
     // Route::get('/clients', [ClientController::class, 'index'])->name('clients');
     Route::resource('/clients', ClientController::class);
     Route::resource('/budgets', BudgetController::class);
+    Route::resource('/ceremonies', CeremonyController::class);
 
     Route::get('/tasks/{code?}', [TaskController::class, 'index'])->name('tasks')->whereNumber('code');
     Route::resource('/tasks', TaskController::class);

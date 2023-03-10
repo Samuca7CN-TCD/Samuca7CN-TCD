@@ -26,7 +26,6 @@ return new class extends Migration
             $table->boolean('advisory');
             $table->integer('guests_quantity');
             $table->dateTimeTz('event_date');
-            $table->string('event_place');
             $table->text('budget_comment')->nullable();
             $table->string('budget_token')->nullable();
             $table->float('budget_total_value');

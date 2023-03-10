@@ -12,6 +12,7 @@ defineProps({
     client_budgets: Object,
     budget_selects_options: Object,
     budget: Object,
+    ceremony: Object,
 })
 </script>
 <template>
@@ -24,9 +25,9 @@ defineProps({
             </h2>
         </template>
         <ClientsList v-if="!selected_client" :clients_list="clients_list" />
-        <Client v-if="!budget" :client="selected_client" :client_budgets="client_budgets"
+        <Client v-if="selected_client && !budget" :client="selected_client" :client_budgets="client_budgets"
             :budget_selects_options="budget_selects_options" />
-        <Budget v-else :client="selected_client" :client_budgets="client_budgets" :budget="budget"
-            :budget_selects_options="budget_selects_options" />
+        <Budget v-if="selected_client && budget" :client="selected_client" :client_budgets="client_budgets" :budget="budget"
+            :ceremony="ceremony" :budget_selects_options="budget_selects_options" />
     </AppLayout>
 </template>

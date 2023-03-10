@@ -64,13 +64,18 @@ class CeremonyController extends Controller
     /**
      * Update the specified resource in storage.
      *
-     * @param  \Inertia\Inertia  $request
+     * @param  \Illuminate\Http\Request  $request
      * @param  int  $id
-     * @return \Inertia\Response
+     * @return mixed
      */
     public function update(Request $request, $id)
     {
-        //
+        Ceremony::find($id)->update($request->validate([
+            'ceremony_status_id' => ['required', 'numeric'],
+            'total_negotiated_amount' => ['required', 'numeric'],
+            'entry_amount' => ['required', 'numeric'],
+            'remaining_amount' => ['required', 'numeric'],
+        ]));
     }
 
     /**

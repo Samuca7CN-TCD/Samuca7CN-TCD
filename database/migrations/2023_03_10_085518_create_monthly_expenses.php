@@ -13,16 +13,12 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('installments', function (Blueprint $table) {
+        Schema::create('monthly_expenses', function (Blueprint $table) {
             $table->id();
-            $table->unsignedBigInteger('receipt_id');
-            $table->double('entry_amount');
-            $table->double('total_amount');
-            $table->double('remaining_amount');
-            $table->date('payment_deadline');
+            $table->string('name');
+            $table->double('amount');
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('receipt_id')->references('id')->on('receipts');
         });
     }
 
@@ -33,6 +29,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('installments');
+        Schema::dropIfExists('monthly_expenses');
     }
 };

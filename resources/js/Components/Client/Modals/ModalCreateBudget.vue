@@ -33,22 +33,13 @@ const form = useForm({
     advisory: true,
 
     guests_quantity: 0,
-
     event_date: budget_event_date,
-    event_place: null,
-
     budget_total_value: 0.0,
 
     budget_comment: null,
     budget_token: null,
     budget_link: null,
 });
-
-const closeModal = () => {
-    form.reset();
-    form.clearErrors();
-    emit('modal_open', false);
-}
 
 const calcBudgetTotal = () => {
     let total = 2900;
@@ -74,10 +65,14 @@ const calcBudgetTotal = () => {
 }
 calcBudgetTotal();
 
+const closeModal = () => {
+    form.reset();
+    form.clearErrors();
+    emit('modal_open', false);
+}
+
 const submit = () => {
     calcBudgetTotal();
-    //form.event_date = form.event_date.replace('T', ' ') + ':59';
-    form.event_place = (form.decoration_id == 1 && !form.event_place) ? "Espaço da Chicago Eventos" : form.event_place;
     form.post(route('budgets.store'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
@@ -227,14 +222,6 @@ const submit = () => {
                                 form.errors.guests_quantity }}
                             </div>
                         </div>
-                    </div>
-                    <!-- Local -->
-                    <div v-if="form.decoration_id == 2" class="w-full">
-                        <label for="budget_event_place" class="text-xs text-slate-700">Local da cerimônia</label>
-                        <textarea id="budget_event_place" placeholder="Local da cerimônia"
-                            class="w-full border-slate-300 sm:text-md" v-model="form.event_place" rows="2"></textarea>
-                        <div v-if="form.errors.event_place" class="text-xs text-red-600 ml-3">{{ form.errors.event_place
-                        }}</div>
                     </div>
                 </div>
                 <div class="w-full px-4 py-3 sm:px-6 mt-5 flex-col-config space-y-8 sm:flex-row-config sm:space-y-0">

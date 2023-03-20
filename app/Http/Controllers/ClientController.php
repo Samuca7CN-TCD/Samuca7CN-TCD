@@ -29,11 +29,11 @@ class ClientController extends Controller
             ->orderBy('clients.created_at', 'desc')
             ->orderBy('clients.name', 'asc')
             ->get();
-        $active_clients = Client::where('active', true)->get();
+        $active_clients = Client::where('active', true)->orderBy('created_at', 'asc')->get();
         return Inertia::render('Clients', [
-            'activated_page' => 0,
-            'page_url_base' => 'clients',
             "submenu" => $active_clients,
+            'submenu_category' => 'clients',
+            'activated_page' => 0,
             "clients_list" => $clients,
         ]);
     }
@@ -92,8 +92,8 @@ class ClientController extends Controller
 
         return Inertia::render('Clients', [
             'activated_page' => $client->id,
-            'page_url_base' => 'clients',
             "submenu" => $active_clients,
+            'submenu_category' => 'clients',
             "selected_client" => $client,
             "client_budgets" => $client_budgets,
             "budget_selects_options" => $budget_selects_options,

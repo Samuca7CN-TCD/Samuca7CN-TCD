@@ -16,6 +16,8 @@ class TagController extends Controller
     public function index()
     {
         return Inertia::render('Tasks', [
+            'activated_page' => 1,
+            'submenu_category' => 'tasks',
             'tags' => Tag::all(),
         ]);
     }
@@ -42,7 +44,7 @@ class TagController extends Controller
             'name' => ['required', 'unique:tags', 'string'],
             'color' => ['required', 'unique:tags', 'string']
         ]));
-        return to_route('tasks', 2);
+        return to_route('tags.index');
     }
 
     /**
@@ -81,7 +83,7 @@ class TagController extends Controller
             'name' => ['required', 'string'],
             'color' => ['required', 'string'],
         ]));
-        return to_route('tasks', 2);
+        return to_route('tags.index');
     }
 
     /**
@@ -94,6 +96,6 @@ class TagController extends Controller
     {
         $task = Tag::find($id);
         $task->delete();
-        return to_route('tasks', 2);
+        return to_route('tags.index');
     }
 }

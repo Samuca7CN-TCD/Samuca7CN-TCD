@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { useForm } from '@inertiajs/vue3';
-import { PlusIcon, UserIcon, PhoneIcon, InboxIcon, EyeIcon, XCircleIcon } from '@heroicons/vue/24/solid';
+import { PlusIcon, UserIcon, PhoneIcon, InboxIcon, SparklesIcon, EyeIcon, XCircleIcon } from '@heroicons/vue/24/solid';
 import ModalCreateBudget from '@/Components/Client/Modals/ModalCreateBudget.vue';
 
 const props = defineProps({
@@ -71,39 +71,31 @@ const submit = () => {
                 <div v-if="client_form.errors.email" class="text-xs text-red-600 ml-3">{{ client_form.errors.email }}</div>
             </div>
         </div>
-        <div v-if="client_budgets.length" class="">
+        <div v-if="client_budgets.length" class="mt-10 overflow-auto">
             <!-- Orçamentos do cliente -->
-            <table class="w-full m-auto table-fixed">
-                <thead>
-                    <tr class="bg-indigo-900 text-white">
-                        <th class="py-1 truncate">Status</th>
-                        <th class="py-1 truncate">Evento</th>
-                        <th class="py-1 truncate">Qtd. Convidados</th>
-                        <th class="py-1 truncate">Data</th>
-                        <th class="py-1 truncate">Detalhes</th>
-                    </tr>
+            <table class="w-full m-auto table-auto truncate">
+                <thead class="lg:border-b-2 lg:border-gray-500">
+                    <th>Status</th>
+                    <th>Evento</th>
+                    <th>Convidados</th> 
+                    <th>Data</th>
                 </thead>
                 <tbody>
                     <tr v-for="(budget, index) in client_budgets" :key="budget.id"
-                        class="bg-white text-center border-b-2 hover:bg-indigo-50">
-                        <td
-                            class="py-3 text-center border border-r-slate-300 xl:border-none truncate flex-row-config space-x-5">
-                            <span v-if="budget.id == budget_id" class="w-2 h-2 rounded-full bg-sky-500"></span>
-                            <span>{{ budget.ceremony_status }}</span>
+                        class="lg:border-b-2 lg-border-gray-100 hover:bg-gray-200 text-center"
+                        :class="{ 'bg-gray-100': (index % 2 != 0) }">
+                        <td class="py-3 px-5">
+                            {{ budget.ceremony_status }}
+                            <SparklesIcon class="w-6 h-6 text-center" :class="{
+                                'text-green-500': budget.ceremony_status == 'Ativo',
+                                'text-red-500': budget.ceremony_status == 'Concluído'
+                            }" />
                         </td>
-                        <td class="py-3 text-center border border-r-slate-300 xl:border-none truncate">
+                        <td class="py-3 px-5 truncate">
                             {{ budget.event_name }}
                         </td>
-                        <td class="py-3 text-center border border-r-slate-300 xl:border-none truncate">{{
-                            budget.guests_quantity }} convidados</td>
-                        <td class="py-3 text-center border border-r-slate-300 xl:border-none truncate">{{
-                            formatDate(budget.event_date) }}</td>
-                        <td class="py-3 text-center border border-r-slate-300 xl:border-none truncate">
-                            <a class="text-indigo-500 hover:text-indigo-900 active:text-indigo-700 flex-col-config"
-                                :href="route('budgets.show', budget.id)" title="Ver detalhes do orçamento">
-                                <EyeIcon class="w-6 h-6" />
-                            </a>
-                        </td>
+                        <td class="py-3 px-5 truncate">{{ budget.guests_quantity }} convidados</td>
+                        <td class="py-3 px-5 truncate">{{ formatDate(budget.event_date) }}</td>
                     </tr>
                 </tbody>
             </table>

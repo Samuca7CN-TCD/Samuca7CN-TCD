@@ -4,10 +4,12 @@ import ClientsList from '@/Components/Client/ClientsList.vue';
 import Client from '@/Components/Client/Client.vue';
 import Budget from '@/Components/Client/Budget.vue';
 defineProps({
-    activated_page: Number,
-    page_url_base: String,
     submenu: Object,
+    submenu_category: String,
+    activated_page: Number,
+
     clients_list: Object,
+
     selected_client: Object,
     client_budgets: Object,
     budget_selects_options: Object,
@@ -16,7 +18,7 @@ defineProps({
 })
 </script>
 <template>
-    <AppLayout title="Clientes" :submenu='submenu' :activated_page='activated_page' :page_url_base="page_url_base">
+    <AppLayout title="Clientes" :submenu='submenu' :activated_page='activated_page' :submenu_category="submenu_category">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Clientes -

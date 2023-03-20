@@ -11,11 +11,12 @@ import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 defineProps({
     title: String,
     activated_page: Number,
-    page_url_base: String,
+    submenu_category: String,
     submenu: Object,
 });
 
 const showingNavigationDropdown = ref(false);
+const open_submenu = ref(false);
 
 const switchToTeam = (team) => {
     router.put(route('current-team.update'), {
@@ -33,25 +34,18 @@ const logout = () => {
 <template>
     <div class="min-w-[320px]">
         <div class="flex flex-row">
-            <div
-                class="w-2/12 md:w-1/4 xl:w-1/4 min-h-screen relative bg-neutral-900 text-white border-r-4 border-[#4B55C9] shadow-xl">
+            <div class="hidden lg:block w-1/4 min-h-screen bg-neutral-900 text-white">
                 <div class="w-full flex-col-config">
                     <!-- Logo -->
-                    <div class="w-full py-2 px-2 flex-row-config bg-black">
-                        <div class="shrink-0 w-full md:w-2/3">
-                            <span class="hidden md:inline-flex"><img
-                                    src="../../../storage/app/public/logos/2-removebg-preview.png" /></span>
-                            <span class="inline-flex md:hidden"><img
-                                    src="../../../storage/app/public/logos/4-removebg-preview.png" /></span>
-                            <!-- <span class="hidden lg:inline-block text-xl h1">Chicago Eventos</span> -->
+                    <div class="w-full py-2 px-2 flex-row-config bg-black mb-10">
+                        <div
+                            class="shrink-0 w-full md:w-2/3 h-28 bg-complete-logo-landscape-bgless bg-center bg-contain bg-no-repeat">
                         </div>
                     </div>
-                    <ul class="w-full min-w-md md:pl-20 mt-20">
-                        <Submenu :submenu="submenu" :page_url_base="page_url_base" :activated_page="activated_page" />
-                    </ul>
+                    <Submenu :submenu="submenu" :submenu_category="submenu_category" :activated_page="activated_page" />
                 </div>
             </div>
-            <div class="w-10/12 md:w-3/4 xl:w-3/4 min-h-screen">
+            <div class="w-full lg:w-3/4 min-h-screen">
 
                 <Head :title="title" />
 
@@ -94,7 +88,7 @@ const logout = () => {
                                     </div>
 
                                     <div class="hidden space-x-8 sm:-my-px sm:ml-10 lg:flex">
-                                        <NavLink :href="route('tasks')" :active="route().current('tasks')">
+                                        <NavLink :href="route('tasks.index')" :active="route().current('tasks')">
                                             <span class="inline-block mx-1">
                                                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                                                     stroke-width="1.5" stroke="currentColor" class="w-4 h-4">
@@ -252,9 +246,10 @@ const logout = () => {
                                 </div>
 
                                 <!-- Hamburger -->
-                                <div class="-mr-2 flex items-center lg:hidden">
+                                <div class="w-full flex flex-row items-center space-x-5 lg:hidden">
                                     <button
                                         class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-gray-500 hover:bg-gray-100 focus:outline-none focus:bg-gray-100 focus:text-gray-500 transition"
+                                        title="Menu Principal"
                                         @click="showingNavigationDropdown = !showingNavigationDropdown">
                                         <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                                             <path
@@ -267,6 +262,17 @@ const logout = () => {
                                                 d="M6 18L18 6M6 6l12 12" />
                                         </svg>
                                     </button>
+                                    <!-- Logo -->
+                                    <button
+                                        class="inline-flex items-center justify-center rounded-full bg-gray-900 hover:bg-gray-700 active:bg-gray-800"
+                                        title="Submenu" @click="open_submenu = !open_submenu">
+                                        <span
+                                            class="shrink-0 w-10 h-10 bg-logo-img-bgless bg-center bg-contain bg-no-repeat">
+                                        </span>
+                                    </button>
+                                    <h1 class="inline-flex items-center justify-start p-2 text-gray-900">Chicago
+                                        Eventos
+                                    </h1>
                                 </div>
                             </div>
                         </div>
@@ -284,7 +290,7 @@ const logout = () => {
                                     Clientes
                                 </ResponsiveNavLink>
 
-                                <ResponsiveNavLink :href="route('tasks')" :active="route().current('tasks')">
+                                <ResponsiveNavLink :href="route('tasks.index')" :active="route().current('tasks')">
                                     Tarefas
                                 </ResponsiveNavLink>
 
@@ -377,6 +383,15 @@ const logout = () => {
                             </div>
                         </div>
                     </nav>
+
+                    <!--Submenu Mobile-->
+                    <div class="flex lg:hidden w-full bg-neutral-900 text-white">
+                        <div class="w-full flex-col-config">
+                            <Submenu v-if="open_submenu" :submenu="submenu" :submenu_category="submenu_category"
+                                :activated_page="activated_page" />
+                        </div>
+                    </div>
+
                     <!-- Page Heading -->
                     <header v-if="$slots.header" class="bg-white shadow">
                         <div class="max-w-7xl mx-auto py-6 px-4 sm:px-6 lg:px-8">

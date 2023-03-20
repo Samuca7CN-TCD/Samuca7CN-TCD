@@ -54,7 +54,6 @@ Route::middleware([
     Route::resource('/budgets', BudgetController::class);
     Route::resource('/ceremonies', CeremonyController::class);
 
-    Route::get('/tasks/{code?}', [TaskController::class, 'index'])->name('tasks')->whereNumber('code');
     Route::resource('/tasks', TaskController::class);
     Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');
     Route::patch('/tasks/done/{id}', [TaskController::class, 'task_done'])->name('task.done');

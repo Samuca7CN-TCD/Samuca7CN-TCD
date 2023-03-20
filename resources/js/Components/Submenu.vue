@@ -1,24 +1,37 @@
 <script setup>
-import { UserIcon } from '@heroicons/vue/24/solid';
+import { UserIcon, CalendarIcon, TagIcon } from '@heroicons/vue/24/solid';
 import SubNavLink from '@/Components/SubNavLink.vue';
 defineProps({
     submenu: Object,
-    page_url_base: String,
+    submenu_category: String,
     activated_page: Number,
-})
+});
 </script>
 <template>
-    <SubNavLink v-for="(option, index) in submenu" :href="'/' + page_url_base + '/' + option.id"
-        :active="(option.id == activated_page) || (!index && !activated_page && page_url_base != 'clients')">
-        <li>
-            <span class="inline-block mx-2">
-                <svg v-if="page_url_base != 'clients'" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
-                    stroke-width="1.5" stroke="currentColor" class="w-6 h-6 md:w-4 md:h-4">
-                    <path stroke-linecap="round" stroke-linejoin="round" :d="option.icon" />
-                </svg>
-                <UserIcon v-else class="w-6 h-6 md:w-4 md:h-4" />
-            </span>
-            <span class="hidden md:inline-block">{{ option.name }}</span>
-        </li>
-    </SubNavLink>
+    <!--Clients-->
+    <ul v-if="submenu_category == 'clients'" class="w-full px-10">
+        <SubNavLink v-for="client in submenu" :href="route('clients.show', client.id)"
+            :active="activated_page == client.id">
+            <li class="li_submenu">
+                <UserIcon class="w-6 h-6" />
+                <span>{{ client.name }}</span>
+            </li>
+        </SubNavLink>
+    </ul>
+
+    <!--Tasks-->
+    <ul v-if="submenu_category == 'tasks'" class="w-full px-10">
+        <SubNavLink :href="route('tasks.index')" :active="activated_page == 0">
+            <li class="li_submenu">
+                <CalendarIcon class="w-6 h-6" />
+                <span>Tarefas</span>
+            </li>
+        </SubNavLink>
+        <SubNavLink :href="route('tags.index')" :active="activated_page == 1">
+            <li class="li_submenu">
+                <TagIcon class="w-6 h-6" />
+                <span>Tags</span>
+            </li>
+        </SubNavLink>
+    </ul>
 </template>

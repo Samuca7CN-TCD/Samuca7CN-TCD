@@ -19,13 +19,12 @@ class BuffetCalculatorController extends Controller
     public function index()
     {
         $buffet_list = array(
-            "entries" => BuffetEntry::all(),
-            "buffets" => Buffet::all(),
+            "entries" => Buffet::where('type', 2),
+            "buffets" => Buffet::where('type', 1),
         );
         return Inertia::render('BuffetCalculator', [
             'activated_page' => 0,
-            'page_url_base' => 'buffet_calculator',
-            "submenu" => array(),
+            'submenu_category' => 'buffet_calculator',
             "buffet_list" => $buffet_list,
         ]);
     }
@@ -83,31 +82,7 @@ class BuffetCalculatorController extends Controller
      */
     public function edit($id, $type, $buffet_type = 'buffet')
     {
-        $content_list = array();
-        $buffet = array();
-        $plate= array();
-        if($type == 'plates'){
-            if($buffet_type == 'buffet'){
-                $content_list = BuffetPlate::where('buffet_id', $id)->get();
-                $buffet = Buffet::find($id);
-            }else if($buffet_type == 'buffet_entry'){
-                $content_list = BuffetPlate::where('buffet_entry_id', $id)->get();
-                $buffet = BuffetEntry::find($id);
-            }
-        }elseif($type == 'ingredients'){
-            $content_list = PlateIngredient::where('plate_id', $id)->get();
-            $plate = BuffetPlate::find($id);
-        }
-        return Inertia::render('BuffetCalculator', [
-            'activated_page' => 0,
-            'page_url_base' => 'buffet_calculator',
-            'submenu' => array(),
-            'buffet' => $buffet,
-            'plate' => $plate,
-            'content_type' => $type,
-            'content_buffet_type' => $buffet_type,
-            'content_list' => $content_list,
-        ]);
+       
     }
 
     /**

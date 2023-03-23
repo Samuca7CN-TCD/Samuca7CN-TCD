@@ -15,11 +15,13 @@ return new class extends Migration
     {
         Schema::create('buffets', function (Blueprint $table) {
             $table->id();
+            $table->tinyInteger('status');
             $table->string('name')->unique();
-            // $table->string('code')->unique();
-            $table->text('description')->unique()->nullable();
-            $table->double('price');
-            $table->json('plates')->nullable();
+            $table->text('description')->nullable();
+            $table->double('price')->default(0.00);
+            $table->double('cost')->default(0.00);
+            // $table->json('plates')->nullable();
+            $table->tinyInteger('type');
             $table->softDeletes();
             $table->timestamps();
         });

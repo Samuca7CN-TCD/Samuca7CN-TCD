@@ -1,8 +1,7 @@
 <script setup>
 const props = defineProps({
-    plate: Object,
-    content_buffet_type: String,
-    content_list: Object,
+    activated_page: Number,
+    ingredient_list: Object,
 });
 </script>
 <template>

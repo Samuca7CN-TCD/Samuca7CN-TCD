@@ -12,7 +12,6 @@ use App\Models\Task;
 use App\Models\Client;
 use App\Models\Event;
 use App\Models\Decoration;
-use App\Models\BuffetEntry;
 use App\Models\Buffet;
 
 class BudgetController extends Controller
@@ -78,7 +77,7 @@ class BudgetController extends Controller
         $client = Client::find($request->client_id);
         $event = Event::find($request->event_id);
         $decoration = Decoration::find($request->decoration_id);
-        $buffet_entry = BuffetEntry::find($request->buffet_entry_id);
+        $buffet_entry = Buffet::find($request->buffet_entry_id);
         $buffet = Buffet::find($request->buffet_id);
 
         Task::create([
@@ -125,8 +124,8 @@ class BudgetController extends Controller
         $budget_selects_options = array(
             "events" => Event::all(),
             "decorations" => Decoration::all(),
-            "buffet_entries" => BuffetEntry::all(),
-            "buffets" => Buffet::all(),
+            "buffet_entries" => Buffet::where('type', 2)->where('status', 1)->get(),
+            "buffets" => Buffet::where('type', 1)->where('status', 1)->get(),
         );
 
         return Inertia::render('Clients', [

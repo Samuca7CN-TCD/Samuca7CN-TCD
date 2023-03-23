@@ -65,6 +65,7 @@ const submit = () => {
                         <div v-if="form.errors.email" class="text-xs text-red-600 ml-3">{{ form.errors.email }}</div>
                     </div>
 
+                    <!--Status-->
                     <div class="w-full">
                         <div>
                             <input

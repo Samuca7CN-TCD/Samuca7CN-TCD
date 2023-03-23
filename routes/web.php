@@ -15,7 +15,8 @@ use App\Http\Controllers\TagController;
 
 use App\Http\Controllers\BuffetCalculatorController;
 use App\Http\Controllers\BuffetController;
-use App\Http\Controllers\BuffetEntryController;
+use App\Http\Controllers\PlateController;
+use App\Http\Controllers\IngredientController;
 
 /*
 |--------------------------------------------------------------------------
@@ -60,7 +61,35 @@ Route::middleware([
     Route::resource('/tags', TagController::class);
 
     Route::resource('/buffet-calculator', BuffetCalculatorController::class);
-    Route::get('/buffet-calculator/show-sub-itens/{id}/{type}/{buffet_type?}', [BuffetCalculatorController::class, 'show_sub_itens'])->name('buffet-calculator.sub-itens');
-    Route::resource('/buffets', BuffetController::class);
-    Route::resource('/buffet-entries', BuffetEntryController::class);
+    // Route::resource('/buffets', BuffetController::class);
+    Route::controller(BuffetController::class)->group(function () {
+        Route::get('/buffets/{type?}', 'index')->name('buffets.index');
+        Route::post('/buffets', 'store')->name('buffets.store');
+        Route::get('/buffets/create', 'create')->name('buffets.create');
+        Route::get('/buffets/{buffet}', 'show')->name('buffets.show');
+        Route::put('/buffets/{buffet}', 'update')->name('buffets.update');
+        Route::delete('/buffets/{buffet}', 'destroy')->name('buffets.destroy');
+        Route::get('/buffets/{buffet}/edit', 'edit')->name('buffets.edit');
+    });
+
+    Route::controller(PlateController::class)->group(function () {
+        Route::get('/plates/{buffet_id}', 'index')->name('plates.index');
+        Route::post('/plates', 'store')->name('plates.store');
+        Route::get('/plates/create', 'create')->name('plates.create');
+        Route::get('/plates/{plate}', 'show')->name('plates.show');
+        Route::put('/plates/{plate}', 'update')->name('plates.update');
+        Route::delete('/plates/{plate}', 'destroy')->name('plates.destroy');
+        Route::get('/plates/{plate}/edit', 'edit')->name('plates.edit');
+    });
+
+    Route::controller(IngredientController::class)->group(function () {
+        Route::get('/ingredients/{plate_id}', 'index')->name('ingredients.index');
+        Route::post('/ingredients', 'store')->name('ingredients.store');
+        Route::get('/ingredients/create', 'create')->name('ingredients.create');
+        Route::get('/ingredients/{ingredient}', 'show')->name('ingredients.show');
+        Route::put('/ingredients/{ingredient}', 'update')->name('ingredients.update');
+        Route::delete('/ingredients/{ingredient}', 'destroy')->name('ingredients.destroy');
+        Route::get('/ingredients/{ingredient}/edit', 'edit')->name('ingredients.edit');
+    });
+    
 });

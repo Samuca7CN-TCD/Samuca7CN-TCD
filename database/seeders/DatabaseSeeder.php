@@ -25,16 +25,13 @@ class DatabaseSeeder extends Seeder
         $this->call([
             UserSeeder::class,
             EventSeeder::class,
-            BuffetEntrySeeder::class,
+            // BuffetEntrySeeder::class,
             BuffetSeeder::class,
+            BuffetPlateSeeder::class,
             DecorationSeeder::class,
             CeremonyStatusSeeder::class,
             TagSeeder::class,
             TaskStatusSeeder::class,
-            // DepartmentSeeder::class,
-            // AccountingStatusSeeder::class,
-            MenuSeeder::class,
-            SubmenuSeeder::class,
         ]);
     }
 }

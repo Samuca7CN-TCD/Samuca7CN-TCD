@@ -35,7 +35,7 @@ return new class extends Migration
             $table->foreign('event_id')->references('id')->on('events');
             $table->foreign('client_id')->references('id')->on('clients');
             $table->foreign('decoration_id')->references('id')->on('decorations');
-            $table->foreign('buffet_entry_id')->references('id')->on('buffet_entries');
+            $table->foreign('buffet_entry_id')->references('id')->on('buffets');
             $table->foreign('buffet_id')->references('id')->on('buffets');
         });
     }

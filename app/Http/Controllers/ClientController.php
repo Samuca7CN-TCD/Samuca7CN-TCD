@@ -86,8 +86,8 @@ class ClientController extends Controller
         $budget_selects_options = array(
             "events" => Event::all(),
             "decorations" => Decoration::all(),
-            "buffet_entries" => BuffetEntry::all(),
-            "buffets" => Buffet::all(),
+            "buffet_entries" => Buffet::where('type', 2)->where('status', 1)->get(),
+            "buffets" => Buffet::where('type', 1)->where('status', 1)->get(),
         );
 
         return Inertia::render('Clients', [
@@ -126,7 +126,7 @@ class ClientController extends Controller
             'email' => ['nullable', 'email'],
             'active' => ['required', 'boolean'],
         ]));
-        //return to_route('clients.index');
+        return to_route('clients.index');
     }
 
     /**

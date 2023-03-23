@@ -15,15 +15,15 @@ return new class extends Migration
     {
         Schema::create('buffet_plates', function (Blueprint $table) {
             $table->id();
+            $table->tinyInteger('status');
             $table->string('name');
             $table->string('description')->nullable();
-            $table->double('price');
+            // $table->double('cost');
             $table->integer('qtd_per_ten_people');
-            $table->unsignedBigInteger('buffet_entry_id')->nullable();
             $table->unsignedBigInteger('buffet_id')->nullable();
+            // $table->json('ingredients')->nullable();
             $table->softDeletes();
             $table->timestamps();
-            $table->foreign('buffet_entry_id')->references('id')->on('buffet_entries');
             $table->foreign('buffet_id')->references('id')->on('buffets');
         });
     }

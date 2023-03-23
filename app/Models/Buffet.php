@@ -11,6 +11,15 @@ class Buffet extends Model
     use HasFactory;
     use SoftDeletes;
 
+    protected $fillable = [
+        'status',
+        'name',
+        'description',
+        'plates',
+        'price',
+        'type',
+    ];
+
     public function budget(){
         return $this->belongsToMany(Budget::class);
     }

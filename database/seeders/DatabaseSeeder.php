@@ -28,10 +28,12 @@ class DatabaseSeeder extends Seeder
             // BuffetEntrySeeder::class,
             BuffetSeeder::class,
             BuffetPlateSeeder::class,
+            PlateIngredientSeeder::class,
             DecorationSeeder::class,
             CeremonyStatusSeeder::class,
             TagSeeder::class,
             TaskStatusSeeder::class,
+            MonthlyExpenseSeeder::class,
         ]);
     }
 }

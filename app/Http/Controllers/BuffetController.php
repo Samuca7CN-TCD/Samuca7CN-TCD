@@ -110,7 +110,7 @@ class BuffetController extends Controller
      */
     public function destroy($id)
     {
-        $task = Buffet::find($id);
-        $task->delete();
+        $buffet = Buffet::find($id);
+        $buffet->delete();
     }
 }

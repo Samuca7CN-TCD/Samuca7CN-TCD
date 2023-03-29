@@ -16,6 +16,8 @@ return new class extends Migration
         Schema::create('expense_records', function (Blueprint $table) {
             $table->id();
             $table->json('last_record');
+            $table->tinyInteger('month');
+            $table->smallInteger('year');
             $table->softDeletes();
             $table->timestamps();
         });

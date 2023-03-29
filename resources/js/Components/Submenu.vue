@@ -1,4 +1,5 @@
 <script setup>
+import { ref } from 'vue';
 import { UserIcon, CalendarIcon, TagIcon, ListBulletIcon } from '@heroicons/vue/24/solid';
 import SubNavLink from '@/Components/SubNavLink.vue';
 defineProps({
@@ -6,13 +7,17 @@ defineProps({
     submenu_category: String,
     activated_page: Number,
 });
+
+const months = ref([
+    'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+]);
 </script>
 <template>
     <!--Clients-->
     <ul v-if="submenu_category == 'clients'" class="w-full px-10">
         <SubNavLink v-for="client in submenu" :href="route('clients.show', client.id)"
             :active="activated_page == client.id">
-            <li class="li_submenu">
+            <li class=" li_submenu">
                 <UserIcon class="w-6 h-6" />
                 <span>{{ client.name }}</span>
             </li>
@@ -31,6 +36,16 @@ defineProps({
             <li class="li_submenu">
                 <TagIcon class="w-6 h-6" />
                 <span>Tags</span>
+            </li>
+        </SubNavLink>
+    </ul>
+
+    <!--Buffet Calculator-->
+    <ul v-if="submenu_category == 'buffet_calculator'" class="w-full px-10">
+        <SubNavLink :href="route('buffets.index')">
+            <li class="li_submenu">
+                <CalendarIcon class="w-6 h-6" />
+                <span>Ver lista de buffets</span>
             </li>
         </SubNavLink>
     </ul>
@@ -58,6 +73,28 @@ defineProps({
             <li class="li_submenu">
                 <UserIcon class="w-6 h-6" />
                 <span>{{ buffet.name }}</span>
+            </li>
+        </SubNavLink>
+    </ul>
+
+    <!--Ingredients-->
+    <ul v-if="submenu_category == 'ingredients'" class="w-full px-10">
+        <SubNavLink v-for="plate in submenu" :href="route('ingredients.index', plate.id)"
+            :active="activated_page == plate.id">
+            <li class="li_submenu">
+                <UserIcon class="w-6 h-6" />
+                <span>{{ plate.name }}</span>
+            </li>
+        </SubNavLink>
+    </ul>
+
+    <!--Monthly Expenses-->
+    <ul v-if="submenu_category == 'monthly_expenses'" class="w-full px-10">
+        <SubNavLink v-for="record in submenu" :href="route('monthly_expenses.show', record.id)"
+            :active="activated_page == record.id">
+            <li class="li_submenu">
+                <UserIcon class="w-6 h-6" />
+                <span>{{ months[record.month - 1] + ' / ' + record.year }}</span>
             </li>
         </SubNavLink>
     </ul>

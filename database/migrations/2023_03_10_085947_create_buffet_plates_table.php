@@ -18,8 +18,9 @@ return new class extends Migration
             $table->tinyInteger('status');
             $table->string('name');
             $table->string('description')->nullable();
-            // $table->double('cost');
+            $table->double('cost');
             $table->integer('qtd_per_ten_people');
+            $table->string('measure_unity');
             $table->unsignedBigInteger('buffet_id')->nullable();
             // $table->json('ingredients')->nullable();
             $table->softDeletes();

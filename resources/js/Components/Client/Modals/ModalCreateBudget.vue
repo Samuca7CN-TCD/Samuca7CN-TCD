@@ -9,7 +9,7 @@ import { defineAsyncComponent } from 'vue';
 
 const props = defineProps({
     client_id: Number,
-    budget_selects_options: Object
+    budget_selects_options: Object,
 });
 
 const emit = defineEmits(['modal_open']);
@@ -24,7 +24,7 @@ const form = useForm({
 
     event_id: 1,
     decoration_id: 1,
-    buffet_entry_id: 1,
+    buffet_entry_id: 6,
     buffet_id: 1,
 
     beer: true,

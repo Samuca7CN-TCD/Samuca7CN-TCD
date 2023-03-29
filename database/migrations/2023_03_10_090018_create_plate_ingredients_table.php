@@ -18,6 +18,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('description')->nullable();
             $table->integer('quantity');
+            $table->string('measure_unity');
             $table->double('cost');
             $table->unsignedBigInteger('buffet_plate_id')->nullable();
             $table->timestamps();

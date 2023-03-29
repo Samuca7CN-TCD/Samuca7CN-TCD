@@ -1,20 +1,18 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Calculator from '@/Components/BuffetCalculator/Calculator.vue';
-import Buffets from '@/Components/BuffetCalculator/Buffet/Buffets.vue';
-import Plates from '@/Components/BuffetCalculator/Plate/Plates.vue';
+import Buffets from '@/Components/BuffetCalculator/Buffet/BuffetList.vue';
+import Plates from '@/Components/BuffetCalculator/Plate/PlateList.vue';
 import Ingredients from '@/Components/BuffetCalculator/Ingredient/Ingredients.vue';
 
 defineProps({
     activated_page: Number,
-    submenu_category: String,
     submenu: Object,
+    submenu_category: String,
     buffet_list: Object,
-    buffet: Object,
-    plate: Object,
-    content_type: String,
-    content_buffet_type: String,
-    content_list: Object,
+    options: Object,
+    entry_plates: Object,
+    buffet_plates: Object,
 })
 </script>
 
@@ -26,10 +24,7 @@ defineProps({
                 Calculadora de Buffet
             </h2>
         </template>
-        <Calculator v-if="activated_page == 0" />
-        <Buffets v-if="activated_page != 0" :buffet_list="buffet_list" />
-        <Plates v-if="activated_page != 0" :buffet="buffet" :content_buffet_type="content_buffet_type"
-            :content_list="content_list" />
-        <Ingredients v-if="activated_page != 0" :plate="plate" :content_list="content_list" />
+        <Calculator v-if="activated_page == 0" :buffet_list="buffet_list" :options="options" :entry_plates="entry_plates"
+            :buffet_plates="buffet_plates" />
     </AppLayout>
 </template>

@@ -10,4 +10,10 @@ class ExpenseRecord extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    protected $fillable = [
+        'last_record',
+        'month',
+        'year',
+    ];
 }

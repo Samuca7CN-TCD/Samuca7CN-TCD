@@ -66,6 +66,7 @@ class BudgetController extends Controller
             'budget_link' => ['nullable', 'string', 'unique:budgets'],
         ]));
 
+        /*
         $ceremony = Ceremony::create([
             'budget_id' => $budget->id,
             'ceremony_status_id' => 1,
@@ -94,6 +95,7 @@ class BudgetController extends Controller
             'task_id' => null,
             'task_status_id' => 1,
         ]);
+        */
 
         return to_route('clients.show', $request->client_id);
     }

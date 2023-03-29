@@ -69,14 +69,15 @@ const goToPlate = (plate_id) => {
 <template>
     <Buffet :buffet="buffet">
         <section class="my-1 select-none overflow-hidden">
-            <div v-if="plate_list.length" class="py-2 overflow-auto">
-                <div class="w-full overflow-auto">
+            <div v-if="plate_list.length" class="p-5 overflow-auto">
+                <p class="text-gray-700">Lista de ingredientes</p>
+                <div class="w-full overflow-auto rounded-xl shadow-lg border border-gray-300">
                     <table class="w-full m-auto table-auto overflow-auto">
                         <thead class="lg:border-b-2 lg:border-gray-500">
                             <!--<th>Status</th>-->
                             <th>Nome</th>
-                            <th>Custo</th>
-                            <th>Qtd. p/ 10 pessoas</th>
+                            <th>Qtd. / Buffet (10 pessoas)</th>
+                            <th>Custo / Buffet (10 pessoas)</th>
                             <!--<th>Duplicar</th>-->
                         </thead>
                         <tbody>
@@ -84,14 +85,13 @@ const goToPlate = (plate_id) => {
                                 class="lg:border-b-2 lg-border-gray-100 hover:bg-gray-200 active:bg-gray-300 cursor-pointer text-center"
                                 :class="{ 'bg-gray-100': (index % 2 != 0) }" :title="'Ver detalhes de ' + plate.name">
                                 <!--<td @click="toggleplateStatus(plate)"><div v-if="plate.status < 2"><input class="standard_toggle" type="checkbox" role="switch" name="plate_table_status" id="plate-table-status" :checked="plate.status" /></div> <span v-else class="text-orange-600">Pendente</span></td>-->
-                                <td class="py-3 px-5 truncate" @click="goToplate(plate.id)">
+                                <td class="py-3 px-5 truncate" @click="goToPlate(plate.id)">
                                     {{ plate.name }}
                                 </td>
-                                <td class="py-3 px-5 truncate" @click="goToplate(plate.id)">
-                                    {{ plate.ingredients_cost }}
+                                <td class="py-3 px-5 truncate" @click="goToPlate(plate.id)">{{
+                                    plate.qtd_per_ten_people }} {{ plate.qtd_per_ten_people > 1 ? 'pratos' : 'prato' }}</td>
+                                <td class="py-3 px-5 truncate" @click="goToPlate(plate.id)">{{ toMonetary(plate.cost) }}
                                 </td>
-                                <td class="py-3 px-5 truncate" @click="goToplate(plate.id)">{{
-                                    plate.qtd_per_ten_people }} {{ plate.qtd_per_ten_people > 1 ? 'plates' : 'plate' }}</td>
                                 <!--<td class="py-3 px-5 truncate flex-row-config"><XMarkIcon v-if="plate.status == 2" class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Deletar plate Pendente" @click="deleteplate(plate)" /><DocumentDuplicateIcon v-else class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Duplicar plate" @click="duplicateplate(plate)" /></td>-->
                             </tr>
                         </tbody>

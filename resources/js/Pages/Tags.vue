@@ -7,8 +7,7 @@ const props = defineProps({
     activated_page: Number,
     submenu: Object,
     submenu_category: String,
-    task_list: Object,
-    task_form_selects: Object,
+    tags: Object,
 });
 
 </script>
@@ -18,10 +17,9 @@ const props = defineProps({
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Tarefas -
-                <span class="inline-flex">Tarefas</span>
+                <span class="inline-flex">Tags</span>
             </h2>
         </template>
-        <TaskList :task_list="task_list" :task_form_selects="task_form_selects">
-        </TaskList>
+        <Tags :tags="tags" />
     </AppLayout>
 </template >

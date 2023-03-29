@@ -34,7 +34,7 @@ const submit = () => {
                 <span class="bg-blue-100 p-2 rounded-full text-blue-400">
                     <PlusIcon class="w-5 h-5" />
                 </span>
-                <h2 class="text-2xl bold">Cadastrar Tarefa</h2>
+                <h2 class="text-2xl bold">Cadastrar Cliente</h2>
             </div>
             <p class="text-xm text-gray-500 mt-3">Formulário para cadastro de uma nova tarefa</p>
         </div>

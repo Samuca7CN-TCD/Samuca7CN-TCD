@@ -15,8 +15,9 @@ class TagController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Tasks', [
+        return Inertia::render('Tags', [
             'activated_page' => 1,
+            'submenu' => array(),
             'submenu_category' => 'tasks',
             'tags' => Tag::all(),
         ]);

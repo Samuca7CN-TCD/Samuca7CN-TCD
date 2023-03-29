@@ -9,7 +9,7 @@ const props = defineProps({
     client_budgets: Object,
     budget_selects_options: Object,
     budget_id: Number,
-})
+});
 
 const client_form = useForm({
     id: props.client.id,
@@ -77,7 +77,7 @@ const submit = () => {
                 <thead class="lg:border-b-2 lg:border-gray-500">
                     <th>Status</th>
                     <th>Evento</th>
-                    <th>Convidados</th> 
+                    <th>Convidados</th>
                     <th>Data</th>
                 </thead>
                 <tbody>

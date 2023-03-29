@@ -14,18 +14,40 @@ class BuffetCalculatorController extends Controller
     /**
      * Display a listing of the resource.
      *
+     * @param int $entry_id
+     * @param int $buffet_id
      * @return \Inertia\Response
      */
-    public function index()
+    public function index($qtd_pessoas = 10, $entry_id = 0, $buffet_id = 0)
     {
         $buffet_list = array(
-            "entries" => Buffet::where('type', 2),
-            "buffets" => Buffet::where('type', 1),
+            "entries" => Buffet::where('type', 2)->get(),
+            "buffets" => Buffet::where('type', 1)->get(),
         );
+        $options = array(
+            'qtd_pessoas' => $qtd_pessoas,
+            'entry' => $entry_id,
+            'buffet' => $buffet_id,
+        );
+
+        $entry_plates = $buffet_plates = array();
+        if(!empty($entry_id)){
+            $entry_plates = BuffetPlate::where('buffet_id', $entry_id)->get();
+        }
+
+        if(!empty($buffet_id)){
+            $buffet_plates = BuffetPlate::where('buffet_id', $buffet_id)->get();
+        }
+
+        //dd($entry_plates);
         return Inertia::render('BuffetCalculator', [
             'activated_page' => 0,
+            'submenu' => array(),
             'submenu_category' => 'buffet_calculator',
-            "buffet_list" => $buffet_list,
+            'buffet_list' => $buffet_list,
+            'options' => $options,
+            'entry_plates' => $entry_plates,
+            'buffet_plates' => $buffet_plates,
         ]);
     }
 

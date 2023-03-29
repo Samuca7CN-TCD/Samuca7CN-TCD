@@ -22,7 +22,7 @@ class TaskController extends Controller
     {
         $tags = Tag::all();
         $users = User::all();
-        $deadlines = Task::select('tasks.deadline')->groupBy('tasks.deadline')->get();
+        $deadlines = Task::select('tasks.deadline')->groupBy('tasks.deadline')->where('tasks.task_status_id', 1)->get();
         $task_list = array();
         
         foreach($deadlines as $item){

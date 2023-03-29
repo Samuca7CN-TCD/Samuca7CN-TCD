@@ -86,8 +86,8 @@ class ClientController extends Controller
         $budget_selects_options = array(
             "events" => Event::all(),
             "decorations" => Decoration::all(),
-            "buffet_entries" => Buffet::where('type', 2)->where('status', 1)->get(),
-            "buffets" => Buffet::where('type', 1)->where('status', 1)->get(),
+            "buffet_entries" => Buffet::where('type', 2)->get(),
+            "buffets" => Buffet::where('type', 1)->get(),
         );
 
         return Inertia::render('Clients', [

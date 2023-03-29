@@ -18,6 +18,8 @@ use App\Http\Controllers\BuffetController;
 use App\Http\Controllers\PlateController;
 use App\Http\Controllers\IngredientController;
 
+use App\Http\Controllers\MonthlyExpenseController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -49,7 +51,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    
+
     // Route::get('/clients', [ClientController::class, 'index'])->name('clients');
     Route::resource('/clients', ClientController::class);
     Route::resource('/budgets', BudgetController::class);
@@ -60,7 +62,7 @@ Route::middleware([
     Route::patch('/tasks/done/{id}', [TaskController::class, 'task_done'])->name('task.done');
     Route::resource('/tags', TagController::class);
 
-    Route::resource('/buffet-calculator', BuffetCalculatorController::class);
+    Route::get('/buffet-calculator/{qtd_pessoas?}/{entry_id?}/{buffet_id?}', [BuffetCalculatorController::class, 'index'])->name('buffet-calculator.index');
     // Route::resource('/buffets', BuffetController::class);
     Route::controller(BuffetController::class)->group(function () {
         Route::get('/buffets/{type?}', 'index')->name('buffets.index');
@@ -91,5 +93,7 @@ Route::middleware([
         Route::delete('/ingredients/{ingredient}', 'destroy')->name('ingredients.destroy');
         Route::get('/ingredients/{ingredient}/edit', 'edit')->name('ingredients.edit');
     });
-    
+
+    Route::resource('/monthly_expenses', MonthlyExpenseController::class);
+    Route::put('/monthly_expenses/record/{expense_record}', [MonthlyExpenseController::class, 'update_record'])->name('monthly_expenses.update_record');
 });

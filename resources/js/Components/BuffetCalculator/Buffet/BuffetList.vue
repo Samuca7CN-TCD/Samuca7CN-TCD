@@ -77,9 +77,9 @@ const goToBuffet = (buffet_id) => {
                     <thead class="lg:border-b-2 lg:border-gray-500">
                         <!--<th>Status</th>-->
                         <th>Nome</th>
-                        <th>Preço total</th>
-                        <th>Descição</th>
-                        <th>Data de criação</th>
+                        <th>Preço (10 pessoas)</th>
+                        <th>Custo (10 pessoas)</th>
+                        <th>Descrição</th>
                         <!--<th>Duplicar</th>-->
                     </thead>
                     <tbody>
@@ -93,11 +93,11 @@ const goToBuffet = (buffet_id) => {
                             <td class="py-3 px-5 truncate" @click="goToBuffet(buffet.id)">
                                 {{ toMonetary(buffet.price) }}
                             </td>
+                            <td class="py-3 px-5 truncate" @click="goToBuffet(buffet.id)">
+                                {{ toMonetary(buffet.cost) }}
+                            </td>
                             <td class="py-3 px-5 truncate" :title="buffet.description" @click="goToBuffet(buffet.id)">{{
                                 buffet.description }}</td>
-                            <td class="py-3 px-5 truncate" @click="goToBuffet(buffet.id)">{{ formatDate(buffet.created_at)
-                            }}
-                            </td>
                             <!--<td class="py-3 px-5 truncate flex-row-config"><XMarkIcon v-if="buffet.status == 2" class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Deletar Buffet Pendente" @click="deleteBuffet(buffet)" /> <DocumentDuplicateIcon v-else class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Duplicar Buffet" @click="duplicateBuffet(buffet)" /></td>-->
                         </tr>
                     </tbody>

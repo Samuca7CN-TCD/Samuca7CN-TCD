@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('budget_token')->nullable();
             $table->float('budget_total_value');
             $table->string('budget_link')->nullable();
+            $table->tinyInteger('status');
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('event_id')->references('id')->on('events');

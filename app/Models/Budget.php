@@ -26,32 +26,39 @@ class Budget extends Model
         'event_date',
         'event_place',
         'budget_total_value',
+        'status',
         'budget_comment',
         'budget_token',
         'budget_link',
     ];
 
-    public function event(){
+    public function event()
+    {
         return $this->hasOne(Event::class);
     }
 
-    public function client(){
+    public function client()
+    {
         return $this->hasOne(Client::class);
     }
 
-    public function decoration(){
+    public function decoration()
+    {
         return $this->hasOne(Decoration::class);
     }
 
-    public function buffetEntry(){
+    public function buffetEntry()
+    {
         return $this->hasOne(BuffetEntry::class);
     }
 
-    public function buffet(){
+    public function buffet()
+    {
         return $this->hasOne(Buffet::class);
     }
 
-    public function ceremony(){
+    public function ceremony()
+    {
         return $this->belongsTo(Ceremony::class);
     }
 }

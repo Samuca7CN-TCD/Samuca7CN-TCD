@@ -16,14 +16,13 @@ return new class extends Migration
         Schema::create('ceremonies', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('budget_id');
-            $table->unsignedBigInteger('ceremony_status_id');
             $table->double('total_negotiated_amount');
             $table->double('entry_amount');
             $table->double('remaining_amount');
+            $table->tinyInteger('status');
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('budget_id')->references('id')->on('budgets');
-            $table->foreign('ceremony_status_id')->references('id')->on('ceremony_statuses');
         });
     }
 

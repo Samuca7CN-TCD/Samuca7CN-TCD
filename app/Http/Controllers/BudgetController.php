@@ -61,6 +61,8 @@ class BudgetController extends Controller
             'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
             'budget_total_value' => ['nullable', 'numeric'],
 
+            'status' => ['required', 'numeric'],
+
             'budget_comment' => ['nullable', 'string'],
             'budget_token' => ['nullable', 'string', 'unique:budgets'],
             'budget_link' => ['nullable', 'string', 'unique:budgets'],
@@ -111,17 +113,10 @@ class BudgetController extends Controller
         $budget = Budget::find($id);
         $ceremony = Ceremony::where('budget_id', $budget->id)->first();
 
-        $active_clients = Client::where('active', true)->get();
-        $client = Client::find($budget->client_id);
-        $client_budgets = Budget::select('budgets.*', 'events.name AS event_name', 'ceremony_statuses.name AS ceremony_status')
-            ->where('budgets.client_id', $budget->client_id)
+        $budgets = Budget::select('budgets.*', 'events.name AS event_name')
+            ->where('client_id', $budget->client_id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
-            ->leftJoin('ceremonies', 'ceremonies.budget_id', '=', 'budgets.id')
-            ->leftJoin('ceremony_statuses', 'ceremony_statuses.id', '=', 'ceremonies.ceremony_status_id')
-            ->orderBy('ceremonies.ceremony_status_id', 'asc')
-            ->orderBy('budgets.created_at', 'desc')
             ->get();
-            
 
         $budget_selects_options = array(
             "events" => Event::all(),
@@ -131,11 +126,10 @@ class BudgetController extends Controller
         );
 
         return Inertia::render('Clients', [
-            'activated_page' => $client->id,
-            'page_url_base' => 'clients',
-            "submenu" => $active_clients,
-            "selected_client" => $client,
-            "client_budgets" => $client_budgets,
+            'activated_page' => (int) $id,
+            "submenu" => $budgets,
+            'submenu_category' => 'budgets',
+            "client_budgets" => $budgets,
             "ceremony" => $ceremony,
             "budget" => $budget,
             "budget_selects_options" => $budget_selects_options,

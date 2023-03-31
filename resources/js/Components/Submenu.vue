@@ -24,6 +24,17 @@ const months = ref([
         </SubNavLink>
     </ul>
 
+    <!--Budgets-->
+    <ul v-if="submenu_category == 'budgets'" class="w-full px-10">
+        <SubNavLink v-for="record in submenu" :href="route('budgets.show', record.id)"
+            :active="activated_page == record.id">
+            <li class="li_submenu" :title="'Data do evento: ' + record.event_date">
+                <UserIcon class="w-6 h-6" />
+                <span>{{ record.event_name }}</span>
+            </li>
+        </SubNavLink>
+    </ul>
+
     <!--Tasks-->
     <ul v-if="submenu_category == 'tasks'" class="w-full px-10">
         <SubNavLink :href="route('tasks.index')" :active="activated_page == 0">

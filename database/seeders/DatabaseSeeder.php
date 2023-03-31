@@ -30,7 +30,7 @@ class DatabaseSeeder extends Seeder
             BuffetPlateSeeder::class,
             PlateIngredientSeeder::class,
             DecorationSeeder::class,
-            CeremonyStatusSeeder::class,
+            // CeremonyStatusSeeder::class,
             TagSeeder::class,
             TaskStatusSeeder::class,
             MonthlyExpenseSeeder::class,

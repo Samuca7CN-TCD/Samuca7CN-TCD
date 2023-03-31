@@ -75,12 +75,9 @@ class ClientController extends Controller
     {
         $active_clients = Client::where('active', true)->get();
         $client = Client::find($id);
-        $client_budgets = Budget::select('budgets.*', 'events.name AS event_name', 'ceremony_statuses.name AS ceremony_status')
+        $client_budgets = Budget::select('budgets.*', 'events.name AS event_name')
             ->where('budgets.client_id', $id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
-            ->leftJoin('ceremonies', 'ceremonies.budget_id', '=', 'budgets.id')
-            ->leftJoin('ceremony_statuses', 'ceremony_statuses.id', '=', 'ceremonies.ceremony_status_id')
-            ->orderBy('ceremonies.ceremony_status_id', 'asc')
             ->orderBy('budgets.created_at', 'desc')
             ->get();
         $budget_selects_options = array(

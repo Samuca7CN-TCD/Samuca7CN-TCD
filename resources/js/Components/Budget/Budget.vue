@@ -1,45 +1,81 @@
 <script setup>
 import { ref } from 'vue';
-import { PlusIcon } from '@heroicons/vue/24/outline';
-import Modal from '@/Components/Modal.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
-import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { useForm } from '@inertiajs/vue3';
-import { defineAsyncComponent } from 'vue';
 
 const props = defineProps({
-    client_id: Number,
-    budget_selects_options: Object,
+    budget: Object,
+    ceremony: Object,
+    budget_selects_options: Object
 });
 
-const emit = defineEmits(['modal_open']);
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
-let budget_event_date = new Date(Date.now() + 2592000000);
 const min_date = ref(new Date());
 min_date.value = min_date.value.getFullYear() + '-' + dateZeroFiller(min_date.value.getMonth() + 1) + '-' + dateZeroFiller(min_date.value.getDate()) + 'T' + dateZeroFiller(min_date.value.getHours()) + ':' + dateZeroFiller(min_date.value.getMinutes());
-budget_event_date = budget_event_date.getFullYear() + '-' + dateZeroFiller(budget_event_date.getMonth() + 1) + '-' + dateZeroFiller(budget_event_date.getDate()) + 'T' + dateZeroFiller(budget_event_date.getHours()) + ':' + dateZeroFiller(budget_event_date.getMinutes());
 
 const form = useForm({
-    client_id: props.client_id,
+    id: props.budget.id,
+    client_id: props.budget.client_id,
 
-    event_id: 1,
-    decoration_id: 1,
-    buffet_entry_id: 6,
-    buffet_id: 1,
+    event_id: props.budget.event_id,
+    decoration_id: props.budget.decoration_id,
+    buffet_entry_id: props.budget.buffet_entry_id,
+    buffet_id: props.budget.buffet_id,
 
-    beer: true,
-    bar: true,
-    dj: true,
-    advisory: true,
+    beer: props.budget.beer ? true : false,
+    bar: props.budget.bar ? true : false,
+    dj: props.budget.dj ? true : false,
+    advisory: props.budget.advisory ? true : false,
 
-    guests_quantity: 0,
-    event_date: budget_event_date,
-    budget_total_value: 0.0,
+    guests_quantity: props.budget.guests_quantity,
 
-    budget_comment: null,
-    budget_token: null,
-    budget_link: null,
+    event_date: props.budget.event_date.replace(' ', 'T').substring(0, 16),
+
+    budget_total_value: props.budget.budget_total_value,
+
+    budget_comment: props.budget.budget_comment,
+    budget_token: props.budget.budget_token,
+    budget_link: props.budget.budget_link,
 });
+
+/*
+const ceremony_form = useForm({
+    id: props.ceremony.id,
+    budget_id: props.ceremony.budget_id,
+    ceremony_status_id: props.ceremony.ceremony_status_id,
+    total_negotiated_amount: props.ceremony.total_negotiated_amount,
+    entry_amount: props.ceremony.entry_amount,
+    remaining_amount: props.ceremony.remaining_amount,
+});
+*/
+
+const toMonetary = (value) => {
+    return value.toLocaleString('pt-br', {
+        style: 'currency',
+        currency: 'BRL'
+    });
+}
+
+const progress = (total, remaining) => {
+    let paid = total - remaining;
+    if (total == 0) return 0;
+    return paid / total;
+}
+
+const submit = () => {
+    console.log(form.event_date);
+    form.put(route('budgets.update', form.id), {
+        preserveScroll: true,
+    });
+}
+
+/*
+const ceremonyStatus = (new_status) => {
+    ceremony_form.ceremony_status_id = new_status;
+    ceremony_form.put(route('ceremonies.update', ceremony_form.id), {
+        preserveScroll: true,
+    })
+}
+*/
 
 const calcBudgetTotal = () => {
     let total = 2900;
@@ -62,103 +98,100 @@ const calcBudgetTotal = () => {
     if (form.advisory) total += option.advisory;
 
     form.budget_total_value = total;
-}
-calcBudgetTotal();
-
-const closeModal = () => {
-    form.reset();
-    form.clearErrors();
-    emit('modal_open', false);
+    submit();
 }
 
-const submit = () => {
-    calcBudgetTotal();
-    form.post(route('budgets.store'), {
-        preserveScroll: true,
-        onSuccess: () => closeModal(),
-    });
-}
+// calcBudgetTotal();
 </script>
 <template>
-    <Modal :show="true">
-        <div class="mt-5 mx-5">
-            <div class="flex flex-row align-middle items-center space-x-2">
-                <span class="bg-blue-100 p-2 rounded-full text-blue-400">
-                    <PlusIcon class="w-5 h-5" />
-                </span>
-                <h2 class="text-2xl bold">Cadastrar Orçamento</h2>
-            </div>
-            <p class="text-xm text-gray-500 mt-3">Formulário para cadastro de um novo orçamento</p>
-        </div>
-        <form id="create_task" @submit.prevent="submit" class="w-full">
+    <section class="w-11/12 m-auto px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
 
-            <div class="overflow-hidden m-5 md:m-0 p-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
+        <form id="create_task" @submit.prevent="budget_submit" class="w-full px-0 md:py-5 md:px-14 xl:px-24">
+
+            <div class="overflow-hidden md:m-0 p-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
                 <div class="w-full m-0 p-0 space-y-2">
 
-                    <!--Evento-->
-                    <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.event_id" @change="calcBudgetTotal">
-                            <option :value="null">Escolha um eventos</option>
-                            <option v-for="event in budget_selects_options.events" :key="event.id" :value="event.id"
-                                :selected="form.event_id == event.id">{{ event.name }}
-                            </option>
-                        </select>
-                        <div v-if="form.errors.event_id" class="text-xs text-red-600 ml-3">{{ form.errors.event_id }}
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-2 mb-5">
+                        <!--Evento-->
+                        <div class="min-w-fit">
+                            <label for="budget_event" class="text-xs text-slate-400">Evento</label>
+                            <select id="budget_event" class="w-full border-slate-300 outline-0 sm:text-md" disabled
+                                v-model="form.event_id" @change="calcBudgetTotal">
+                                <option :value="null">Escolha um eventos</option>
+                                <option v-for="event in budget_selects_options.events" :key="event.id" :value="event.id"
+                                    :selected="form.event_id == event.id">{{ event.name }}
+                                </option>
+                            </select>
+                            <div v-if="form.errors.event_id" class="text-xs text-red-600 ml-3">{{
+                                form.errors.event_id }}
+                            </div>
                         </div>
-                    </div>
 
-                    <!--Decoração-->
-                    <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.decoration_id"
-                            @change="calcBudgetTotal">
-                            <option :value="null">Escolha uma decoração</option>
-                            <option v-for="decoration in budget_selects_options.decorations" :key="decoration.id"
-                                :value="decoration.id" :selected="form.decoration_id == decoration.id">{{ decoration.name }}
-                            </option>
-                        </select>
-                        <div v-if="form.errors.decoration_id" class="text-xs text-red-600 ml-3">{{ form.errors.decoration_id
-                        }}
+                        <!--Decoração-->
+                        <div class="min-w-fit">
+                            <label for="budget_edecoration" class="text-xs text-slate-400">Decoração</label>
+                            <select ID="budget_decoration" class="w-full border-slate-300 sm:text-md" disabled
+                                v-model="form.decoration_id" @change="calcBudgetTotal">
+                                <option :value="null">Escolha uma decoração</option>
+                                <option v-for="decoration in budget_selects_options.decorations" :key="decoration.id"
+                                    :value="decoration.id" :selected="form.decoration_id == decoration.id">{{
+                                        decoration.name }}
+                                </option>
+                            </select>
+                            <div v-if="form.errors.decoration_id" class="text-xs text-red-600 ml-3">{{
+                                form.errors.decoration_id
+                            }}
+                            </div>
                         </div>
-                    </div>
 
-                    <!--Entrada Buffet-->
-                    <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.buffet_entry_id">
-                            <option :value="null">Escolha uma entrada de buffet</option>
-                            <option v-for="buffet_entry in budget_selects_options.buffet_entries" :key="buffet_entry.id"
-                                :value="buffet_entry.id" :selected="form.buffet_entry_id == buffet_entry.id">{{
-                                    buffet_entry.name }}
-                            </option>
-                        </select>
-                        <div v-if="form.errors.buffet_entry_id" class="text-xs text-red-600 ml-3">{{
-                            form.errors.buffet_entry_id }}
+                        <!--Entrada Buffet-->
+                        <div class="min-w-fit">
+                            <label for="budget_buffet_entry" class="text-xs text-slate-400">Entrada de Buffet</label>
+                            <select id="budget_buffet_entry" class="w-full border-slate-300 sm:text-md" disabled
+                                v-model="form.buffet_entry_id" @change="calcBudgetTotal">
+                                <option :value="null">Escolha uma entrada de buffet</option>
+                                <option v-for="buffet_entry in budget_selects_options.buffet_entries" :key="buffet_entry.id"
+                                    :value="buffet_entry.id" :selected="form.buffet_entry_id == buffet_entry.id">{{
+                                        buffet_entry.name }}
+                                </option>
+                            </select>
+                            <div v-if="form.errors.buffet_entry_id" class="text-xs text-red-600 ml-3">{{
+                                form.errors.buffet_entry_id }}
+                            </div>
                         </div>
-                    </div>
 
-                    <!--Buffet-->
-                    <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.buffet_id" @change="calcBudgetTotal">
-                            <option :value="null">Escolha um buffet</option>
-                            <option v-for="buffet in budget_selects_options.buffets" :key="buffet.id" :value="buffet.id"
-                                :selected="form.buffet_id == buffet.id">{{ buffet.name }}
-                            </option>
-                        </select>
-                        <div v-if="form.errors.buffet_id" class="text-xs text-red-600 ml-3">{{ form.errors.buffet_id }}
+                        <!--Buffet-->
+                        <div class="min-w-fit">
+                            <label for="budget_buffet" class="text-xs text-slate-400">Buffet</label>
+                            <select id="budget_buffet" class="w-full border-slate-300 sm:text-md" disabled
+                                v-model="form.buffet_id" @change="calcBudgetTotal">
+                                <option :value="null">Escolha um buffet</option>
+                                <option v-for="buffet in budget_selects_options.buffets" :key="buffet.id" :value="buffet.id"
+                                    :selected="form.buffet_id == buffet.id">{{ buffet.name }}
+                                </option>
+                            </select>
+                            <div v-if="form.errors.buffet_id" class="text-xs text-red-600 ml-3">{{
+                                form.errors.buffet_id }}
+                            </div>
                         </div>
                     </div>
 
                     <!--Checkboxes-->
-                    <div class="py-2 mx-10">
+                    <span class="text-slate-400 text-sm">Opções</span>
+                    <div class="py-2 flex flex-col lg:flex-row lg:space-x-10">
                         <!--Bar-->
                         <div>
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.bar" v-model="form.bar" @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.bar" v-model="form.bar" @change="calcBudgetTotal"
+                                    disabled />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Bar</label>
                             </div>
-                            <div v-if="form.errors.bar" class="text-xs text-red-600 ml-3">{{ form.errors.bar }}
+                            <div v-if="form.errors.bar" class="text-xs text-red-600 ml-3">{{
+                                form.errors.bar
+                            }}
                             </div>
                         </div>
 
@@ -167,11 +200,14 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.beer" v-model="form.beer" @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.beer" v-model="form.beer" disabled
+                                    @change="calcBudgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Cerveja</label>
                             </div>
-                            <div v-if="form.errors.beer" class="text-xs text-red-600 ml-3">{{ form.errors.beer }}
+                            <div v-if="form.errors.beer" class="text-xs text-red-600 ml-3">{{
+                                form.errors.beer
+                            }}
                             </div>
                         </div>
 
@@ -180,11 +216,13 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.dj" v-model="form.dj" @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.dj" v-model="form.dj" disabled
+                                    @change="calcBudgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Dj</label>
                             </div>
-                            <div v-if="form.errors.dj" class="text-xs text-red-600 ml-3">{{ form.errors.dj }}
+                            <div v-if="form.errors.dj" class="text-xs text-red-600 ml-3">{{ form.errors.dj
+                            }}
                             </div>
                         </div>
 
@@ -193,29 +231,32 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.advisory" v-model="form.advisory"
+                                    type="checkbox" :checked="form.advisory" v-model="form.advisory" disabled
                                     @change="calcBudgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Acessoria</label>
                             </div>
-                            <div v-if="form.errors.advisory" class="text-xs text-red-600 ml-3">{{ form.errors.advisory }}
+                            <div v-if="form.errors.advisory" class="text-xs text-red-600 ml-3">{{
+                                form.errors.advisory }}
                             </div>
                         </div>
                     </div>
-                    <div class="flex-row-config space-x-2">
+                    <div class="flex-row-config space-x-2 pt-2 pb-5">
                         <!-- Data -->
                         <div class="w-3/4">
                             <label for="budget_date" class="text-xs text-slate-700">Data da cerimônia</label>
-                            <input type="datetime-local" id="budget_date" placeholder="Data da cerimônia" :min="min_date"
-                                class="w-full border-slate-300 sm:text-md" v-model="form.event_date" />
-                            <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{ form.errors.event_date
+                            <input type="datetime-local" id="budget_date" placeholder="Data da cerimônia" readonly
+                                :min="min_date" class="w-full border-slate-300 sm:text-md" v-model="form.event_date"
+                                @input="calcBudgetTotal" />
+                            <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{
+                                form.errors.event_date
                             }}
                             </div>
                         </div>
                         <!-- Quantidade de convidados -->
                         <div class="w-1/4">
                             <label for="budget_guests_quantity" class="text-xs text-slate-700">Qtd. Convidados</label>
-                            <input type="number" id="budget_guests_quantity" step="1" min="1" max="150"
+                            <input type="number" id="budget_guests_quantity" step="1" min="1" max="150" readonly
                                 placeholder="Quantidade de convidados" class="w-full border-slate-300 sm:text-md"
                                 v-model="form.guests_quantity" @input="calcBudgetTotal" minlength="8" maxlength="20" />
                             <div v-if="form.errors.guests_quantity" class="text-xs text-red-600 ml-3">{{
@@ -223,26 +264,18 @@ const submit = () => {
                             </div>
                         </div>
                     </div>
-                </div>
-                <div class="w-full px-4 py-3 sm:px-6 mt-5 flex-col-config space-y-8 sm:flex-row-config sm:space-y-0">
-                    <div class="w-full sm:w-1/2 text-center sm:text-left text-md sm:text-sm">Valor do Orçamento: {{
-                        form.budget_total_value.toLocaleString('pt-br', {
-                            style: 'currency',
-                            currency: 'BRL'
-                        }) }}</div>
-                    <div class="w-full sm:w-1/2 flex-row-config space-x-2 text-right">
-                        <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': form.processing }"
-                            :disabled="form.processing" @click="closeModal">
-                            Cancelar
-                        </SecondaryButton>
 
-                        <PrimaryButton class="ml-4" :class="{ 'opacity-25': form.processing }" :disabled="form.processing">
-                            Cadastrar
-                        </PrimaryButton>
-                    </div>
+                    <ul>
+                        <li v-if="budget.budget_token"><span class="font-bold">Token: </span>{{ budget.budget_token }}
+                        </li>
+                        <li v-if="budget.budget_link"><span class="font-bold">Ver PDF do orçamento: </span><a
+                                href="https://google.com/" target="_blank" class="text-sky-600">{{
+                                    budget.budget_link }}</a></li>
+                        <li v-if="budget.budget_comment"><span class="font-bold">Comentário do cliente: </span>"{{
+                            budget.budget_comment }}"</li>
+                    </ul>
                 </div>
-
             </div>
         </form>
-    </Modal>
+    </section>
 </template>

@@ -17,9 +17,12 @@ return new class extends Migration
             $table->id();
             $table->unsignedBigInteger('budget_id');
             $table->double('total_negotiated_amount');
-            $table->double('entry_amount');
-            $table->double('remaining_amount');
+            $table->double('paid_amount');
             $table->tinyInteger('status');
+            $table->json('installments')->nullable();
+            $table->json('expenses')->nullable();
+            $table->double('total_expenses')->nullable();
+            $table->text('observations')->nullable();
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('budget_id')->references('id')->on('budgets');

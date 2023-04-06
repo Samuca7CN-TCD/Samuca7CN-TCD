@@ -45,7 +45,6 @@ const sumFullTotal = () => {
 const getPrice = (id) => {
     let price = 0;
     props.buffet_list.entries.forEach((item) => {
-        console.log(item.id + " == " + id);
         if (item.id == id) {
             price = item.price * qtd_pessoas.value;
             return;
@@ -59,7 +58,6 @@ const getPrice = (id) => {
             }
         });
     }
-    console.log("PREÇO DEFINITIVO: " + price);
     return price;
 }
 

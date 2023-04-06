@@ -1,9 +1,11 @@
 <script setup>
+import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ClientsList from '@/Components/Client/ClientsList.vue';
 import BudgetList from '@/Components/Budget/BudgetList.vue';
 import Budget from '@/Components/Budget/Budget.vue';
-defineProps({
+
+const props = defineProps({
     submenu: Object,
     submenu_category: String,
     activated_page: Number,
@@ -15,7 +17,17 @@ defineProps({
     budget_selects_options: Object,
     budget: Object,
     ceremony: Object,
-})
+});
+
+const event_name = () => {
+    return props.budget_selects_options.events.filter((el) => el.id == props.budget.event_id)[0].name;
+}
+
+const formatDate = (date) => {
+    date = date.split(/\-|\T|\:|\ /);
+    return date[2] + "/" + date[1] + "/" + date[0] + " às " + date[3] + ":" + date[4];
+}
+
 </script>
 <template>
     <AppLayout title="Clientes" :submenu='submenu' :activated_page='activated_page' :submenu_category="submenu_category">
@@ -26,7 +38,7 @@ defineProps({
                 <span class="inline" v-else>Lista de Clientes</span>
             </h2>
             <h2 v-else class="font-semibold text-xl text-gray-800 leading-tight">
-                Orçamento {{ budget.event_name }}
+                Orçamento - {{ event_name() + ' (' + formatDate(budget.event_date) + ')' }}
             </h2>
         </template>
         <ClientsList v-if="!selected_client && !budget" :clients_list="clients_list" />

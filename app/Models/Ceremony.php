@@ -13,25 +13,32 @@ class Ceremony extends Model
 
     protected $fillable = [
         'budget_id',
-        'ceremony_status_id',
         'total_negotiated_amount',
-        'entry_amount',
-        'remaining_amount',
+        'paid_amount',
+        'installments',
+        'expenses',
+        'total_expenses',
+        'status',
+        'observations'
     ];
 
-    public function budget(){
+    public function budget()
+    {
         return $this->hasOne(Budget::class);
     }
 
-    public function ceremonyStatus(){
+    public function ceremonyStatus()
+    {
         return $this->hasOne(CeremonyStatus::class);
     }
 
-    public function task(){
+    public function task()
+    {
         return $this->hasMany(Task::class);
     }
 
-    public function receipt(){
+    public function receipt()
+    {
         return $this->hasMany(Receipt::class);
     }
 }

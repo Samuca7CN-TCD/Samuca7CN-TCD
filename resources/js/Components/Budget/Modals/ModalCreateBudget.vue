@@ -35,7 +35,7 @@ const form = useForm({
     guests_quantity: 0,
     event_date: budget_event_date,
     budget_total_value: 0.0,
-    status: 2,
+    status: 0,
 
     budget_comment: null,
     budget_token: null,

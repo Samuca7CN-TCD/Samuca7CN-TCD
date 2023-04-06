@@ -13,7 +13,7 @@ defineProps({
     budget_selects_options: Object,
     budget: Object,
     ceremony: Object,
-})
+});
 </script>
 <template>
     <AppLayout title="Clientes" :submenu='submenu' :activated_page='activated_page' :submenu_category="submenu_category">

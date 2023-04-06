@@ -13,7 +13,7 @@ defineProps({
     <AppLayout title="Ingredient" :submenu='submenu' :activated_page='activated_page' :submenu_category="submenu_category">
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
-                Ingredients
+                Ingredientes
             </h2>
         </template>
         <Ingredients :activated_page="activated_page" :plate="plate" :ingredient_list="ingredient_list" />

@@ -26,10 +26,10 @@ class BuffetSeeder extends Seeder
 - Acompanhamento (Farofa com Calabresa)
 - Sobremesa (Bolo com Sorvete)
 - Encerramento (Mesa de Café, Petit Fours)',
-            'price' => 101,
+            'price' => 640,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
 
         DB::table('buffets')->insert([
@@ -44,10 +44,10 @@ class BuffetSeeder extends Seeder
 - Filé de frango ao molho de maracujá ou laranja;
 - Sobremesa (Bolo com Sorvete);
 - Encerramento (Mesa de Café, Petit Fours)',
-            'price' => 0,
+            'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
 
         DB::table('buffets')->insert([
@@ -61,10 +61,10 @@ class BuffetSeeder extends Seeder
 - Massa (Ravioli 4 queijos com molho (Rosê ou Sugo))
 - Sobremesa (Bolo com Sorvete);
 - Encerramento (Mesa de Café, Petit Fours)',
-            'price' => 0,
+            'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
 
         DB::table('buffets')->insert([
@@ -81,10 +81,10 @@ class BuffetSeeder extends Seeder
 - Farofa com Bacon
 - Sobremesa (Bolo com Sorvete);
 - Encerramento (Mesa de Café, Petit Fours)',
-            'price' => 0,
+            'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
 
         DB::table('buffets')->insert([
@@ -105,10 +105,10 @@ Sobremesa:
 Encerramento:
 - Mesa de café 
 - Petit fours ',
-            'price' => 0,
+            'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
 
         DB::table('buffets')->insert([
@@ -116,21 +116,21 @@ Encerramento:
             'name' => 'Tábua de Frios',
             // 'code' => 'cold_cuts_board',
             'description' => 'Mix de azeitonas, patê de frango com ervas finas e torradas, ovinhos de codorna, queijos mussarela e prato, lombo canadense defumado e pães mini brioche.',
-            'price' => 101,
+            'price' => 100,
             'type' => 2,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
-    
+
         DB::table('buffets')->insert([
             'status' => 1,
             'name' => 'Salgados Finos',
             // 'code' => 'fine_snacks',
             'description' => 'Quiche de ricota com espinafre, trouxinha de calabresa , croquete de carne, mini croissant, empada de frango/palmito, pérola de queijo  e crespinho de milho. ',
-            'price' => 0.0,
+            'price' => 100,
             'type' => 2,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
     }
 }

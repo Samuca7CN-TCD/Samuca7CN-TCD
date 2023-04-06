@@ -56,6 +56,7 @@ Route::middleware([
     Route::resource('/clients', ClientController::class);
     Route::resource('/budgets', BudgetController::class);
     Route::resource('/ceremonies', CeremonyController::class);
+    Route::post('/ceremonies/{budget_id}/{option}', [CeremonyController::class, 'cycle_ceremony'])->name('ceremony.cycle');
 
     Route::resource('/tasks', TaskController::class);
     Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');

@@ -47,8 +47,13 @@ const goToBudget = (budget_id) => {
                         class="lg:border-b-2 lg-border-gray-100 hover:bg-gray-200 text-center cursor-pointer"
                         :class="{ 'bg-gray-100': (index % 2 != 0) }" @click="goToBudget(budget.id)">
                         <td class="py-3 px-5">
-                            <div class="w-3 h-3 rounded-full"
-                                :class="{ 'bg-green-700': budget.status == 1, 'bg-red-700': budget.status == 0, 'bg-yellow-700': budget.status == 2 }">
+                            <div class="w-3 h-3 rounded-full" :class="{
+                                'bg-gray-700': budget.status == 0,
+                                'bg-green-700': budget.status == 1,
+                                'bg-yellow-700': budget.status == 2,
+                                'bg-red-700': budget.status == 3,
+                                'bg-blue-700': budget.status == 4,
+                            }">
                             </div>
                         </td>
                         <td class="py-3 px-5 truncate">

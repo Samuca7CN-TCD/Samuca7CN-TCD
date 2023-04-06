@@ -114,8 +114,10 @@ class BudgetController extends Controller
         $ceremony = Ceremony::where('budget_id', $budget->id)->first();
 
         $budgets = Budget::select('budgets.*', 'events.name AS event_name')
-            ->where('client_id', $budget->client_id)
+            ->where('budgets.client_id', $budget->client_id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
+            ->orderBy('budgets.created_at', 'desc')
+            ->orderBy('budgets.event_date', 'desc')
             ->get();
 
         $budget_selects_options = array(

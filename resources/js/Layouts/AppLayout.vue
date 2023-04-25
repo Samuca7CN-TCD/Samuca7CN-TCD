@@ -34,7 +34,7 @@ const logout = () => {
 <template>
     <div class="min-w-[320px]">
         <div class="flex flex-row">
-            <div class="hidden lg:block w-1/4 min-h-screen bg-neutral-900 text-white">
+            <div v-if="activated_page != -50" class="hidden lg:block w-1/4 min-h-screen bg-neutral-900 text-white">
                 <div class="w-full flex-col-config">
                     <!-- Logo -->
                     <div class="w-full py-2 px-2 flex-row-config bg-black mb-10">
@@ -45,7 +45,7 @@ const logout = () => {
                     <Submenu :submenu="submenu" :submenu_category="submenu_category" :activated_page="activated_page" />
                 </div>
             </div>
-            <div class="w-full lg:w-3/4 min-h-screen">
+            <div class="w-full lg:w-3/4 min-h-screen" :class="{ 'lg:w-full': activated_page == -50 }">
 
                 <Head :title="title" />
 

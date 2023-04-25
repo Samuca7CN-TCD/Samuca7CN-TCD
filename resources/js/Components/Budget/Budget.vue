@@ -2,7 +2,6 @@
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
-import Financial from '@/Components/Ceremony/Financial.vue';
 
 const props = defineProps({
     budget: Object,
@@ -53,7 +52,7 @@ const ceremony_form = useForm({
 */
 
 const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
+    if (value !== null) return value.toLocaleString('pt-br', {
         style: 'currency',
         currency: 'BRL'
     });
@@ -115,16 +114,13 @@ const show_status = () => {
 }
 
 const cycleCerimony = (budget_id, option) => {
-    router.post(route('ceremony.cycle', [budget_id, option], { preserveScroll: true }));
+    router.post(route('ceremonies.cycle', [budget_id, option], { preserveScroll: true }));
 }
 </script>
 <template>
     <section class="w-11/12 m-auto px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
         <div class="w-full min-h-[10px] bg-gray-900">
-            <Ceremony v-if="ceremony" :ceremony="ceremony" :budget="budget" @financial="(show) => show_financial = show" />
-        </div>
-        <div v-if="ceremony && show_financial" class="w-full">
-            <Financial :ceremony="ceremony" :budget="budget" :financial="show_financial" />
+            <Ceremony v-if="ceremony" :ceremony="ceremony" :budget="budget" :button_type="0" />
         </div>
         <form v-if="!show_financial" id="create_task" @submit.prevent="budget_submit"
             class="w-full px-0 md:py-5 md:px-14 xl:px-24">

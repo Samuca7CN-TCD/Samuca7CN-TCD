@@ -88,6 +88,7 @@ class CeremonyController extends Controller
         $ceremony->total_negotiated_amount = $budget->budget_total_value;
         $ceremony->paid_amount = 0;
         $ceremony->installments = json_encode(array());
+        $ceremony->additions = json_encode((object) array());
         $ceremony->expenses = array(
             'phol' => $budget->dj ? 1200 : 0,
             'decoração' => Decoration::find($budget->decoration_id)->price,
@@ -195,6 +196,51 @@ class CeremonyController extends Controller
     {
         $ceremony = Ceremony::find($id);
         $ceremony->installments = json_encode($request->installment_list);
+        $total = 0;
+        foreach ($request->installment_list as $installment) $total += $installment['total_amount'];
+        $ceremony->total_installments = $total;
+        $ceremony->save();
+        return to_route('/financials', $id);
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return mixed
+     */
+    public function update_addition(Request $request, $id)
+    {
+        $ceremony = Ceremony::find($id);
+        $additions = (array) json_decode($ceremony->additions);
+
+        if ($request->op_type < 2) $additions[$request->name] = $request->amount;
+        else unset($additions[$request->name]);
+
+        $ceremony->total_additions = array_sum($additions);
+        $ceremony->additions = json_encode($additions);
+        $ceremony->total_negotiated_amount = $ceremony->total_negotiated_amount + $ceremony->total_additions;
+        $ceremony->save();
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return mixed
+     */
+    public function update_expense(Request $request, $id)
+    {
+        $ceremony = Ceremony::find($id);
+        $expenses = (array) json_decode($ceremony->expenses);
+
+        if ($request->op_type < 2) $expenses[$request->name] = $request->amount;
+        else unset($expenses[$request->name]);
+
+        $ceremony->total_expenses = array_sum($expenses);
+        $ceremony->expenses = json_encode($expenses);
         $ceremony->save();
     }
 

@@ -24,7 +24,7 @@ const form_ingredient = useForm({
 const create_modal_open = ref(false);
 
 const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
+    if (value !== null) return value.toLocaleString('pt-br', {
         style: 'currency',
         currency: 'BRL'
     });

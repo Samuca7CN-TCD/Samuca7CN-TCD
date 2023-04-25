@@ -24,7 +24,7 @@ const resizeDescriptionTextarea = () => {
 */
 
 const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
+    if (value !== null) return value.toLocaleString('pt-br', {
         style: 'currency',
         currency: 'BRL'
     });

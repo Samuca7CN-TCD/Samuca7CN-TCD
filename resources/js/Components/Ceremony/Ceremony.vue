@@ -1,11 +1,12 @@
 <script setup>
 import { ref } from 'vue';
+import { router } from '@inertiajs/core';
+
 const props = defineProps({
     ceremony: Object,
     budget: Object,
+    button_type: Number,
 });
-
-const emit = defineEmits(['financial']);
 
 const formatDate = (date) => {
     date = date.split(/\-|\ |\:|\T|\./);
@@ -13,7 +14,7 @@ const formatDate = (date) => {
 }
 
 const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
+    if (value !== null) return value.toLocaleString('pt-br', {
         style: 'currency',
         currency: 'BRL'
     });
@@ -26,23 +27,21 @@ const calcProgress = (total, restante) => {
 
 const progress = ref(calcProgress(props.ceremony.total_negotiated_amount, (props.ceremony.total_negotiated_amount - props.ceremony.paid_amount)));
 
-const goToFinancial = (mode) => {
-    emit('financial', mode);
-}
-
 </script>
 <template>
     <p class="text-white">
-    <div class="w-full bg-gray-900 flex-col-config space-y-5 lg:space-y-0 lg:flex-row-config text-white py-5 px-5 lg:px-10">
+    <div
+        class="w-full bg-stone-900 flex-col-config space-y-5 lg:space-y-0 lg:flex-row-config text-white py-5 px-5 lg:px-10">
         <div class="w-full lg:w-1/2 flex-col-config space-y-5">
             <p class="text-5xl font-bold">{{ toMonetary(ceremony.total_negotiated_amount) }}</p>
-            <a v-if="budget.status == 2"
-                class="rounded-xl px-3 py-1 text-white bg-gray-700 hover:bg-gray-800 active:bg-gray-700 cursor-pointer select-none"
-                @click="goToFinancial(1)">Editar
+            <a v-if="button_type == 0 && budget.status == 2" :href="route('financials.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Editar
                 Pagamento</a>
-            <a v-if="budget.status == 1"
-                class="rounded-xl px-3 py-1 text-white bg-gray-700 hover:bg-gray-800 active:bg-gray-700 cursor-pointer select-none"
-                @click="goToFinancial(2)">Pagar</a>
+            <a v-if="button_type == 0 && budget.status == 1" :href="route('financials.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Pagar</a>
+            <a v-if="button_type == 1" :href="route('budgets.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Ver
+                orçamento</a>
         </div>
         <div class="w-full lg:w-1/2 flex flex-col">
             <div class="space-y-3 text-lg font-mono">

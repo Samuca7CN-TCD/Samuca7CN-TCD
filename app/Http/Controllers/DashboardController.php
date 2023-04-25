@@ -6,6 +6,9 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Menu;
 use App\Models\Submenu;
+use App\Models\Client;
+use App\Models\Ceremony;
+use App\Models\Budget;
 
 class DashboardController extends Controller
 {
@@ -16,7 +19,14 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Dashboard');
+        $clients = Client::where('active', 1)->get();
+        $ceremonies = Ceremony::all();
+        $budgets = Budget::where('status', 1)->get();
+        return Inertia::render('Dashboard', [
+            'clients' => $clients,
+            'budgets' => $budgets,
+            'ceremonies' => $ceremonies,
+        ]);
     }
 
     /**

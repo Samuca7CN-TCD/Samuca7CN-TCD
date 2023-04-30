@@ -199,8 +199,9 @@ class CeremonyController extends Controller
         $total = 0;
         foreach ($request->installment_list as $installment) $total += $installment['total_amount'];
         $ceremony->total_installments = $total;
+        $ceremony->installment_option = $request->installment_list[0]['type'];
         $ceremony->save();
-        return to_route('/financials', $id);
+        return to_route('financials.index', $id);
     }
 
     /**
@@ -220,8 +221,10 @@ class CeremonyController extends Controller
 
         $ceremony->total_additions = array_sum($additions);
         $ceremony->additions = json_encode($additions);
-        $ceremony->total_negotiated_amount = $ceremony->total_negotiated_amount + $ceremony->total_additions;
+
+        // $ceremony->total_negotiated_amount = $ceremony->total_negotiated_amount + $ceremony->total_additions;
         $ceremony->save();
+        return to_route('financials.index', $id);
     }
 
     /**
@@ -242,6 +245,48 @@ class CeremonyController extends Controller
         $ceremony->total_expenses = array_sum($expenses);
         $ceremony->expenses = json_encode($expenses);
         $ceremony->save();
+        return to_route('financials.index', $id);
+    }
+
+    public function update_voucher(Request $request, $id)
+    {
+        $ceremony = Ceremony::find($id);
+        $installments = json_decode($ceremony->installments);
+
+        foreach ($installments as $installment) {
+            if ($installment->id == $request->installment_id) {
+                $file = $request->file('file');
+                $path = $file->storeAs('public/installment_files', $file->hashName());
+
+                if ($path) {
+                    array_push($installment->vouchers, (object) array(
+                        'id' => (int) $request->id,
+                        'name' => $request->name,
+                        'value' => (float) $request->value,
+                        'file' => '/storage/app/' . $path,
+                    ));
+
+                    $installment->paid_amount += $request->value;
+                    if ($installment->total_amount - $installment->paid_amount < 1) $installment->paid = true;
+                    $ceremony->paid_amount += $installment->paid_amount;
+                    $ceremony->installments = json_encode($installments);
+                    $ceremony->save();
+                    //return true;
+                }
+                break;
+            }
+        }
+    }
+
+    public function remove_voucher($filePaths = null)
+    {
+        if (!$filePaths) return false;
+        foreach ($filePaths as $filePath) {
+            if (file_exists($filePath)) {
+                unlink($filePath);
+            }
+        }
+        return true;
     }
 
     /**

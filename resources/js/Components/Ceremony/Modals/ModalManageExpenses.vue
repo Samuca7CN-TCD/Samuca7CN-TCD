@@ -5,6 +5,7 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
+import { toMonetary } from '../../shared_functions.js';
 
 const props = defineProps({
     ceremony_id: Number,
@@ -20,13 +21,6 @@ const form = useForm({
 
 const emit = defineEmits(['modal_open']);
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
-
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL',
-    });
-}
 
 const closeModal = () => {
     form.reset();

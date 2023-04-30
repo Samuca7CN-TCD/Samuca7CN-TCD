@@ -4,6 +4,7 @@ import { router } from '@inertiajs/core';
 import { ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
+import { toMonetary } from '../shared_functions.js';
 
 const props = defineProps({
     buffet_list: Object,
@@ -18,13 +19,6 @@ const buffet_value = ref(props.options['buffet']);
 
 const getBuffetPlates = () => {
     router.get(route('buffet-calculator.index', [qtd_pessoas.value, entry_value.value, buffet_value.value]));
-}
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
 }
 
 const sumTotal = (type) => {

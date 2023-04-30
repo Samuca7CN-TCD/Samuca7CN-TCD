@@ -3,19 +3,13 @@ import { ref } from 'vue';
 import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import ModalCreateExpense from '@/Components/MonthlyExpense/Modals/ModalCreateExpense.vue';
 import { router } from '@inertiajs/core';
+import { toMonetary } from '../shared_functions.js';
 
 const props = defineProps({
     expense_record: Object,
 });
 
 const modal_create_open = ref(false);
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
 
 const getTotal = () => {
     let total = 0;

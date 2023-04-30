@@ -4,6 +4,7 @@ import { router, useForm } from '@inertiajs/vue3';
 import { PlusIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import Buffet from '@/Components/BuffetCalculator/Buffet/Buffet.vue';
 import ModalCreatePlate from '@/Components/BuffetCalculator/Plate/Modals/ModalCreatePlate.vue';
+import { toMonetary } from '../shared_functions.js';
 
 const props = defineProps({
     activated_page: Number,
@@ -22,13 +23,6 @@ const form_plate = useForm({
 });
 
 const create_modal_open = ref(false);
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
 
 const formatDate = (date) => {
     date = date.split(/\-|\T|\:/);

@@ -5,9 +5,13 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
+import { toMonetary, formatDate } from '../../shared_functions.js';
+import loadInstallments from './loadInstallments';
 
 const props = defineProps({
-    ceremony_id: Number,
+    ceremony: Object,
+    budget: Object,
+    first_installment: Object,
     addition: Object,
     op_type: Number,
 });
@@ -18,15 +22,21 @@ const form = useForm({
     op_type: props.op_type,
 });
 
+const options = [1, 1, 2, 3, 4];
+
+const installment_info = ref({
+    config: props.first_installment ? {
+        name: props.first_installment.name || null,
+        payment_day: parseInt(formatDate(props.first_installment.deadline).split('/')[0]) || null,
+        type: props.first_installment.type || null,
+        payment_option: options[props.first_installment.type] || null,
+    } : null,
+    total_value: (props.ceremony.total_negotiated_amount + props.ceremony.total_additions),
+    event_date: props.budget.event_date,
+});
+
 const emit = defineEmits(['modal_open']);
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
-
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL',
-    });
-}
 
 const closeModal = () => {
     form.reset();
@@ -34,11 +44,33 @@ const closeModal = () => {
 }
 
 const submit = () => {
-    form.put(route('ceremonies.update.addition', props.ceremony_id), {
+    form.put(route('ceremonies.update.addition', props.ceremony.id), {
         preserveScroll: true,
-        onSuccess: () => closeModal(),
+        onSuccess: () => setTimeout(updateInstallments(), 500)
     });
 }
+
+const updateInstallments = () => {
+    if (installment_info.value.config != null) {
+        installment_info.value.config = {
+            name: props.first_installment.name || null,
+            payment_day: parseInt(formatDate(props.first_installment.deadline).split('/')[0]) || null,
+            type: props.first_installment.type || null,
+            payment_option: options[props.first_installment.type] || null,
+        };
+        installment_info.value.total_value = (props.ceremony.total_negotiated_amount + props.ceremony.total_additions);
+        installment_info.value.event_date = props.budget.event_date;
+
+        const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
+        router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, {
+            preserveScroll: true,
+            onSuccess: () => closeModal()
+        });
+    } else {
+        closeModal();
+    }
+}
+
 </script>
 <template>
     {{ addition }}

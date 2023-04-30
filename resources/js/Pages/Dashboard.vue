@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import { toMonetary } from '..//Components/shared_functions.js';
 
 const props = defineProps({
     clients: Object,
@@ -25,13 +26,6 @@ const registros = ref([{
     lucro: 0,
 }]);
 
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
 </script>
 
 <template>

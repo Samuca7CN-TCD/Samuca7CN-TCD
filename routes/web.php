@@ -58,8 +58,9 @@ Route::middleware([
     Route::resource('/budgets', BudgetController::class);
     Route::resource('/ceremonies', CeremonyController::class);
     Route::post('/ceremonies/{budget_id}/{option}', [CeremonyController::class, 'cycle_ceremony'])->name('ceremonies.cycle');
-    Route::put('/ceremonies/addition/{ceremony_id}', [CeremonyController::class, 'update_addition'])->name('ceremonies.update.addition');
-    Route::put('/ceremonies/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
+    Route::put('/addition/{ceremony_id}', [CeremonyController::class, 'update_addition'])->name('ceremonies.update.addition');
+    Route::put('/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
+    Route::post('/voucher/{ceremony_id}', [CeremonyController::class, 'update_voucher'])->name('ceremonies.update.voucher');
     Route::resource('/financials', InstallmentController::class);
 
     Route::resource('/tasks', TaskController::class);

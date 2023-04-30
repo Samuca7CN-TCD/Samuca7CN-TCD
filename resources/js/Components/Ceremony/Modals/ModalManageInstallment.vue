@@ -5,13 +5,14 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
+import { toMonetary, formatDate, geraStringAleatoria } from '../../shared_functions.js';
 
 const props = defineProps({
     ceremony: Object,
     installment: Object,
 });
 
-const installment = useForm({
+const installment = ref({
     id: props.installment.id,
     name: props.installment.name,
     paid_amount: props.installment.paid_amount,
@@ -22,34 +23,34 @@ const installment = useForm({
     vouchers: props.installment.vouchers,
 });
 
-console.log(props.installment);
+const new_voucher = useForm('VoucherForm', {
+    id: installment.value.vouchers.length ? installment.value.vouchers[installment.value.vouchers.length - 1].id + 1 : 0,
+    installment_id: installment.value.id,
+    name: null,
+    value: installment.value.total_amount - installment.value.paid_amount,
+    file: null,
+});
+
+const pay = () => {
+    if (installment.value.paid || new_voucher.value > installment.value.total_amount - installment.value.paid_amount) {
+        alert('Você não pode pagar mais do que o valor restante!');
+        return;
+    }
+    new_voucher.post(route('ceremonies.update.voucher', props.ceremony.id), {
+        preserveScroll: true,
+        onSuccess: () => new_voucher.reset()
+    });
+    console.log(installment.value.vouchers);
+}
+
+const deletePayment = () => {
+}
 
 const emit = defineEmits(['modal_open']);
-const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
-const months = ref(['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'])
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
-const formatDate = (date) => {
-    date = date.split(/\-|\ |\T|\:/);
-    return date[2] + " de " + months.value[parseInt(date[1])].toLowerCase() + " de " + date[0];
-}
-
 const closeModal = () => {
     emit('modal_open', false);
 }
 
-const submit = () => {
-    installment_payment.put(route('ceremonies.update.installment', props.ceremony.id), {
-        preserveScroll: true,
-        onSuccess: () => closeModal(),
-    });
-}
 </script>
 <template>
     <Modal :show="true">
@@ -96,7 +97,7 @@ const submit = () => {
                                 <dt class="text-sm font-medium text-gray-500">Pagamento e Comprovantes</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                                     <ul role="list" class="divide-y divide-gray-200 rounded-md border border-gray-200">
-                                        <li v-for="voucher in installment.vouchers"
+                                        <li v-for="voucher in installment.vouchers" :key="voucher.id"
                                             class="flex items-center justify-between py-3 pl-3 pr-4 text-sm group">
                                             <div class="flex w-0 flex-1 items-center">
                                                 <PaperClipIcon
@@ -108,11 +109,11 @@ const submit = () => {
                                                     @click="deletePayment(voucher.id)" />
                                                 <span class="ml-2 w-0 flex-1 truncate text-gray-500">{{ voucher.name
                                                 }}</span>
-                                                <span class="ml-2 w-0 flex-1">{{ toMonetary(voucher.amount)
+                                                <span class="ml-2 w-0 flex-1">{{ toMonetary(parseFloat(voucher.value))
                                                 }}</span>
                                             </div>
                                             <div class=" ml-4 flex-shrink-0">
-                                                <a :href="getDocUrl(voucher.doc)"
+                                                <a :href="voucher.file"
                                                     class="font-medium text-indigo-600 hover:text-indigo-500"
                                                     :download="voucher.name">Baixar</a>
                                             </div>
@@ -126,7 +127,7 @@ const submit = () => {
                                                             (R$)</label>
                                                         <input id="payment_amount" type="number" step="0.01" min="0.00"
                                                             :max="installment.total_amount - installment.paid_amount"
-                                                            class="w-full border-gray-300" v-model="new_payment"
+                                                            class="w-full border-gray-300" v-model="new_voucher.value"
                                                             placeholder="Valor" />
                                                     </div>
                                                     <div class="flex flex-row items-center align-middle space-x-3">
@@ -135,17 +136,18 @@ const submit = () => {
                                                             title="Inserir comprovante">
                                                             <ArrowUpOnSquareIcon class="w-6 h-6 text-white" />
                                                         </label>
-                                                        <span class="w-full flex-wrap">{{ new_voucher != null ?
+                                                        <span class="w-full flex-wrap">{{ new_voucher.name != null ?
                                                             new_voucher.name : 'Insira o comprovante (obrigatório)'
                                                         }}</span>
-                                                        <input id="voucher" @change="previewVoucher" type="file"
-                                                            accept=".pdf" class="hidden" />
+                                                        <input id="voucher"
+                                                            @input="new_voucher.name = $event.target.files[0].name; new_voucher.file = $event.target.files[0]"
+                                                            type="file" accept=".pdf" class="hidden" />
                                                     </div>
                                                 </div>
                                             </div>
                                             <div class="ml-4 flex-shrink-0">
                                                 <p class="font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer"
-                                                    @click="pay()">
+                                                    @click=" pay() ">
                                                     Adicionar</p>
                                             </div>
                                         </li>
@@ -156,13 +158,10 @@ const submit = () => {
                     </div>
                 </div>
                 <div class="w-full px-4 py-3 sm:px-6 mt-5 text-right">
-                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': installment.processing }"
-                        :disabled="processing" @click="closeModal">
+                    <SecondaryButton :type=" 'button' " class="ml-4" :class=" { 'opacity-25': installment.processing } "
+                        :disabled=" installment.processing " @click=" closeModal ">
                         Fechar
                     </SecondaryButton>
-                    <PrimaryButton class="ml-4" :class="{ 'opacity-25': processing }" :disabled="installment.processing">
-                        Cadastrar
-                    </PrimaryButton>
                 </div>
             </div>
         </form>

@@ -5,6 +5,8 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
+import loadInstallments from './loadInstallments.js';
+import { toMonetary } from '../../shared_functions.js';
 
 const props = defineProps({
     ceremony: Object,
@@ -16,14 +18,16 @@ const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); 
 const installments_config = ref({
     name: 'Parcela',
     payment_day: 10,
+    type: 0, // 0 é payment_option = 1 mensal | 1 é payment_option = 1 mensal | 2 é payment_option = 2 | 2 é payment_option = 3 | 4 é payment_option = 4 |
     payment_option: 1,
-    type: 0,
-})
-const installments = ref([]);
+});
+
+const installments = ref(loadInstallments(installments_config.value, (props.ceremony.total_negotiated_amount + props.ceremony.total_additions), props.budget.event_date));
 
 const installment = useForm({
     id: installments.value[installments.value.length] + 1,
     name: 'Parcela',
+    type: 0,
     paid_amount: 0,
     paid: 0,
     total_amount: 0,
@@ -32,135 +36,6 @@ const installment = useForm({
     vouchers: [],
 });
 
-const loadInstallments = () => {
-
-    // Declaração das variaveis gerais
-    installments.value = [];
-    const valor_total = parseFloat(props.ceremony.total_negotiated_amount);
-    const data_atual = new Date();
-    const data_evento = new Date(props.budget.event_date);
-    const payment_day = installments_config.value.payment_day;
-    let valor_entrada = 0;
-    let valor_fechamento = 0;
-    let valor_restante = 0;
-    const option = parseInt(installments_config.value.payment_option);
-
-    // Esquematização da divisão dos valores
-    switch (option) {
-        case 1:
-            valor_entrada = valor_total * 0.15;
-            valor_fechamento = valor_total * 0.15;
-            valor_restante = valor_total * 0.7;
-            break;
-        case 2:
-            valor_entrada = valor_total * 0.5;
-            valor_fechamento = valor_total * 0.5;
-            break;
-        case 3:
-            valor_entrada = valor_total - (valor_total * 0.05);
-            break;
-        case 4:
-            valor_restante = valor_total;
-            break;
-        default:
-            alert("Erro! Contacte o desenvolvedor do Sistema!");
-    }
-
-    // calcular prazo para o pagamento da entrada
-    let prazo_entrada = new Date(data_atual.getTime());
-    let dias_uteis = 0;
-    while (dias_uteis < 3) {
-        prazo_entrada.setDate(prazo_entrada.getDate() + 1);
-        if (prazo_entrada.getDay() !== 0 && prazo_entrada.getDay() !== 6) {
-            dias_uteis++;
-        }
-    }
-
-    // calcular prazo para o pagamento de fechamento
-    let prazo_fechamento = new Date(data_evento.getTime());
-    if (option == 1) prazo_fechamento.setDate(prazo_fechamento.getDate() - 15);
-    else if (option == 2) prazo_fechamento.setDate(prazo_fechamento.getDate() - 30);
-
-    // calcular quantidade de parcelas instermediárias
-    let qtd_meses = (prazo_fechamento.getFullYear() - prazo_entrada.getFullYear()) * 12;
-    if (option == 1) {
-        qtd_meses -= prazo_entrada.getMonth();
-        qtd_meses += (prazo_fechamento.getMonth() - 1);
-        if (installments_config.value.type == 1) {
-            qtd_meses = parseInt(qtd_meses / 3);
-        }
-
-    } else if (option == 4) {
-        qtd_meses -= (data_atual.getMonth() + 1);
-        qtd_meses += (data_evento.getMonth() - 1);
-    }
-    qtd_meses = (qtd_meses <= 0) ? 1 : qtd_meses;
-
-    // calcular valor de cada parcela intermediária
-    let valor_parcela = valor_restante / qtd_meses;
-    while (valor_parcela < 1000) {
-        qtd_meses -= 1;
-        valor_parcela = valor_restante / qtd_meses;
-    }
-
-    // settar parcela de entrada
-    if (option < 4) {
-        installments.value.push({
-            id: installments.value.length,
-            name: installments_config.value.name + ' (Entrada)',
-            paid_amount: 0,
-            paid: 0,
-            total_amount: valor_entrada,
-            deadline: (new Date(prazo_entrada)).toISOString().slice(0, 19).replace('T', ' '),
-            entry: true,
-            vouchers: [],
-        });
-    }
-
-    // settar parcelas intermediárias
-    if (option == 1 || option == 4) {
-        let j = 0;
-        for (let i = 0; i < qtd_meses; i++) {
-            installments.value.push({
-                id: installments.value.length,
-                name: installments_config.value.name,
-                paid_amount: 0,
-                paid: 0,
-                total_amount: valor_parcela,
-                deadline: (new Date(prazo_entrada.getFullYear(), prazo_entrada.getMonth() + 1 + j, payment_day)).toISOString().slice(0, 19).replace('T', ' '),
-                entry: false,
-                vouchers: [],
-            });
-            if (installments_config.value.type == 0) {
-                j++;
-            } else {
-                j += 3;
-            }
-        }
-    }
-
-    // settar parcela de fechamento
-    if (option == 1 || option == 2) {
-        installments.value.push({
-            id: installments.value.length,
-            name: installments_config.value.name + ' (Fechamento)',
-            paid_amount: 0,
-            paid: 0,
-            total_amount: valor_fechamento,
-            deadline: (new Date(prazo_fechamento)).toISOString().slice(0, 19).replace('T', ' '),
-            entry: false,
-            vouchers: [],
-        });
-    }
-}
-loadInstallments();
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
 const closeModal = () => {
     installments_config.value.name = "";
     installments_config.value.payment_option = 1;
@@ -195,7 +70,8 @@ const submit = () => {
                         <label for="installment_name" class="text-xs text-slate-700">Nome das
                             parcelas</label>
                         <input type="text" id="installment_name" placeholder="Ex: Primeiro parcelamento"
-                            v-model="installments_config.name" @keyup="loadInstallments"
+                            v-model="installments_config.name"
+                            @keyup="installments = loadInstallments(installments_config, (ceremony.total_negotiated_amount + ceremony.total_additions), budget.event_date)"
                             class="w-full border-slate-300 sm:text-md" />
                     </div>
 
@@ -206,14 +82,16 @@ const submit = () => {
                             parcelas</label>
                         <input type="number" step="1" min="1" max="28" id="installment_payment_day"
                             placeholder="Ex: Todo dia 10 (Dia máximo: 28)" v-model="installments_config.payment_day"
-                            @keyup="loadInstallments" class="w-full border-slate-300 sm:text-md" />
+                            @keyup="installments = loadInstallments(installments_config, (ceremony.total_negotiated_amount + ceremony.total_additions), budget.event_date)"
+                            class="w-full border-slate-300 sm:text-md" />
                     </div>
 
                     <!-- Opção de parcelamento -->
                     <div class="w-full">
                         <label for="installment_payment_option" class="text-xs text-slate-700">Condição de pagamento</label>
                         <select id="installment_payment_option" class="w-full border-slate-300 sm:text-md"
-                            v-model="installments_config.payment_option" @change="loadInstallments">
+                            v-model="installments_config.payment_option"
+                            @change="installments = loadInstallments(installments_config, (ceremony.total_negotiated_amount + ceremony.total_additions), budget.event_date)">
                             <option value="0" disabled>Escolha uma das opções abaixo</option>
                             <option value="1">15% de entrada + 70% parcelado + 15% duas semanas antes do evento
                             </option>
@@ -228,12 +106,14 @@ const submit = () => {
                         <label class="text-xs text-slate-700">Tipo de mensalidade</label>
                         <span class="flex flex-row space-x-2 align-middle items-center">
                             <input id="mensal_input" type="radio" class="form-radio text-stone-500" value="0"
-                                name="installment_type" v-model="installments_config.type" @change="loadInstallments">
+                                name="installment_type" v-model="installments_config.type"
+                                @change="installments = loadInstallments(installments_config, (ceremony.total_negotiated_amount + ceremony.total_additions), budget.event_date)">
                             <label for="mensal_input" class="ml-2">Mensal</label>
                         </span>
                         <span class="flex flex-row space-x-2 align-middle items-center">
                             <input id="trimestral_input" type="radio" class="form-radio text-stone-500" value="1"
-                                name="installment_type" v-model="installments_config.type" @change="loadInstallments">
+                                name="installment_type" v-model="installments_config.type"
+                                @change="installments = loadInstallments(installments_config, (ceremony.total_negotiated_amount + ceremony.total_additions), budget.event_date)">
                             <label for="trimestral_input" class="ml-2">Trimestral</label>
                         </span>
                     </div>

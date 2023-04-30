@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
+import { toMonetary } from '../shared_functions.js';
 
 const props = defineProps({
     buffet: Object,
@@ -21,16 +22,6 @@ const form_buffet = useForm({
 const resizeDescriptionTextarea = () => {
     return form_buffet.description.split('\n').length + 1
 }
-*/
-
-const toMonetary = (value) => {
-    if (value !== null) return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
-/*
 const submit = () => {
     form_buffet.put(route('buffets.update', form_buffet.id), {
         preserveScroll: true,

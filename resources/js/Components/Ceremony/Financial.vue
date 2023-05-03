@@ -7,6 +7,7 @@ import Ceremony from '@/Components/Ceremony/Ceremony.vue';
 import FinancialAdditions from '@/Components/Ceremony/FinancialAdditions.vue';
 import FinancialExpenses from '@/Components/Ceremony/FinancialExpenses.vue';
 import { toMonetary, formatDate } from '../shared_functions.js';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     ceremony: Object,
@@ -19,17 +20,23 @@ const props = defineProps({
 const open_create_installments_modal = ref(false);
 const open_manage_installment_modal = ref(false);
 const selected_installment = ref({});
+const obs = ref(props.ceremony.observations || "");
+const obs_rows = ref(obs.value.split('\n').length || 1);
 
 const installment_first = ref(props.installments[1] || props.installments[0] || null);
 
 const openManagemantModal = (installment_id) => {
-    console.log("Installment_id = " + installment_id);
     if (props.budget.status != 1) return;
     selected_installment.value = JSON.parse(props.ceremony.installments).filter((el) => el.id == installment_id)[0];
-    console.log(selected_installment.value);
     open_manage_installment_modal.value = true;
 }
 
+const saveObs = () => {
+    obs_rows.value = obs.value.split('\n').length || 1;
+    router.put(route('ceremonies.updade.obs', props.ceremony.id), { obs: obs.value }, {
+        preserveScroll: true,
+    });
+}
 </script>
 <template>
     <section class="w-11/12 m-auto px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
@@ -78,6 +85,12 @@ const openManagemantModal = (installment_id) => {
             </div>
         </div>
 
+        <div class="mx-10">
+            <label for="obs" class="text-xs text-slate-700">Observações</label>
+            <textarea id="obs" :rows="obs_rows" v-model="obs" placeholder="Observações sobre a Cerimônia"
+                class="w-full border-slate-300 sm:text-md" @input="saveObs" autofocus="true"></textarea>
+        </div>
+
         <div class="m-5 rounded-md border-2 border-stone-100">
             <FinancialAdditions :ceremony="ceremony" :budget="budget"
                 :first_installment="(installments[1] || installments[0] || null)" :additions="additions" />
@@ -88,7 +101,7 @@ const openManagemantModal = (installment_id) => {
 
         <ModalCreateInstallments v-if="open_create_installments_modal" :ceremony="ceremony" :budget="budget"
             @modal_open="(open) => open_create_installments_modal = open" />
-        <ModalManageInstallment v-if="open_manage_installment_modal" :ceremony="ceremony"
+        <ModalManageInstallment v-if="open_manage_installment_modal" :ceremony="ceremony" :installments="installments"
             :installment="selected_installment" @modal_open="(open) => open_manage_installment_modal = open" />
     </section>
 </template>

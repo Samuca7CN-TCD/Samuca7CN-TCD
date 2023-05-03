@@ -1,5 +1,4 @@
 export default function loadInstallments(config, total_value, event_date) {
-    console.log("COmeçei");
     // Declaração das variaveis gerais
     let installments = [];
     const valor_total = parseFloat(total_value);
@@ -59,7 +58,7 @@ export default function loadInstallments(config, total_value, event_date) {
         qtd_meses += (prazo_fechamento.getMonth() - 1);
         if (config.type == 1) {
             qtd_meses = parseInt(qtd_meses / 3);
-            installment_type = 2;
+            installment_type = 1;
         }
 
     } else if (option == 4) {

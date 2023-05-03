@@ -61,6 +61,8 @@ Route::middleware([
     Route::put('/addition/{ceremony_id}', [CeremonyController::class, 'update_addition'])->name('ceremonies.update.addition');
     Route::put('/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
     Route::post('/voucher/{ceremony_id}', [CeremonyController::class, 'update_voucher'])->name('ceremonies.update.voucher');
+    Route::put('/voucher/{ceremony_id}', [CeremonyController::class, 'delete_voucher'])->name('ceremonies.delete.voucher');
+    Route::put('/obsevation/{ceremony_id}', [CeremonyController::class, 'update_obs'])->name('ceremonies.updade.obs');
     Route::resource('/financials', InstallmentController::class);
 
     Route::resource('/tasks', TaskController::class);

@@ -3,7 +3,8 @@ import { ref } from 'vue';
 import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary, formatDate } from '../shared_functions.js';
+import loadInstallments from '../Ceremony/Modals/loadInstallments.js';
 
 const props = defineProps({
     budget: Object,
@@ -16,6 +17,14 @@ const min_date = ref(new Date());
 min_date.value = min_date.value.getFullYear() + '-' + dateZeroFiller(min_date.value.getMonth() + 1) + '-' + dateZeroFiller(min_date.value.getDate()) + 'T' + dateZeroFiller(min_date.value.getHours()) + ':' + dateZeroFiller(min_date.value.getMinutes());
 
 const show_financial = ref(0);
+
+const obs = ref(null);
+const obs_rows = ref(null);
+
+if (props.ceremony) {
+    obs.value = props.ceremony.observations || "";
+    obs_rows.value = obs.value.split('\n').length || 1;
+}
 
 const form = useForm({
     id: props.budget.id,
@@ -59,9 +68,45 @@ const progress = (total, remaining) => {
     return paid / total;
 }
 
+const saveObs = () => {
+    obs_rows.value = obs.value.split('\n').length || 1;
+    router.put(route('ceremonies.updade.obs', props.ceremony.id), { obs: obs.value }, {
+        preserveScroll: true,
+    });
+}
+
+const first_installment = ref(JSON.parse(props.ceremony.installments)[1] || JSON.parse(props.ceremony.installments)[0] || null);
+const installment_info = ref({
+    config: {
+        name: null,
+        payment_day: null,
+        type: null,
+        payment_option: null,
+    },
+    total_value: null,
+    event_date: null,
+});
+const options = [1, 1, 2, 3, 4];
+
+const updateInstallments = () => {
+    console.log(first_installment.value);
+    installment_info.value.config = {
+        name: first_installment.value.name || null,
+        payment_day: parseInt(formatDate(first_installment.value.deadline).split('/')[0]) || null,
+        type: first_installment.value.type || null,
+        payment_option: options[first_installment.value.type] || null,
+    };
+    installment_info.value.total_value = (props.ceremony.total_negotiated_amount + props.ceremony.total_additions);
+    installment_info.value.event_date = props.budget.event_date;
+    console.log("Olá caramba");
+    const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
+    router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, {preserveScroll: true,});
+}
+
 const submit = () => {
     form.put(route('budgets.update', form.id), {
         preserveScroll: true,
+        onSuccess: first_installment.value ? updateInstallments : () => { },
     });
 }
 
@@ -109,7 +154,15 @@ const show_status = () => {
 }
 
 const cycleCerimony = (budget_id, option) => {
-    router.post(route('ceremonies.cycle', [budget_id, option], { preserveScroll: true }));
+    router.post(route('ceremonies.cycle', [budget_id, option], {
+        preserveScroll: true,
+        onSuccess: () => {
+            if (option == 0) {
+                obs.value = ref(props.ceremony.observations || "");
+                obs_rows.value = ref(obs.value.split('\n').length || 1);
+            }
+        }
+    }));
 }
 </script>
 <template>
@@ -332,6 +385,12 @@ const cycleCerimony = (budget_id, option) => {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div v-if="ceremony" class="mx-10">
+                <label for="obs" class="text-xs text-slate-700">Observações</label>
+                <textarea id="obs" :rows="obs_rows" v-model="obs" placeholder="Observações sobre a Cerimônia"
+                    class="w-full border-slate-300 sm:text-md" @input="saveObs" autofocus="true"></textarea>
             </div>
         </form>
     </section>

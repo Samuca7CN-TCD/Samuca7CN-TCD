@@ -14,8 +14,7 @@ const calcProgress = (total, restante) => {
     else return -1;
 }
 
-const progress = ref(calcProgress(props.ceremony.total_negotiated_amount, (props.ceremony.total_negotiated_amount - props.ceremony.paid_amount)));
-
+const progress = ref(calcProgress(props.ceremony.total_negotiated_amount + props.ceremony.total_additions, ((props.ceremony.total_negotiated_amount + props.ceremony.total_additions) - props.ceremony.paid_amount)));
 </script>
 <template>
     <p class="text-white">
@@ -42,7 +41,8 @@ const progress = ref(calcProgress(props.ceremony.total_negotiated_amount, (props
         </div>
         <div class="w-full lg:w-1/2 flex flex-col">
             <div class="space-y-3 text-lg font-mono">
-                <p>Restante: {{ toMonetary(ceremony.total_negotiated_amount - ceremony.paid_amount) }}</p>
+                <p>Restante: {{ toMonetary((ceremony.total_negotiated_amount + ceremony.total_additions) -
+                    ceremony.paid_amount) }}</p>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mb-4 overflow-hidden" :title="(progress * 100) + '%'">
                     <div class="bg-gray-700 h-1.5" :class="{
                             'w-0': progress < 0.0833,

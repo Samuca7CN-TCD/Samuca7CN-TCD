@@ -22,7 +22,7 @@ const installments_config = ref({
     payment_option: 1,
 });
 
-const installments = ref(loadInstallments(installments_config.value, (props.ceremony.total_negotiated_amount + props.ceremony.total_additions), props.budget.event_date));
+const installments = ref(loadInstallments(installments_config.value, (props.budget.budget_total_value + props.ceremony.total_additions), props.budget.event_date));
 
 const installment = useForm({
     id: installments.value[installments.value.length] + 1,

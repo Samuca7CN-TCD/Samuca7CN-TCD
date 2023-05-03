@@ -10,6 +10,7 @@ import { toMonetary, formatDate, geraStringAleatoria } from '../../shared_functi
 const props = defineProps({
     ceremony: Object,
     installment: Object,
+    installments: Object,
 });
 
 const installment = ref({
@@ -21,9 +22,10 @@ const installment = ref({
     deadline: props.installment.deadline,
     entry: props.installment.entry,
     vouchers: props.installment.vouchers,
+    processing: false,
 });
 
-const new_voucher = useForm('VoucherForm', {
+const new_voucher = ref({
     id: installment.value.vouchers.length ? installment.value.vouchers[installment.value.vouchers.length - 1].id + 1 : 0,
     installment_id: installment.value.id,
     name: null,
@@ -32,23 +34,63 @@ const new_voucher = useForm('VoucherForm', {
 });
 
 const pay = () => {
-    if (installment.value.paid || new_voucher.value > installment.value.total_amount - installment.value.paid_amount) {
+    if (installment.value.paid || new_voucher.value.value > installment.value.total_amount - installment.value.paid_amount) {
         alert('Você não pode pagar mais do que o valor restante!');
         return;
     }
-    new_voucher.post(route('ceremonies.update.voucher', props.ceremony.id), {
+
+    if (!new_voucher.value.value || new_voucher.value.value < 0) {
+        alert('Insira um valor entre R$ 0,00 e ' + toMonetary(installment.value.total_amount - installment.value.paid_amount));
+        return;
+    }
+
+    if (!new_voucher.value.file) {
+        alert('O upload do comprovante é obrigatório!');
+        return;
+    }
+
+    new_voucher.value.id = installment.value.vouchers.length;
+    installment.value.processing = true;
+    router.post(route('ceremonies.update.voucher', props.ceremony.id), new_voucher.value, {
         preserveScroll: true,
-        onSuccess: () => new_voucher.reset()
+        onSuccess: () => recalc_conditions(),
     });
-    console.log(installment.value.vouchers);
 }
 
-const deletePayment = () => {
+const deletePayment = (voucher_id) => {
+    installment.value.processing = true;
+    console.log(installment.value.vouchers);
+    if (installment.value.vouchers.length == undefined) {
+        installment.value.vouchers = Object.values(installment.value.vouchers);
+    }
+    console.log(installment.value.vouchers);
+    const voucher_delete = installment.value.vouchers.find((v) => v.id == voucher_id);
+    console.log(installment.value.vouchers);
+    if (!voucher_delete) { alert('Comprovante não encontrado!'); return; }
+    router.put(route('ceremonies.delete.voucher', props.ceremony.id), voucher_delete, {
+        preserveScroll: true,
+        onSuccess: () => recalc_conditions(),
+    });
+}
+
+const recalc_conditions = () => {
+    const response = props.installments.find((i) => i.id == installment.value.id);
+    installment.value.paid_amount = response.paid_amount;
+    installment.value.paid = response.paid;
+    installment.value.total_amount = response.total_amount;
+    installment.value.vouchers = response.vouchers;
+
+    new_voucher.value.name = null;
+    new_voucher.value.value = response.total_amount - response.paid_amount;
+    new_voucher.value.file = null;
+
+    installment.value.processing = false;
 }
 
 const emit = defineEmits(['modal_open']);
 const closeModal = () => {
-    emit('modal_open', false);
+    //emit('modal_open', false);
+    router.get(route('financials.index', props.ceremony.id), { preserveScroll: true, });
 }
 
 </script>
@@ -113,9 +155,8 @@ const closeModal = () => {
                                                 }}</span>
                                             </div>
                                             <div class=" ml-4 flex-shrink-0">
-                                                <a :href="voucher.file"
-                                                    class="font-medium text-indigo-600 hover:text-indigo-500"
-                                                    :download="voucher.name">Baixar</a>
+                                                <a :href="voucher.file" target="_blank"
+                                                    class="font-medium text-indigo-600 hover:text-indigo-500">Baixar</a>
                                             </div>
                                         </li>
                                         <li v-if="!installment.paid"

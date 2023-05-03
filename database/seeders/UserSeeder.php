@@ -26,7 +26,29 @@ class UserSeeder extends Seeder
             'profile_photo' => base64_encode(file_get_contents('storage/app/public/profile_photo/default.png')),
             'password' => Hash::make('Lms1928$&chicagoeventos'),
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
-            'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('users')->insert([
+            'name' => 'Villy',
+            'surname' => 'Capozzi',
+            'username' => 'Villy',
+            'email' => 'vilycapozzi@gmail.com',
+            'profile_photo' => base64_encode(file_get_contents('storage/app/public/profile_photo/default.png')),
+            'password' => Hash::make('Liz0420*'),
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('users')->insert([
+            'name' => 'Leile',
+            'surname' => 'Castellazzo',
+            'username' => 'Leile',
+            'email' => 'chicagoeventos2021@gmail.com',
+            'profile_photo' => base64_encode(file_get_contents('storage/app/public/profile_photo/default.png')),
+            'password' => Hash::make('Liz0420*'),
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
         ]);
     }
 }

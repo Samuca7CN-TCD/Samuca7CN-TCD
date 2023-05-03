@@ -18,7 +18,7 @@ const lucro = ref(0);
 
 const registros = ref([{
     cliente: null,
-    creimonia: null,
+    cerimonia: null,
     valor_total: 0,
     valor_pago: 0,
     valor_restante: 0,
@@ -29,7 +29,7 @@ const registros = ref([{
 </script>
 
 <template>
-    <AppLayout title="Calculadora de Buffet" :activated_page='-50'>
+    <AppLayout title="Dashboard" :activated_page='-50'>
         <template #header>
             <h2 class="font-semibold text-xl text-gray-800 leading-tight">
                 Dashboard
@@ -37,29 +37,33 @@ const registros = ref([{
         </template>
 
         <section class="w-11/12 m-auto px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
-            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 m-5">
-                <div class="w-full bg-gray-200 rounded-md py-5 flex flex-col align-middle items-center text-2xl">
-                    <p>Valor total</p>
-                    <p>{{ toMonetary(valor_total) }}</p>
-                </div>
-                <div class="w-full bg-gray-200 rounded-md py-5 flex flex-col align-middle items-center text-2xl">
+            <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 m-5">
+                <div
+                    class="w-full bg-orange-600 text-white rounded-md py-5 flex flex-col align-middle items-center text-2xl">
                     <p>Valor recebido</p>
                     {{ toMonetary(valor_recebido) }}
                 </div>
-                <div class="w-full bg-gray-200 rounded-md py-5 flex flex-col align-middle items-center text-2xl">
+                <div
+                    class="w-full bg-yellow-600 text-white rounded-md py-5 flex flex-col align-middle items-center text-2xl">
                     <p>Valor a receber</p>
                     {{ toMonetary(valor_a_receber) }}
                 </div>
-                <div class="w-full bg-gray-200 rounded-md py-5 flex flex-col align-middle items-center text-2xl">
-                    <p>Custos Mensais</p>
-                    {{ toMonetary(gastos_mensais) }}
+                <div class="w-full bg-red-600 text-white rounded-md py-5 flex flex-col align-middle items-center text-2xl">
+                    <p>Custos</p>
+                    <span class="flex-row-config space-x-10">
+                        <span>
+                            <p class="text-xs">Cerimônias</p>
+                            <p class="text-md">{{ toMonetary(gastos_cerimonias) }}</p>
+                        </span>
+                        <span>
+                            <p class="text-xs">Gastos Mensais</p>
+                            <p class="text-md">{{ toMonetary(gastos_mensais) }}</p>
+                        </span>
+                    </span>
                 </div>
-                <div class="w-full bg-gray-200 rounded-md py-5 flex flex-col align-middle items-center text-2xl">
-                    <p>Custos das cerimônias</p>
-                    {{ toMonetary(gastos_cerimonias) }}
-                </div>
-                <div class="w-full bg-gray-200 rounded-md py-5 flex flex-col align-middle items-center text-2xl">
-                    <p>Lucro estimado</p>
+                <div
+                    class="w-full bg-green-600 text-white rounded-md py-5 flex flex-col align-middle items-center text-2xl">
+                    <p>Lucro total estimado</p>
                     {{ toMonetary(lucro) }}
                 </div>
             </div>

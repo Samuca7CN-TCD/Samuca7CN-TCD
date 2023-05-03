@@ -75,7 +75,7 @@ const saveObs = () => {
     });
 }
 
-const first_installment = ref(JSON.parse(props.ceremony.installments)[1] || JSON.parse(props.ceremony.installments)[0] || null);
+const first_installment = props.ceremony ? ref(JSON.parse(props.ceremony.installments)[1] || JSON.parse(props.ceremony.installments)[0] || null) : ref(null);
 const installment_info = ref({
     config: {
         name: null,
@@ -100,7 +100,7 @@ const updateInstallments = () => {
     installment_info.value.event_date = props.budget.event_date;
     console.log("Olá caramba");
     const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
-    router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, {preserveScroll: true,});
+    router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, { preserveScroll: true, });
 }
 
 const submit = () => {

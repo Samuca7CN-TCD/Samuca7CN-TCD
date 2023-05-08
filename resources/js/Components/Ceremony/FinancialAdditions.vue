@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import ModalManageAdditions from './Modals/ModalManageAdditions.vue';
 import { PencilIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/24/solid';
 import { router } from '@inertiajs/vue3';
-import { toMonetary, formatDate } from '../shared_functions.js';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
 import loadInstallments from './Modals/loadInstallments';
 
 const props = defineProps({

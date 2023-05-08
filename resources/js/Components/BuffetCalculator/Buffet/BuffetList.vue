@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { PlusIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import ModalCreateBuffet from '@/Components/BuffetCalculator/Buffet/Modals/ModalCreateBuffet.vue';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     activated_page: Number,
@@ -92,7 +92,7 @@ const goToBuffet = (buffet_id) => {
                                 {{ toMonetary(buffet.cost) }}
                             </td>
                             <td class="py-3 px-5 truncate" :title="buffet.description" @click="goToBuffet(buffet.id)">{{
-                                buffet.description }}</td>
+                                                            buffet.description }}</td>
                             <!--<td class="py-3 px-5 truncate flex-row-config"><XMarkIcon v-if="buffet.status == 2" class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Deletar Buffet Pendente" @click="deleteBuffet(buffet)" /> <DocumentDuplicateIcon v-else class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Duplicar Buffet" @click="duplicateBuffet(buffet)" /></td>-->
                         </tr>
                     </tbody>

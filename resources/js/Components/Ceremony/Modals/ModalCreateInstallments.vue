@@ -6,7 +6,7 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
 import loadInstallments from './loadInstallments.js';
-import { toMonetary } from '../../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     ceremony: Object,

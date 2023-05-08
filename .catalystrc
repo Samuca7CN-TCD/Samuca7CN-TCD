@@ -1,0 +1,64 @@
+{
+  "defaults": {
+    "project": 2,
+    "env": 1
+  },
+  "actives": {
+    "project": 2,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "17177000000004014",
+      "name": "chicago-eventos",
+      "domain": {
+        "id": "10057979916",
+        "name": "chicago-eventos-810521113.development"
+      },
+      "timezone": "America/Los_Angeles",
+      "env": [
+        {
+          "idx": 1,
+          "id": "810521113",
+          "name": "Development",
+          "type": 3,
+          "env_status": "Active",
+          "project_details": {
+            "project_name": "chicago-eventos",
+            "id": "17177000000004014",
+            "project_type": "Live"
+          },
+          "is_default": true,
+          "action_required": false
+        }
+      ]
+    },
+    {
+      "idx": 2,
+      "id": "17177000000005001",
+      "name": "chicago-eventos-catalyst",
+      "domain": {
+        "id": "10057985303",
+        "name": "chicago-eventos-catalyst-810521113.development"
+      },
+      "timezone": "America/Los_Angeles",
+      "env": [
+        {
+          "idx": 1,
+          "id": "810521113",
+          "name": "Development",
+          "type": 3,
+          "env_status": "Active",
+          "project_details": {
+            "project_name": "chicago-eventos-catalyst",
+            "id": "17177000000005001",
+            "project_type": "Live"
+          },
+          "is_default": true,
+          "action_required": false
+        }
+      ]
+    }
+  ]
+}

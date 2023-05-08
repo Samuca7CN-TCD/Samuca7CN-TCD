@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
-import { toMonetary, formatDate } from '../shared_functions.js';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
 import loadInstallments from '../Ceremony/Modals/loadInstallments.js';
 
 const props = defineProps({
@@ -176,13 +176,13 @@ const cycleCerimony = (budget_id, option) => {
                 <div class="w-full m-0 p-0 space-y-10">
                     <div class="flex flex-row items-center space-x-5">
                         <span class=" py-2 px-5 rounded-full text-white" :class="{
-                                'bg-gray-700': budget.status == 0,
-                                'bg-green-700': budget.status == 1,
-                                'bg-yellow-700': budget.status == 2,
-                                'bg-red-700': budget.status == 3,
-                                'bg-blue-700': budget.status == 4,
-                            }
-                            ">
+                                                        'bg-gray-700': budget.status == 0,
+                                                        'bg-green-700': budget.status == 1,
+                                                        'bg-yellow-700': budget.status == 2,
+                                                        'bg-red-700': budget.status == 3,
+                                                        'bg-blue-700': budget.status == 4,
+                                                    }
+                                                    ">
                             {{ show_status() }}
                         </span>
                         <span>
@@ -205,7 +205,7 @@ const cycleCerimony = (budget_id, option) => {
                                 </option>
                             </select>
                             <div v-if="form.errors.event_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.event_id }}
+                                                            form.errors.event_id }}
                             </div>
                         </div>
 
@@ -218,12 +218,12 @@ const cycleCerimony = (budget_id, option) => {
                                 <option v-for="   decoration    in    budget_selects_options.decorations   "
                                     :key="decoration.id" :value="decoration.id"
                                     :selected="form.decoration_id == decoration.id">{{
-                                        decoration.name }}
+                                                                        decoration.name }}
                                 </option>
                             </select>
                             <div v-if="form.errors.decoration_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.decoration_id
-                            }}
+                                                            form.errors.decoration_id
+                                                            }}
                             </div>
                         </div>
 
@@ -236,11 +236,11 @@ const cycleCerimony = (budget_id, option) => {
                                 <option v-for="   buffet_entry    in    budget_selects_options.buffet_entries   "
                                     :key="buffet_entry.id" :value="buffet_entry.id"
                                     :selected="form.buffet_entry_id == buffet_entry.id">{{
-                                        buffet_entry.name }}
+                                                                        buffet_entry.name }}
                                 </option>
                             </select>
                             <div v-if="form.errors.buffet_entry_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.buffet_entry_id }}
+                                                            form.errors.buffet_entry_id }}
                             </div>
                         </div>
 
@@ -255,7 +255,7 @@ const cycleCerimony = (budget_id, option) => {
                                 </option>
                             </select>
                             <div v-if="form.errors.buffet_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.buffet_id }}
+                                                            form.errors.buffet_id }}
                             </div>
                         </div>
                     </div>
@@ -275,8 +275,8 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Bar</label>
                                 </div>
                                 <div v-if="form.errors.bar" class="text-xs text-red-600 ml-3">{{
-                                    form.errors.bar
-                                }}
+                                                                    form.errors.bar
+                                                                    }}
                                 </div>
                             </div>
 
@@ -291,8 +291,8 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Cerveja</label>
                                 </div>
                                 <div v-if="form.errors.beer" class="text-xs text-red-600 ml-3">{{
-                                    form.errors.beer
-                                }}
+                                                                    form.errors.beer
+                                                                    }}
                                 </div>
                             </div>
 
@@ -307,7 +307,7 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Dj</label>
                                 </div>
                                 <div v-if="form.errors.dj" class="text-xs text-red-600 ml-3">{{ form.errors.dj
-                                }}
+                                                                    }}
                                 </div>
                             </div>
 
@@ -322,7 +322,7 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Acessoria</label>
                                 </div>
                                 <div v-if="form.errors.advisory" class="text-xs text-red-600 ml-3">{{
-                                    form.errors.advisory }}
+                                                                    form.errors.advisory }}
                                 </div>
                             </div>
                         </div>
@@ -335,8 +335,8 @@ const cycleCerimony = (budget_id, option) => {
                                 class="w-full border-slate-300 sm:text-md" v-model="form.event_date"
                                 :disabled="budget.status != 2" @input="calcBudgetTotal" />
                             <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{
-                                form.errors.event_date
-                            }}
+                                                            form.errors.event_date
+                                                            }}
                             </div>
                         </div>
                         <!-- Quantidade de convidados -->
@@ -347,7 +347,7 @@ const cycleCerimony = (budget_id, option) => {
                                 v-model="form.guests_quantity" :disabled="budget.status != 2" @input="calcBudgetTotal"
                                 minlength="8" maxlength="20" />
                             <div v-if="form.errors.guests_quantity" class="text-xs text-red-600 ml-3">{{
-                                form.errors.guests_quantity }}
+                                                            form.errors.guests_quantity }}
                             </div>
                         </div>
                     </div>
@@ -357,9 +357,9 @@ const cycleCerimony = (budget_id, option) => {
                         </li>
                         <li v-if="budget.budget_link"><span class="font-bold">Ver PDF do orçamento: </span><a
                                 href="https://google.com/" target="_blank" class="text-sky-600">{{
-                                    budget.budget_link }}</a></li>
+                                                                budget.budget_link }}</a></li>
                         <li v-if="budget.budget_comment"><span class="font-bold">Comentário do cliente: </span>"{{
-                            budget.budget_comment }}"</li>
+                                                    budget.budget_comment }}"</li>
                     </ul>
                     <h1 class="text-gray-900 text-xl">Valor do orçamento: {{ toMonetary(budget.budget_total_value) }}</h1>
                     <div class="flex flex-row space-x-5 justify-end">

@@ -1,7 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { toMonetary } from '..//Components/shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     budgets: Object,

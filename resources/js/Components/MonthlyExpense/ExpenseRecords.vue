@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import { PlusIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import ModalCreateExpense from '@/Components/MonthlyExpense/Modals/ModalCreateExpense.vue';
 import { router } from '@inertiajs/core';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     expense_record: Object,
@@ -29,7 +29,7 @@ const deleteExpenseRecord = (expense_record_id) => {
         <div class="w-full p-5 bg-gray-900">
             <p class="text-xl text-gray-300">Total de despesas mensais: <span
                     class="text-xl font-weight-bolder text-white">{{
-                        toMonetary(getTotal()) }}</span></p>
+                                        toMonetary(getTotal()) }}</span></p>
         </div>
         <div v-if="expense_record.last_record.length" class="w-full overflow-auto">
             <table class="w-full m-auto table-fixed overflow-auto mt-2">

@@ -5,7 +5,7 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
-import { toMonetary, formatDate } from '../../shared_functions.js';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
 import loadInstallments from './loadInstallments';
 
 const props = defineProps({

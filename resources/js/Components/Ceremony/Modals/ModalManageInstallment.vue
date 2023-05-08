@@ -5,7 +5,7 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
-import { toMonetary, formatDate, geraStringAleatoria } from '../../shared_functions.js';
+import { toMonetary, formatDate, geraStringAleatoria } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     ceremony: Object,

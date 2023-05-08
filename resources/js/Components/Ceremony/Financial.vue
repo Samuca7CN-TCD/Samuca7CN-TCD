@@ -6,7 +6,7 @@ import ModalManageInstallment from '@/Components/Ceremony/Modals/ModalManageInst
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
 import FinancialAdditions from '@/Components/Ceremony/FinancialAdditions.vue';
 import FinancialExpenses from '@/Components/Ceremony/FinancialExpenses.vue';
-import { toMonetary, formatDate } from '../shared_functions.js';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
 import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
@@ -45,9 +45,9 @@ const saveObs = () => {
         </div>
         <div class="w-full bg-stone-700 text-white flex-row-config space-x-5 text-2xl py-5">
             <p>Excedente:</p><span class="inline-flex">{{ toMonetary(ceremony.total_negotiated_amount +
-                ceremony.total_additions -
-                ceremony.total_expenses)
-            }}</span>
+                            ceremony.total_additions -
+                            ceremony.total_expenses)
+                            }}</span>
         </div>
 
         <div class="m-5 rounded-md border-2 border-stone-100">
@@ -67,7 +67,7 @@ const saveObs = () => {
                         <p class="text-xl text-gray-900">{{ installment.name }}</p>
                         <div>
                             <p class="text-xs text-gray-700">Restante: {{ toMonetary(installment.total_amount -
-                                installment.paid_amount) }}</p>
+                                                            installment.paid_amount) }}</p>
                             <p class="text-lg text-gray-900">{{ toMonetary(installment.total_amount) }}</p>
                         </div>
 

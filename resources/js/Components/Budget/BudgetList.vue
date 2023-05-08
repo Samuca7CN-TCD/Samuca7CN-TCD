@@ -4,7 +4,7 @@ import Client from '@/Components/Client/Client.vue';
 import { PlusIcon, SparklesIcon } from '@heroicons/vue/24/solid';
 import ModalCreateBudget from '@/Components/Budget/Modals/ModalCreateBudget.vue';
 import { router } from '@inertiajs/core';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     client: Object,
@@ -42,12 +42,12 @@ const goToBudget = (budget_id) => {
                         :class="{ 'bg-gray-100': (index % 2 != 0) }" @click="goToBudget(budget.id)">
                         <td class="py-3 px-5">
                             <div class="w-3 h-3 rounded-full" :class="{
-                                    'bg-gray-700': budget.status == 0,
-                                    'bg-green-700': budget.status == 1,
-                                    'bg-yellow-700': budget.status == 2,
-                                    'bg-red-700': budget.status == 3,
-                                    'bg-blue-700': budget.status == 4,
-                                }">
+                                                                'bg-gray-700': budget.status == 0,
+                                                                'bg-green-700': budget.status == 1,
+                                                                'bg-yellow-700': budget.status == 2,
+                                                                'bg-red-700': budget.status == 3,
+                                                                'bg-blue-700': budget.status == 4,
+                                                            }">
                             </div>
                         </td>
                         <td class="py-3 px-5 truncate">

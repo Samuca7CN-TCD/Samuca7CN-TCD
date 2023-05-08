@@ -4,7 +4,7 @@ import { router, useForm } from '@inertiajs/vue3';
 import { PlusIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import Plate from '@/Components/BuffetCalculator/Plate/Plate.vue';
 import ModalCreateIngredient from '@/Components/BuffetCalculator/Ingredient/Modals/ModalCreateIngredient.vue';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     activated_page: Number,

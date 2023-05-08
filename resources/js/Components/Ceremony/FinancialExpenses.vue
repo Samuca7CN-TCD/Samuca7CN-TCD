@@ -3,7 +3,7 @@ import { ref } from 'vue';
 import ModalManageExpenses from './Modals/ModalManageExpenses.vue';
 import { PencilIcon, XMarkIcon, PlusIcon } from '@heroicons/vue/24/solid';
 import { router } from '@inertiajs/vue3';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     ceremony: Object,

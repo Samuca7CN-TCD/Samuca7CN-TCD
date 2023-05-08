@@ -4,7 +4,7 @@ import { router } from '@inertiajs/core';
 import { ref } from 'vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import { toMonetary } from '../shared_functions.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     buffet_list: Object,
@@ -107,7 +107,7 @@ const getExcedent = (entry_id, buffet_id) => {
                     <p>Preço total: {{ toMonetary(getTotalPrice(entry_value, buffet_value)) }}</p>
                     <p>Custo total: {{ toMonetary(sumFullTotal()) }}</p>
                     <p class="text-xl font-weight-bolder">Excedente: {{ toMonetary(getExcedent(entry_value, buffet_value))
-                    }}
+                                            }}
                     </p>
                 </div>
             </div>
@@ -140,7 +140,7 @@ const getExcedent = (entry_id, buffet_id) => {
                                 </tr>
                                 <tr class="bg-red-100">
                                     <td class="py-3 px-5 truncate text-right" colspan="3">Custo totalda entrada: {{
-                                        toMonetary(sumTotal('entry')) }}</td>
+                                                                            toMonetary(sumTotal('entry')) }}</td>
                                 </tr>
                             </tbody>
                         </table>
@@ -175,7 +175,7 @@ const getExcedent = (entry_id, buffet_id) => {
 
                                 <tr class="bg-red-100">
                                     <td class="py-3 px-5 truncate text-right" colspan="3">Custo total do Buffet: {{
-                                        toMonetary(sumTotal('buffet')) }}</td>
+                                                                            toMonetary(sumTotal('buffet')) }}</td>
                                 </tr>
                             </tbody>
                         </table>

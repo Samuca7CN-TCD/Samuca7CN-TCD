@@ -46,7 +46,7 @@ const closeModal = () => {
 const submit = () => {
     form.put(route('ceremonies.update.addition', props.ceremony.id), {
         preserveScroll: true,
-        onSuccess: () => setTimeout(updateInstallments(), 500)
+        onSuccess: () => closeModal(),
     });
 }
 

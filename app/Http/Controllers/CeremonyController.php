@@ -202,7 +202,7 @@ class CeremonyController extends Controller
         foreach ($request->installment_list as $installment) $total += $installment['total_amount'];
         $ceremony->total_installments = $total;
         $ceremony->installment_option = $request->installment_list[0]['type'];
-        if ($ceremony->installment_option == 3) $ceremony->total_negotiated_amount = $budget->budget_total_value - ($budget->budget_total_value * 0.05);
+        if ($ceremony->installment_option == 3) $ceremony->total_negotiated_amount = $budget->budget_total_value * 0.95;
         else $ceremony->total_negotiated_amount = $budget->budget_total_value;
         $ceremony->save();
         return to_route('financials.index', $id);
@@ -218,6 +218,8 @@ class CeremonyController extends Controller
     public function update_addition(Request $request, $id)
     {
         $ceremony = Ceremony::find($id);
+        $budget = Budget::find($ceremony->budget_id);
+
         $additions = (array) json_decode($ceremony->additions);
 
         if ($request->op_type < 2) $additions[$request->name] = $request->amount;
@@ -226,7 +228,9 @@ class CeremonyController extends Controller
         $ceremony->total_additions = array_sum($additions);
         $ceremony->additions = json_encode($additions);
 
-        // $ceremony->total_negotiated_amount = $ceremony->total_negotiated_amount + $ceremony->total_additions;
+        $ceremony->total_negotiated_amount = $budget->budget_total_value;
+        if ($ceremony->installment_option == 3)  $ceremony->total_negotiated_amount *= 0.95;
+
         $ceremony->save();
         return to_route('financials.index', $id);
     }

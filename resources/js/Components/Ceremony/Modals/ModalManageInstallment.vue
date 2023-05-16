@@ -188,7 +188,7 @@ const closeModal = () => {
                                             </div>
                                             <div class="ml-4 flex-shrink-0">
                                                 <p class="font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer"
-                                                    @click=" pay() ">
+                                                    @click=" pay()">
                                                     Adicionar</p>
                                             </div>
                                         </li>
@@ -199,8 +199,8 @@ const closeModal = () => {
                     </div>
                 </div>
                 <div class="w-full px-4 py-3 sm:px-6 mt-5 text-right">
-                    <SecondaryButton :type=" 'button' " class="ml-4" :class=" { 'opacity-25': installment.processing } "
-                        :disabled=" installment.processing " @click=" closeModal ">
+                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': installment.processing }"
+                        :disabled="installment.processing" @click="closeModal">
                         Fechar
                     </SecondaryButton>
                 </div>

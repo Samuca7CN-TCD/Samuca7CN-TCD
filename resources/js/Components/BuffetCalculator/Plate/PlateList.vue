@@ -83,7 +83,7 @@ const goToPlate = (plate_id) => {
                                     {{ plate.name }}
                                 </td>
                                 <td class="py-3 px-5 truncate" @click="goToPlate(plate.id)">{{
-                                                                    plate.qtd_per_ten_people }} {{ plate.qtd_per_ten_people > 1 ? 'pratos' : 'prato' }}</td>
+                                    plate.qtd_per_ten_people }} {{ plate.qtd_per_ten_people > 1 ? 'pratos' : 'prato' }}</td>
                                 <td class="py-3 px-5 truncate" @click="goToPlate(plate.id)">{{ toMonetary(plate.cost) }}
                                 </td>
                                 <!--<td class="py-3 px-5 truncate flex-row-config"><XMarkIcon v-if="plate.status == 2" class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Deletar plate Pendente" @click="deleteplate(plate)" /><DocumentDuplicateIcon v-else class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Duplicar plate" @click="duplicateplate(plate)" /></td>-->

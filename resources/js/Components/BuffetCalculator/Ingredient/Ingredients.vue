@@ -12,6 +12,8 @@ const props = defineProps({
     ingredient_list: Object,
 });
 
+const create_modal_open = ref(false);
+
 /*
 const form_ingredient = useForm({
     name: '',

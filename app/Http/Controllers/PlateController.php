@@ -21,10 +21,10 @@ class PlateController extends Controller
     {
         $buffet = Buffet::find($buffet_id);
         $buffets = Buffet::where('type', $buffet->type)->where('status', 1)
-        ->orderBy('status', 'desc')
-        ->orderBy('name', 'asc')
-        ->orderBy('price', 'desc')
-        ->get();
+            ->orderBy('status', 'desc')
+            ->orderBy('name', 'asc')
+            ->orderBy('price', 'desc')
+            ->get();
         $plates = BuffetPlate::select('buffet_plates.*')
             ->where('buffet_plates.buffet_id', $buffet_id)
             ->get();

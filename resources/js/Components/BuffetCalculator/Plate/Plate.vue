@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     plate: Object,
@@ -21,16 +22,7 @@ const form_plate = useForm({
 const resizeDescriptionTextarea = () => {
     return form_plate.description.split('\n').length + 1
 }
-*/
 
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
-/*
 const submit = () => {
     form_plate.put(route('plates.update', form_plate.id), {
         preserveScroll: true,

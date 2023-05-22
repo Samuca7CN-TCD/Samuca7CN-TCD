@@ -4,12 +4,15 @@ import { router, useForm } from '@inertiajs/vue3';
 import { PlusIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import Plate from '@/Components/BuffetCalculator/Plate/Plate.vue';
 import ModalCreateIngredient from '@/Components/BuffetCalculator/Ingredient/Modals/ModalCreateIngredient.vue';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     activated_page: Number,
     plate: Object,
     ingredient_list: Object,
 });
+
+const create_modal_open = ref(false);
 
 /*
 const form_ingredient = useForm({
@@ -19,18 +22,8 @@ const form_ingredient = useForm({
     cost: 0.0,
     buffet_plate_id: props.plate.id,
 });
-*/
 
-const create_modal_open = ref(false);
-
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
-/*const setAttributes = (ingredient) => {
+const setAttributes = (ingredient) => {
     form_ingredient.status = ingredient.status;
     form_ingredient.name = ingredient.name;
     form_ingredient.description = ingredient.description;

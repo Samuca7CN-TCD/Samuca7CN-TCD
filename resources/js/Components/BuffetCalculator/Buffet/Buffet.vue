@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     buffet: Object,
@@ -21,16 +22,6 @@ const form_buffet = useForm({
 const resizeDescriptionTextarea = () => {
     return form_buffet.description.split('\n').length + 1
 }
-*/
-
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
-/*
 const submit = () => {
     form_buffet.put(route('buffets.update', form_buffet.id), {
         preserveScroll: true,
@@ -63,12 +54,12 @@ const submit = () => {
                     <div class="bg-gray-50 gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-gray-500">Excedente</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">{{ toMonetary(buffet.price -
-                            buffet.cost) }}</dd>
+                                                    buffet.cost) }}</dd>
                     </div>
                     <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-gray-500">Descrição</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0 whitespace-pre-line">{{
-                            buffet.description }}</dd>
+                                                    buffet.description }}</dd>
                     </div>
                 </dl>
             </div>

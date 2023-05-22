@@ -158,7 +158,8 @@ class BudgetController extends Controller
      */
     public function update(Request $request, $id)
     {
-        Budget::find($id)->update($request->validate([
+        $budget = Budget::find($id);
+        $budget->update($request->validate([
             'client_id' => ['required', 'numeric'],
 
             'event_id' => ['required', 'numeric'],
@@ -179,6 +180,11 @@ class BudgetController extends Controller
             'budget_token' => ['nullable', 'string', 'unique:budgets'],
             'budget_link' => ['nullable', 'string', 'unique:budgets'],
         ]));
+
+        $ceremony = Ceremony::where('budget_id', $id)->first();
+        $ceremony->total_negotiated_amount = $budget->budget_total_value;
+        $ceremony->save();
+
         return to_route('budgets.index');
     }
 

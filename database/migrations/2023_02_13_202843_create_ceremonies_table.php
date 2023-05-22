@@ -19,10 +19,18 @@ return new class extends Migration
             $table->double('total_negotiated_amount');
             $table->double('paid_amount');
             $table->tinyInteger('status');
+            $table->text('observations')->nullable();
+
             $table->json('installments')->nullable();
+            $table->double('total_installments')->nullable();
+            $table->tinyInteger('installment_option');
+
+            $table->json('additions')->nullable();
+            $table->double('total_additions')->nullable();
+
             $table->json('expenses')->nullable();
             $table->double('total_expenses')->nullable();
-            $table->text('observations')->nullable();
+
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('budget_id')->references('id')->on('budgets');

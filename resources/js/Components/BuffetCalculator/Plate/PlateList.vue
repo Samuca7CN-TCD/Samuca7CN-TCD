@@ -4,6 +4,7 @@ import { router, useForm } from '@inertiajs/vue3';
 import { PlusIcon, DocumentDuplicateIcon, XMarkIcon } from '@heroicons/vue/24/solid';
 import Buffet from '@/Components/BuffetCalculator/Buffet/Buffet.vue';
 import ModalCreatePlate from '@/Components/BuffetCalculator/Plate/Modals/ModalCreatePlate.vue';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     activated_page: Number,
@@ -23,19 +24,12 @@ const form_plate = useForm({
 
 const create_modal_open = ref(false);
 
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
 const formatDate = (date) => {
     date = date.split(/\-|\T|\:/);
     return date[2] + "/" + date[1] + "/" + date[0] + " às " + date[3] + ":" + date[4];
 }
 
-/*const setAttributes = (plate) => {
+const setAttributes = (plate) => {
     form_plate.status = plate.status;
     form_plate.name = plate.name;
     form_plate.description = plate.description;
@@ -43,6 +37,8 @@ const formatDate = (date) => {
     form_plate.qtd_per_ten_people = plate.qtd_per_ten_people;
     form_plate.ingredients = plate.ingredients;
 }
+
+/*c
 
 const togglePlateStatus = (plate) => {
     setAttributes(plate);
@@ -56,11 +52,11 @@ const duplicatePlate = (plate) => {
     form_plate.name = form_plate.name + ' - ' + String(new Date());
     form_plate.post(route('plates.store'), { preserveScroll: true });
 }
+*/
 
 const deletePlate = (plate_id) => {
     router.delete(route('plates.destroy', plate_id), { preserveScroll: true, })
 }
-*/
 
 const goToPlate = (plate_id) => {
     router.get(route('ingredients.index', plate_id));
@@ -92,15 +88,25 @@ const goToPlate = (plate_id) => {
                                     plate.qtd_per_ten_people }} {{ plate.qtd_per_ten_people > 1 ? 'pratos' : 'prato' }}</td>
                                 <td class="py-3 px-5 truncate" @click="goToPlate(plate.id)">{{ toMonetary(plate.cost) }}
                                 </td>
-                                <!--<td class="py-3 px-5 truncate flex-row-config"><XMarkIcon v-if="plate.status == 2" class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Deletar plate Pendente" @click="deleteplate(plate)" /><DocumentDuplicateIcon v-else class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300" title="Duplicar plate" @click="duplicateplate(plate)" /></td>-->
+                                <td class="py-3 px-5 truncate flex-row-config">
+                                    <XMarkIcon class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300"
+                                        title="Deletar plate Pendente" @click="deletePlate(plate.id)" />
+                                    <!--<DocumentDuplicateIcon v-else
+                                        class="w-6 h-6 text-stone-700 hover:text-stone-500 active:text-stone-300"
+                                        title="Duplicar plate" @click="duplicateplate(plate)" />-->
+                                </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
             </div>
             <div v-else class="w-full text-center my-5">{{ buffet.name }} não possui pratos cadastrados!</div>
-            <!--<div v-if="buffet.status == 2" class="w-full py-3 mb-10 text-sky-500 hover:text-sky-900 active:text-sky-700 cursor-pointer flex-row-config space-x-2 align-middle" @click="create_modal_open = true"><PlusIcon class="w-5 h-5" /> <span>Cadastrar novo prato</span></div>-->
+            <div class="w-full py-3 mb-10 text-sky-500 hover:text-sky-900 active:text-sky-700 cursor-pointer flex-row-config space-x-2 align-middle"
+                @click="create_modal_open = true">
+                <PlusIcon class="w-5 h-5" /> <span>Cadastrar novo prato</span>
+            </div>
         </section>
-        <!--<ModalCreatePlate v-if="create_modal_open" @modal_open="(open) => create_modal_open = open" />-->
+        <ModalCreatePlate v-if="create_modal_open" :buffet_id="buffet.id"
+            @modal_open="(open) => create_modal_open = open" />
     </Buffet>
 </template>

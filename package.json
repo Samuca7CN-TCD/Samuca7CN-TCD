@@ -22,6 +22,9 @@
     "dependencies": {
         "@headlessui/vue": "^1.7.10",
         "@heroicons/vue": "^2.0.16",
+        "@jridgewell/sourcemap-codec": "^1.4.15",
+        "crypto-js": "^4.1.1",
+        "vue-file-agent": "^1.7.3",
         "vue-image-preloader": "^0.2.8"
     }
 }

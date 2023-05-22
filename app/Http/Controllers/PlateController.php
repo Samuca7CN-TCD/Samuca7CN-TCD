@@ -21,10 +21,10 @@ class PlateController extends Controller
     {
         $buffet = Buffet::find($buffet_id);
         $buffets = Buffet::where('type', $buffet->type)->where('status', 1)
-        ->orderBy('status', 'desc')
-        ->orderBy('name', 'asc')
-        ->orderBy('price', 'desc')
-        ->get();
+            ->orderBy('status', 'desc')
+            ->orderBy('name', 'asc')
+            ->orderBy('price', 'desc')
+            ->get();
         $plates = BuffetPlate::select('buffet_plates.*')
             ->where('buffet_plates.buffet_id', $buffet_id)
             ->get();
@@ -35,6 +35,27 @@ class PlateController extends Controller
             'buffet' => $buffet,
             'plate_list' => $plates,
         ]);
+    }
+
+    private function recalc_buffet_cost()
+    {
+        $plates = BuffetPlate::all();
+        foreach ($plates as $plate) {
+            $cost = PlateIngredient::select(DB::raw('SUM(cost * quantity) AS total_value'))
+                ->where('buffet_plate_id', $plate->id)
+                ->get();
+            $plate->cost = $cost[0]->total_value;
+            $plate->save();
+        }
+
+        $buffets = Buffet::all();
+        foreach ($buffets as $buffet) {
+            $cost = BuffetPlate::select(DB::raw('SUM(cost * qtd_per_ten_people) AS total_value'))
+                ->where('buffet_id', $buffet->id)
+                ->get();
+            $buffet->cost = $cost[0]->total_value;
+            $buffet->save();
+        }
     }
 
     /**
@@ -50,7 +71,18 @@ class PlateController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        BuffetPlate::create($request->validate([
+            'status' => ['required', 'numeric'],
+            'name' => ['required', 'string'],
+            'description' => ['nullable', 'string'],
+            'cost' => ['nullable', 'numeric'],
+            'qtd_per_ten_people' => ['required', 'numeric'],
+            'measure_unity' => ['required', 'string'],
+            'buffet_id' => ['required', 'numeric'],
+        ]));
+
+        $this->recalc_buffet_cost();
+        return to_route('plates.index', $request->buffet_id);
     }
 
     /**
@@ -82,6 +114,9 @@ class PlateController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $plate = BuffetPlate::find($id);
+        $plate->delete();
+        $this->recalc_buffet_cost();
+        return to_route('plates.index', $plate->buffet_id);
     }
 }

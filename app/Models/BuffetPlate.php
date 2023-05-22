@@ -10,4 +10,14 @@ class BuffetPlate extends Model
 {
     use HasFactory;
     use SoftDeletes;
+
+    protected $fillable = [
+        'status',
+        'name',
+        'description',
+        'qtd_per_ten_people',
+        'measure_unity',
+        'cost',
+        'buffet_id',
+    ];
 }

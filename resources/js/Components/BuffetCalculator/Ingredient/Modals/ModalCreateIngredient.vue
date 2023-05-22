@@ -52,7 +52,7 @@ const submit = () => {
                     <div class="w-full">
                         <label for="ingredient_name" class="text-xs text-slate-700">Nome do Ingrediente</label>
                         <input type="text" id="Ingredient_name" placeholder="Nome do Ingrediente"
-                            class="w-full border-slate-300 sm:text-md" v-model="form_ingredient.name" />
+                            class="w-full border-slate-300 sm:text-md" autofocus required v-model="form_ingredient.name" />
                         <div v-if="form_ingredient.errors.name" class="text-xs text-red-600 ml-3">{{
                             form_ingredient.errors.name }}
                         </div>
@@ -73,7 +73,7 @@ const submit = () => {
                     <div class="w-full">
                         <label for="ingredient_quantity" class="text-xs text-slate-700">Quantidade por {{
                             plate.measure_unity }} de {{ plate.name }}</label>
-                        <input type="number" step="1" min="1" id="ingredient_quantity" placeholder="Quantidade"
+                        <input type="number" step="1" min="1" id="ingredient_quantity" required placeholder="Quantidade"
                             class="w-full border-slate-300 sm:text-md" v-model="form_ingredient.quantity" />
                         <div v-if="form_ingredient.errors.quantity" class="text-xs text-red-600 ml-3">{{
                             form_ingredient.errors.quantity }}
@@ -84,7 +84,7 @@ const submit = () => {
                     <div class="w-full">
                         <label for="measure_unit" class="text-xs text-slate-700">Unidade de Medida do ingrediente</label>
                         <input type="text" id="measure_unit" placeholder="Unidade de Medida"
-                            class="w-full border-slate-300 sm:text-md" v-model="form_ingredient.measure_unity" />
+                            class="w-full border-slate-300 sm:text-md" required v-model="form_ingredient.measure_unity" />
                         <div v-if="form_ingredient.errors.measure_unity" class="text-xs text-red-600 ml-3">{{
                             form_ingredient.errors.measure_unity }}
                         </div>
@@ -99,7 +99,7 @@ const submit = () => {
                                     class="text-gray-500 sm:text-sm">R$</span></div>
                             <input type="number" step="0.01" min="0.00" name="ingredient_cost" id="ingredient_cost"
                                 class="block w-full rounded-md border-0 py-1.5 pl-10 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-grey-600 sm:text-sm sm:leading-6"
-                                placeholder="Custo por unidade" v-model="form_ingredient.cost">
+                                placeholder="Custo por unidade" required v-model="form_ingredient.cost">
                             <div v-if="form_ingredient.errors.cost" class="text-xs text-red-600 ml-3">{{
                                 form_ingredient.errors.cost }}
                             </div>

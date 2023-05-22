@@ -3,9 +3,14 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Inertia\Inertia;
 use App\Models\Menu;
 use App\Models\Submenu;
+use App\Models\Client;
+use App\Models\Ceremony;
+use App\Models\Budget;
+use App\Models\MonthlyExpense;
 
 class DashboardController extends Controller
 {
@@ -16,7 +21,40 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        return Inertia::render('Dashboard');
+        $budgets = Budget::select(
+            'budgets.id',
+            'clients.name AS client_name',
+            'events.name AS event_name',
+            'ceremonies.total_negotiated_amount AS total_negociado',
+            'ceremonies.total_additions AS total_adicionado',
+            'ceremonies.paid_amount AS valor_pago',
+            'ceremonies.total_expenses AS total_gastos'
+        )
+            ->where('budgets.status', 1)
+            ->leftJoin('clients', 'clients.id', 'budgets.client_id')
+            ->leftJoin('events', 'events.id', 'budgets.event_id')
+            ->leftJoin('ceremonies', 'ceremonies.budget_id', 'budgets.id')
+            ->orderBy('clients.name')
+            ->get();
+
+        $valor_total = Ceremony::select(
+            DB::raw('(SUM(ceremonies.total_negotiated_amount) + SUM(ceremonies.total_additions)) as total'),
+            DB::raw('SUM(ceremonies.paid_amount) as paid'),
+            DB::raw('SUM(ceremonies.total_expenses) as expenses'),
+        )
+            ->where('budgets.status', 1)
+            ->leftJoin('budgets', 'budgets.id', 'ceremonies.budget_id')
+            ->first();
+
+        return Inertia::render('Dashboard', [
+            'budgets' => $budgets,
+            'valor_total' => (float) $valor_total->total,
+            'total_recebido' => (float) $valor_total->paid,
+            'total_a_receber' => (float) $valor_total->total - (float) $valor_total->paid,
+            'total_custos' => (float) $valor_total->expenses,
+            'total_gastos_mensais' => (float) MonthlyExpense::sum('amount'),
+            'total_lucro' => (float) $valor_total->total - (float) $valor_total->expenses,
+        ]);
     }
 
     /**

@@ -1,52 +1,48 @@
 <script setup>
 import { ref } from 'vue';
+import { router } from '@inertiajs/core';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
+
 const props = defineProps({
     ceremony: Object,
     budget: Object,
+    button_type: Number,
 });
-
-const emit = defineEmits(['financial']);
-
-const formatDate = (date) => {
-    date = date.split(/\-|\ |\:|\T|\./);
-    return date[2] + "/" + date[1] + "/" + date[0] + " às " + date[3] + ":" + date[4];
-}
-
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
 
 const calcProgress = (total, restante) => {
     if (total > 0) return 1 - (restante / total);
     else return -1;
 }
 
-const progress = ref(calcProgress(props.ceremony.total_negotiated_amount, (props.ceremony.total_negotiated_amount - props.ceremony.paid_amount)));
-
-const goToFinancial = (mode) => {
-    emit('financial', mode);
-}
-
+const progress = ref(calcProgress(props.ceremony.total_negotiated_amount + props.ceremony.total_additions, ((props.ceremony.total_negotiated_amount + props.ceremony.total_additions) - props.ceremony.paid_amount)));
 </script>
 <template>
     <p class="text-white">
-    <div class="w-full bg-gray-900 flex-col-config space-y-5 lg:space-y-0 lg:flex-row-config text-white py-5 px-5 lg:px-10">
+    <div
+        class="w-full bg-stone-900 flex-col-config space-y-5 lg:space-y-0 lg:flex-row-config text-white py-5 px-5 lg:px-10">
         <div class="w-full lg:w-1/2 flex-col-config space-y-5">
-            <p class="text-5xl font-bold">{{ toMonetary(ceremony.total_negotiated_amount) }}</p>
-            <a v-if="budget.status == 2"
-                class="rounded-xl px-3 py-1 text-white bg-gray-700 hover:bg-gray-800 active:bg-gray-700 cursor-pointer select-none"
-                @click="goToFinancial(1)">Editar
+            <div class="flex-col-config">
+                <p class="text-5xl font-thin">{{ toMonetary(ceremony.total_negotiated_amount +
+                    ceremony.total_additions) }}
+                </p>
+                <p class="text-xs">Valor do orçamento: {{ toMonetary(budget.budget_total_value) }}</p>
+            </div>
+            <a v-if="button_type == 0 && budget.status == 2" :href="route('financials.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Editar
                 Pagamento</a>
-            <a v-if="budget.status == 1"
-                class="rounded-xl px-3 py-1 text-white bg-gray-700 hover:bg-gray-800 active:bg-gray-700 cursor-pointer select-none"
-                @click="goToFinancial(2)">Pagar</a>
+            <a v-if="button_type == 0 && budget.status == 1" :href="route('financials.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Pagar</a>
+            <a v-if="button_type == 0 && budget.status > 2" :href="route('financials.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Ver
+                Pagamentos</a>
+            <a v-if="button_type == 1" :href="route('budgets.show', budget.id)"
+                class="rounded-xl px-3 py-1 text-white bg-stone-700 hover:bg-stone-800 active:bg-stone-700 cursor-pointer select-none">Ver
+                orçamento</a>
         </div>
         <div class="w-full lg:w-1/2 flex flex-col">
             <div class="space-y-3 text-lg font-mono">
-                <p>Restante: {{ toMonetary(ceremony.total_negotiated_amount - ceremony.paid_amount) }}</p>
+                <p>Restante: {{ toMonetary((ceremony.total_negotiated_amount + ceremony.total_additions) -
+                    ceremony.paid_amount) }}</p>
                 <div class="w-full bg-gray-200 rounded-full h-1.5 mb-4 overflow-hidden" :title="(progress * 100) + '%'">
                     <div class="bg-gray-700 h-1.5" :class="{
                         'w-0': progress < 0.0833,

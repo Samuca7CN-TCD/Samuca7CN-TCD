@@ -4,7 +4,9 @@ import { PlusIcon } from '@heroicons/vue/24/outline';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import { router } from '@inertiajs/core';
+import { router, useForm } from '@inertiajs/vue3';
+import loadInstallments from './loadInstallments.js';
+import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
     ceremony: Object,
@@ -12,143 +14,31 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['modal_open']);
-const processing = ref(false);
-
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
-
-
-const installments = ref([]);
-
 const installments_config = ref({
-    name: 'Parcelamento',
+    name: 'Parcela',
+    payment_day: 10,
+    type: 0, // 0 é payment_option = 1 mensal | 1 é payment_option = 1 mensal | 2 é payment_option = 2 | 2 é payment_option = 3 | 4 é payment_option = 4 |
     payment_option: 1,
 });
 
-const calcularParcelas = (dataEvento, valorTotal, option) => {
-    if (option == 1) {
-        const valorEntrada = valorTotal * 0.15;
-        const dataEntrada = new Date();
-        dataEntrada.setDate(dataEntrada.getDate() + 14); // adiciona 2 semanas para pagamento da entrada
+const installments = ref(loadInstallments(installments_config.value, props.budget.budget_total_value, props.budget.event_date));
 
-        const dataFechamento = new Date(dataEvento);
-        dataFechamento.setDate(dataFechamento.getDate() - 14); // subtrai 2 semanas para data de fechamento
+const installment = useForm({
+    id: installments.value[installments.value.length] + 1,
+    name: 'Parcela',
+    type: 0,
+    paid_amount: 0,
+    paid: 0,
+    total_amount: 0,
+    deadline: (new Date()).toISOString().slice(0, 19).replace('', 'T'),
+    entry: false,
+    vouchers: [],
+});
 
-        let mesesEntreDatas = 0;
-        if (dataEntrada.getFullYear() < dataFechamento.getFullYear()) mesesEntreDatas = (dataFechamento.getFullYear() - dataEntrada.getFullYear() - 1) * 12
-        mesesEntreDatas += dataFechamento.getMonth() - dataEntrada.getMonth() - 1;
-
-        const valorFechamento = valorTotal * 0.15;
-
-        const valorParcelas = (valorTotal * 0.7) / mesesEntreDatas;
-
-        let parcelas = [];
-        parcelas.push({ valor: valorEntrada, data: dataEntrada });
-
-        for (let i = 1; i <= mesesEntreDatas; i++) {
-            const dataParcela = new Date(dataEntrada);
-            dataParcela.setMonth(dataParcela.getMonth() + i);
-
-            parcelas.push({ valor: valorParcelas, data: dataParcela });
-        }
-
-        parcelas.push({ valor: valorFechamento, data: dataFechamento });
-
-        return parcelas;
-
-    }
-
-    if (option == 2) {
-        dataEvento = new Date(dataEvento);
-        const dataAtual = new Date();
-        const dataLimiteEntrada = new Date(dataAtual.getTime() + 14 * 24 * 60 * 60 * 1000); // 2 semanas após a data atual
-        const dataLimiteFechamento = new Date(dataEvento.getTime() - 30 * 24 * 60 * 60 * 1000); // 30 dias antes da data do evento
-
-        const valorEntrada = valorTotal * 0.5;
-        const valorFechamento = valorTotal * 0.5;
-
-        const parcelas = [
-            {
-                valor: valorEntrada,
-                data: dataLimiteEntrada,
-            },
-            {
-                valor: valorFechamento,
-                data: dataLimiteFechamento,
-            },
-        ];
-
-        return parcelas;
-    }
-    if (option == 3) {
-        dataEvento = new Date(dataEvento);
-        const hoje = new Date();
-        const dataLimite = new Date();
-        dataLimite.setDate(hoje.getDate() + 14); // adiciona 14 dias (duas semanas) à data de hoje
-
-        const valorComDesconto = valorTotal * 0.95; // desconto de 5%
-        return [{
-            valor: valorComDesconto,
-            data: dataLimite,
-        }];
-    }
-    if (option == 4) {
-        dataEvento = new Date(dataEvento);
-        const hoje = new Date();
-
-        const primeiraParcela = new Date(hoje.getFullYear(), hoje.getMonth(), hoje.getDate() + 14);
-        const ultimaParcela = new Date(dataEvento.getFullYear(), dataEvento.getMonth(), dataEvento.getDate() - 14);
-
-        const totalMeses = ultimaParcela.getMonth() - primeiraParcela.getMonth();
-        const valorParcela = valorTotal / totalMeses;
-
-        let parcelas = [];
-        let valorRestante = valorTotal;
-
-        for (let i = 0; i < totalMeses; i++) {
-            parcelas.push({
-                valor: valorParcela,
-                data: new Date(primeiraParcela.getFullYear(), primeiraParcela.getMonth() + i, primeiraParcela.getDate())
-            });
-            valorRestante -= valorParcela;
-        }
-
-        parcelas[parcelas.length - 1].valor += valorRestante; // ajusta a última parcela
-
-        return parcelas;
-    }
-}
-
-const loadInstallments = () => {
-    const config = installments_config.value;
-
-    installments.value = [];
-    let parcelas = calcularParcelas(props.budget.event_date, props.ceremony.total_negotiated_amount, config.payment_option);
-    let lastKey = 0;
-    parcelas.forEach((parcela, index) => {
-        installments.value.push({
-            id: lastKey,
-            name: config.name + ' #' + lastKey,
-            paid_amount: 0,
-            paid: false,
-            total_amount: parcela.valor,
-            deadline: parcela.data.getFullYear() + '-' + dateZeroFiller(parcela.data.getMonth() + 1) + '-' + dateZeroFiller(parcela.data.getDate()) + ' 23:59:59',
-            entry: !index ? true : false,
-            vouchers: JSON.stringify({}),
-        });
-        lastKey += 1;
-    });
-}
-loadInstallments();
-
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
 const closeModal = () => {
-    installments_config.name = "";
-    installments_config.payment_option = 1;
+    installments_config.value.name = "";
+    installments_config.value.payment_option = 1;
     emit('modal_open', false);
 }
 
@@ -180,7 +70,19 @@ const submit = () => {
                         <label for="installment_name" class="text-xs text-slate-700">Nome das
                             parcelas</label>
                         <input type="text" id="installment_name" placeholder="Ex: Primeiro parcelamento"
-                            v-model="installments_config.name" @keyup="loadInstallments"
+                            v-model="installments_config.name"
+                            @keyup="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)"
+                            class="w-full border-slate-300 sm:text-md" />
+                    </div>
+
+                    <!-- Dia de pagamento -->
+                    <div v-if="installments_config.payment_option == 1 || installments_config.payment_option == 4"
+                        class="w-full">
+                        <label for="installment_payment_day" class="text-xs text-slate-700">Dia de pagamento das
+                            parcelas</label>
+                        <input type="number" step="1" min="1" max="28" id="installment_payment_day"
+                            placeholder="Ex: Todo dia 10 (Dia máximo: 28)" v-model="installments_config.payment_day"
+                            @keyup="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)"
                             class="w-full border-slate-300 sm:text-md" />
                     </div>
 
@@ -188,45 +90,65 @@ const submit = () => {
                     <div class="w-full">
                         <label for="installment_payment_option" class="text-xs text-slate-700">Condição de pagamento</label>
                         <select id="installment_payment_option" class="w-full border-slate-300 sm:text-md"
-                            v-model="installments_config.payment_option" @change="loadInstallments">
+                            v-model="installments_config.payment_option"
+                            @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)">
                             <option value="0" disabled>Escolha uma das opções abaixo</option>
-                            <option value="1">15% de entrada + 70% parcelado + 15% duas semanas antes do evento</option>
+                            <option value="1">15% de entrada + 70% parcelado + 15% duas semanas antes do evento
+                            </option>
                             <option value="2">50% entrada + 50% uma mês antes do evento</option>
                             <option value="3">100% pix com 5% de desconto</option>
                             <option value="4">Dividir valor total igualmente</option>
                         </select>
                     </div>
 
-                    <ul class="space-y-5 py-5">
-                        <div class="mt-10 overflow-auto">
-                            <!-- Orçamentos do cliente -->
-                            <table class="w-full m-auto table-auto truncate">
-                                <thead class="lg:border-b-2 lg:border-gray-500">
-                                    <th>Nome</th>
-                                    <th>Valor</th>
-                                    <th>Prazo</th>
-                                </thead>
-                                <tbody>
-                                    <tr v-for="(installment, index) in installments" :key="installment.id"
-                                        class="lg:border-b-2 lg-border-gray-100 hover:bg-gray-200 text-center"
-                                        :class="{ 'bg-gray-100': (index % 2 != 0) }">
-                                        <td class="py-3 px-5 truncate">{{ installment.name }} {{ installment.paid ? '(pago)'
-                                            : '' }}</td>
-                                        <td class="py-3 px-5 truncate">{{ toMonetary(installment.total_amount) }}</td>
-                                        <td class="py-3 px-5 truncate">{{ installment.deadline.split(' ')[0] }}</td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </ul>
+                    <!--Mensal ou Semestral-->
+                    <div v-if="installments_config.payment_option == 1" class="w-full py-3 flex flex-col">
+                        <label class="text-xs text-slate-700">Tipo de mensalidade</label>
+                        <span class="flex flex-row space-x-2 align-middle items-center">
+                            <input id="mensal_input" type="radio" class="form-radio text-stone-500" value="0"
+                                name="installment_type" v-model="installments_config.type"
+                                @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)">
+                            <label for="mensal_input" class="ml-2">Mensal</label>
+                        </span>
+                        <span class="flex flex-row space-x-2 align-middle items-center">
+                            <input id="trimestral_input" type="radio" class="form-radio text-stone-500" value="1"
+                                name="installment_type" v-model="installments_config.type"
+                                @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)">
+                            <label for="trimestral_input" class="ml-2">Trimestral</label>
+                        </span>
+                    </div>
+
+                    <div class="mt-10 overflow-auto">
+                        <!-- Orçamentos do cliente -->
+                        <table class="w-full m-auto table-auto truncate">
+                            <thead class="lg:border-b-2 lg:border-gray-500">
+                                <th>ID</th>
+                                <th>Nome</th>
+                                <th>Valor</th>
+                                <th>Prazo</th>
+                            </thead>
+                            <tbody>
+                                <tr v-for="(installment, index) in installments" :key="installment.id"
+                                    class="lg:border-b-2 lg-border-gray-100 hover:bg-gray-200 text-center"
+                                    :class="{ 'bg-gray-100': (index % 2 != 0) }">
+                                    <td class="py-3 px-5 truncate">#{{ installment.id }}</td>
+                                    <td class="py-3 px-5 truncate">{{ installment.name }} {{ installment.paid ? '(pago)'
+                                        : '' }}</td>
+                                    <td class="py-3 px-5 truncate">{{ toMonetary(installment.total_amount) }}</td>
+                                    <td class="py-3 px-5 truncate">{{ installment.deadline.split(' ')[0] }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
                 <div class="w-full px-4 py-3 sm:px-6 mt-5 text-right">
-                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': processing }"
-                        :disabled="processing" @click="closeModal">
+                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': installment.processing }"
+                        :disabled="installment.processing" @click="closeModal">
                         Cancelar
                     </SecondaryButton>
 
-                    <PrimaryButton class="ml-4" :class="{ 'opacity-25': processing }" :disabled="processing">
+                    <PrimaryButton class="ml-4" :class="{ 'opacity-25': installment.processing }"
+                        :disabled="installment.processing">
                         Cadastrar
                     </PrimaryButton>
                 </div>

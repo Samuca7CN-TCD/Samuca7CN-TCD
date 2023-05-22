@@ -9,6 +9,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\BudgetController;
 use App\Http\Controllers\CeremonyController;
+use App\Http\Controllers\InstallmentController;
 
 use App\Http\Controllers\TaskController;
 use App\Http\Controllers\TagController;
@@ -56,7 +57,13 @@ Route::middleware([
     Route::resource('/clients', ClientController::class);
     Route::resource('/budgets', BudgetController::class);
     Route::resource('/ceremonies', CeremonyController::class);
-    Route::post('/ceremonies/{budget_id}/{option}', [CeremonyController::class, 'cycle_ceremony'])->name('ceremony.cycle');
+    Route::post('/ceremonies/{budget_id}/{option}', [CeremonyController::class, 'cycle_ceremony'])->name('ceremonies.cycle');
+    Route::put('/addition/{ceremony_id}', [CeremonyController::class, 'update_addition'])->name('ceremonies.update.addition');
+    Route::put('/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
+    Route::post('/voucher/{ceremony_id}', [CeremonyController::class, 'update_voucher'])->name('ceremonies.update.voucher');
+    Route::put('/voucher/{ceremony_id}', [CeremonyController::class, 'delete_voucher'])->name('ceremonies.delete.voucher');
+    Route::put('/obsevation/{ceremony_id}', [CeremonyController::class, 'update_obs'])->name('ceremonies.updade.obs');
+    Route::resource('/financials', InstallmentController::class);
 
     Route::resource('/tasks', TaskController::class);
     Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');

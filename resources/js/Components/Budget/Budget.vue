@@ -1,8 +1,10 @@
 <script setup>
 import { ref } from 'vue';
+import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
-import Financial from '@/Components/Ceremony/Financial.vue';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
+import loadInstallments from '../Ceremony/Modals/loadInstallments.js';
 
 const props = defineProps({
     budget: Object,
@@ -15,6 +17,14 @@ const min_date = ref(new Date());
 min_date.value = min_date.value.getFullYear() + '-' + dateZeroFiller(min_date.value.getMonth() + 1) + '-' + dateZeroFiller(min_date.value.getDate()) + 'T' + dateZeroFiller(min_date.value.getHours()) + ':' + dateZeroFiller(min_date.value.getMinutes());
 
 const show_financial = ref(0);
+
+const obs = ref(null);
+const obs_rows = ref(null);
+
+if (props.ceremony) {
+    obs.value = props.ceremony.observations || "";
+    obs_rows.value = obs.value.split('\n').length || 1;
+}
 
 const form = useForm({
     id: props.budget.id,
@@ -52,22 +62,51 @@ const ceremony_form = useForm({
 });
 */
 
-const toMonetary = (value) => {
-    return value.toLocaleString('pt-br', {
-        style: 'currency',
-        currency: 'BRL'
-    });
-}
-
 const progress = (total, remaining) => {
     let paid = total - remaining;
     if (total == 0) return 0;
     return paid / total;
 }
 
+const saveObs = () => {
+    obs_rows.value = obs.value.split('\n').length || 1;
+    router.put(route('ceremonies.updade.obs', props.ceremony.id), { obs: obs.value }, {
+        preserveScroll: true,
+    });
+}
+
+const first_installment = props.ceremony ? ref(JSON.parse(props.ceremony.installments)[1] || JSON.parse(props.ceremony.installments)[0] || null) : ref(null);
+const installment_info = ref({
+    config: {
+        name: null,
+        payment_day: null,
+        type: null,
+        payment_option: null,
+    },
+    total_value: null,
+    event_date: null,
+});
+const options = [1, 1, 2, 3, 4];
+
+const updateInstallments = () => {
+    console.log(first_installment.value);
+    installment_info.value.config = {
+        name: first_installment.value.name || null,
+        payment_day: parseInt(formatDate(first_installment.value.deadline).split('/')[0]) || null,
+        type: first_installment.value.type || null,
+        payment_option: options[first_installment.value.type] || null,
+    };
+    installment_info.value.total_value = (props.ceremony.total_negotiated_amount + props.ceremony.total_additions);
+    installment_info.value.event_date = props.budget.event_date;
+    console.log("Olá caramba");
+    const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
+    router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, { preserveScroll: true, });
+}
+
 const submit = () => {
     form.put(route('budgets.update', form.id), {
         preserveScroll: true,
+        onSuccess: first_installment.value ? updateInstallments : () => { },
     });
 }
 
@@ -115,30 +154,45 @@ const show_status = () => {
 }
 
 const cycleCerimony = (budget_id, option) => {
-    router.post(route('ceremony.cycle', [budget_id, option], { preserveScroll: true }));
+    router.post(route('ceremonies.cycle', [budget_id, option], {
+        preserveScroll: true,
+        onSuccess: () => {
+            if (option == 0) {
+                obs.value = ref(props.ceremony.observations || "");
+                obs_rows.value = ref(obs.value.split('\n').length || 1);
+            }
+        }
+    }));
 }
 </script>
 <template>
     <section class="w-11/12 m-auto px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
         <div class="w-full min-h-[10px] bg-gray-900">
-            <Ceremony v-if="ceremony" :ceremony="ceremony" :budget="budget" @financial="(show) => show_financial = show" />
-        </div>
-        <div v-if="ceremony && show_financial" class="w-full">
-            <Financial :ceremony="ceremony" :budget="budget" :financial="show_financial" />
+            <Ceremony v-if="ceremony" :ceremony="ceremony" :budget="budget" :button_type="0" />
         </div>
         <form v-if="!show_financial" id="create_task" @submit.prevent="budget_submit"
             class="w-full px-0 md:py-5 md:px-14 xl:px-24">
-
             <div class="overflow-hidden md:m-0 p-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
                 <div class="w-full m-0 p-0 space-y-10">
-                    <span class=" py-2 px-5 rounded-full text-white" :class="{
-                        'bg-gray-700': budget.status == 0,
-                        'bg-green-700': budget.status == 1,
-                        'bg-yellow-700': budget.status == 2,
-                        'bg-red-700': budget.status == 3,
-                    }">
-                        {{ show_status() }}
-                    </span>
+                    <div class="flex flex-row items-center space-x-5">
+                        <span class=" py-2 px-5 rounded-full text-white" :class="{
+                                                        'bg-gray-700': budget.status == 0,
+                                                        'bg-green-700': budget.status == 1,
+                                                        'bg-yellow-700': budget.status == 2,
+                                                        'bg-red-700': budget.status == 3,
+                                                        'bg-blue-700': budget.status == 4,
+                                                    }
+                                                    ">
+                            {{ show_status() }}
+                        </span>
+                        <span>
+                            <a :href="route('clients.show', budget.client_id)"
+                                class="text-gray-700 hover:text-gray-900 active:text-gray-800 flex flex-row items-center align-middle space-x-2">
+                                <ArrowUturnLeftIcon class="w-4 h-4" />
+                                <span>Voltar para Cliente</span>
+                            </a>
+                        </span>
+                    </div>
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-2 my-5">
                         <!--Evento-->
                         <div class="min-w-fit">
@@ -146,12 +200,12 @@ const cycleCerimony = (budget_id, option) => {
                             <select id="budget_event" class="w-full border-slate-300 outline-0 sm:text-md"
                                 :disabled="budget.status != 2" v-model="form.event_id" @change="calcBudgetTotal">
                                 <option :value="null">Escolha um eventos</option>
-                                <option v-for="event in budget_selects_options.events" :key="event.id" :value="event.id"
-                                    :selected="form.event_id == event.id">{{ event.name }}
+                                <option v-for="   event    in    budget_selects_options.events   " :key="event.id"
+                                    :value="event.id" :selected="form.event_id == event.id">{{ event.name }}
                                 </option>
                             </select>
                             <div v-if="form.errors.event_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.event_id }}
+                                                            form.errors.event_id }}
                             </div>
                         </div>
 
@@ -161,14 +215,15 @@ const cycleCerimony = (budget_id, option) => {
                             <select ID="budget_decoration" class="w-full border-slate-300 sm:text-md"
                                 :disabled="budget.status != 2" v-model="form.decoration_id" @change="calcBudgetTotal">
                                 <option :value="null">Escolha uma decoração</option>
-                                <option v-for="decoration in budget_selects_options.decorations" :key="decoration.id"
-                                    :value="decoration.id" :selected="form.decoration_id == decoration.id">{{
-                                        decoration.name }}
+                                <option v-for="   decoration    in    budget_selects_options.decorations   "
+                                    :key="decoration.id" :value="decoration.id"
+                                    :selected="form.decoration_id == decoration.id">{{
+                                                                        decoration.name }}
                                 </option>
                             </select>
                             <div v-if="form.errors.decoration_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.decoration_id
-                            }}
+                                                            form.errors.decoration_id
+                                                            }}
                             </div>
                         </div>
 
@@ -178,13 +233,14 @@ const cycleCerimony = (budget_id, option) => {
                             <select id="budget_buffet_entry" class="w-full border-slate-300 sm:text-md"
                                 :disabled="budget.status != 2" v-model="form.buffet_entry_id" @change="calcBudgetTotal">
                                 <option :value="null">Escolha uma entrada de buffet</option>
-                                <option v-for="buffet_entry in budget_selects_options.buffet_entries" :key="buffet_entry.id"
-                                    :value="buffet_entry.id" :selected="form.buffet_entry_id == buffet_entry.id">{{
-                                        buffet_entry.name }}
+                                <option v-for="   buffet_entry    in    budget_selects_options.buffet_entries   "
+                                    :key="buffet_entry.id" :value="buffet_entry.id"
+                                    :selected="form.buffet_entry_id == buffet_entry.id">{{
+                                                                        buffet_entry.name }}
                                 </option>
                             </select>
                             <div v-if="form.errors.buffet_entry_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.buffet_entry_id }}
+                                                            form.errors.buffet_entry_id }}
                             </div>
                         </div>
 
@@ -194,12 +250,12 @@ const cycleCerimony = (budget_id, option) => {
                             <select id="budget_buffet" class="w-full border-slate-300 sm:text-md"
                                 :disabled="budget.status != 2" v-model="form.buffet_id" @change="calcBudgetTotal">
                                 <option :value="null">Escolha um buffet</option>
-                                <option v-for="buffet in budget_selects_options.buffets" :key="buffet.id" :value="buffet.id"
-                                    :selected="form.buffet_id == buffet.id">{{ buffet.name }}
+                                <option v-for="   buffet    in    budget_selects_options.buffets   " :key="buffet.id"
+                                    :value="buffet.id" :selected="form.buffet_id == buffet.id">{{ buffet.name }}
                                 </option>
                             </select>
                             <div v-if="form.errors.buffet_id" class="text-xs text-red-600 ml-3">{{
-                                form.errors.buffet_id }}
+                                                            form.errors.buffet_id }}
                             </div>
                         </div>
                     </div>
@@ -219,8 +275,8 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Bar</label>
                                 </div>
                                 <div v-if="form.errors.bar" class="text-xs text-red-600 ml-3">{{
-                                    form.errors.bar
-                                }}
+                                                                    form.errors.bar
+                                                                    }}
                                 </div>
                             </div>
 
@@ -235,8 +291,8 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Cerveja</label>
                                 </div>
                                 <div v-if="form.errors.beer" class="text-xs text-red-600 ml-3">{{
-                                    form.errors.beer
-                                }}
+                                                                    form.errors.beer
+                                                                    }}
                                 </div>
                             </div>
 
@@ -251,7 +307,7 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Dj</label>
                                 </div>
                                 <div v-if="form.errors.dj" class="text-xs text-red-600 ml-3">{{ form.errors.dj
-                                }}
+                                                                    }}
                                 </div>
                             </div>
 
@@ -266,7 +322,7 @@ const cycleCerimony = (budget_id, option) => {
                                         for="checkboxChecked">Acessoria</label>
                                 </div>
                                 <div v-if="form.errors.advisory" class="text-xs text-red-600 ml-3">{{
-                                    form.errors.advisory }}
+                                                                    form.errors.advisory }}
                                 </div>
                             </div>
                         </div>
@@ -279,8 +335,8 @@ const cycleCerimony = (budget_id, option) => {
                                 class="w-full border-slate-300 sm:text-md" v-model="form.event_date"
                                 :disabled="budget.status != 2" @input="calcBudgetTotal" />
                             <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{
-                                form.errors.event_date
-                            }}
+                                                            form.errors.event_date
+                                                            }}
                             </div>
                         </div>
                         <!-- Quantidade de convidados -->
@@ -291,7 +347,7 @@ const cycleCerimony = (budget_id, option) => {
                                 v-model="form.guests_quantity" :disabled="budget.status != 2" @input="calcBudgetTotal"
                                 minlength="8" maxlength="20" />
                             <div v-if="form.errors.guests_quantity" class="text-xs text-red-600 ml-3">{{
-                                form.errors.guests_quantity }}
+                                                            form.errors.guests_quantity }}
                             </div>
                         </div>
                     </div>
@@ -301,9 +357,9 @@ const cycleCerimony = (budget_id, option) => {
                         </li>
                         <li v-if="budget.budget_link"><span class="font-bold">Ver PDF do orçamento: </span><a
                                 href="https://google.com/" target="_blank" class="text-sky-600">{{
-                                    budget.budget_link }}</a></li>
+                                                                budget.budget_link }}</a></li>
                         <li v-if="budget.budget_comment"><span class="font-bold">Comentário do cliente: </span>"{{
-                            budget.budget_comment }}"</li>
+                                                    budget.budget_comment }}"</li>
                     </ul>
                     <h1 class="text-gray-900 text-xl">Valor do orçamento: {{ toMonetary(budget.budget_total_value) }}</h1>
                     <div class="flex flex-row space-x-5 justify-end">
@@ -311,12 +367,11 @@ const cycleCerimony = (budget_id, option) => {
                             @click="cycleCerimony(budget.id, 0)">
                             Criar Cerimônia
                         </button>
-                        <button v-if="budget.status == 2" class="bg-green-600 text-white py-3 px-5 rounded-lg"
-                            @click="cycleCerimony(budget.id, 1)">
+                        <button v-if="budget.status == 2 && JSON.parse(ceremony.installments).length"
+                            class="bg-green-600 text-white py-3 px-5 rounded-lg" @click="cycleCerimony(budget.id, 1)">
                             Ativar Cerimônia
                         </button>
-                        <button
-                            v-if="budget.status == 1 && ceremony.status == 1 && ceremony.paid_amount == ceremony.total_negotiated_amount"
+                        <button v-if="budget.status == 1 && ceremony.status == 1"
                             class="bg-blue-600 text-white py-3 px-5 rounded-lg" @click="cycleCerimony(budget.id, 4)">
                             Concluir Cerimônia
                         </button>
@@ -330,6 +385,12 @@ const cycleCerimony = (budget_id, option) => {
                         </button>
                     </div>
                 </div>
+            </div>
+
+            <div v-if="ceremony" class="mx-10">
+                <label for="obs" class="text-xs text-slate-700">Observações</label>
+                <textarea id="obs" :rows="obs_rows" v-model="obs" placeholder="Observações sobre a Cerimônia"
+                    class="w-full border-slate-300 sm:text-md" @input="saveObs" autofocus="true"></textarea>
             </div>
         </form>
     </section>

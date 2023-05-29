@@ -57,6 +57,11 @@ class BudgetController extends Controller
             'dj' => ['required', 'boolean'],
             'advisory' => ['required', 'boolean'],
 
+            'additional_meat' => ['required', 'boolean'],
+            'ravioli' => ['required', 'boolean'],
+            'additional_drinks' => ['required', 'boolean'],
+            'other_beers' => ['required', 'boolean'],
+
             'guests_quantity' => ['required', 'numeric'],
             'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
             'budget_total_value' => ['nullable', 'numeric'],
@@ -172,6 +177,11 @@ class BudgetController extends Controller
             'dj' => ['required', 'boolean'],
             'advisory' => ['required', 'boolean'],
 
+            'additional_meat' => ['required', 'boolean'],
+            'ravioli' => ['required', 'boolean'],
+            'additional_drinks' => ['required', 'boolean'],
+            'other_beers' => ['required', 'boolean'],
+
             'guests_quantity' => ['required', 'numeric', 'min:1'],
             'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
             'budget_total_value' => ['nullable', 'numeric'],
@@ -182,8 +192,10 @@ class BudgetController extends Controller
         ]));
 
         $ceremony = Ceremony::where('budget_id', $id)->first();
-        $ceremony->total_negotiated_amount = $budget->budget_total_value;
-        $ceremony->save();
+        if ($ceremony) {
+            $ceremony->total_negotiated_amount = $budget->budget_total_value;
+            $ceremony->save();
+        }
 
         return to_route('budgets.index');
     }

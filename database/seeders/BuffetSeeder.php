@@ -21,11 +21,26 @@ class BuffetSeeder extends Seeder
             'name' => 'Churrasco',
             // 'code' => 'barbecue',
             'description' => '- Arroz branco ou Arroz a Grega
-- Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados).
-- Carnes (Alcatra, Sobrecoxa, Asinha de Frango, Linguiça Toscana e Panceta);
-- Acompanhamento (Farofa com Calabresa)
-- Sobremesa (Bolo com Sorvete)
-- Encerramento (Mesa de Café, Petit Fours)',
+
+- Saladas de folhas e legumes
+Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados. 
+
+- Carnes
+Fraldinha
+Contra Filé
+Sobrecoxa e Asinha de Frango 
+Linguiça Toscana 
+Pão de Alho 
+
+- Acompanhamento
+Farofa com calabresa 
+    
+- Sobremesa
+Bolo com sorvete 
+
+- Encerramento
+Mesa de café 
+Petit fours',
             'price' => 640,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -36,14 +51,23 @@ class BuffetSeeder extends Seeder
             'status' => 1,
             'name' => 'Jantar',
             // 'code' => 'dinner',
-            'description' => '- Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados);
-- Ravioli Quatro queijos ao molho (sugo ou rosê);
-- Arroz Branco;
-- Batatinhas ao molho pesto;
-- Filé de frango com creme de milho;
-- Filé de frango ao molho de maracujá ou laranja;
-- Sobremesa (Bolo com Sorvete);
-- Encerramento (Mesa de Café, Petit Fours)',
+            'description' => '- Saladas de folhas e legumes
+Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, maionese de legumes e molhos variados. 
+
+- Fettuccine ao molho branco ou sugo 
+
+- Arroz branco
+
+- Batatinhas ao molho pesto 
+
+- Strogonoff de Frango ou Frango ao molho de laranja
+
+- Sobremesa
+Bolo com sorvete
+
+- Encerramento
+Mesa de café 
+Petit fours ',
             'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -54,13 +78,24 @@ class BuffetSeeder extends Seeder
             'status' => 1,
             'name' => 'Finger Food',
             // 'code' => 'finger_food',
-            'description' => '- Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados);
-- Mini Polentinha com ragu de linguiça
-- Mini Batata Bolinha com bacon e catupiry
-- Frango com creme de Milho
-- Massa (Ravioli 4 queijos com molho (Rosê ou Sugo))
-- Sobremesa (Bolo com Sorvete);
-- Encerramento (Mesa de Café, Petit Fours)',
+            'description' => '- Saladas de folhas e legumes
+Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, maionese de legumes e molhos variados. 
+
+- Mini Polentinha com ragu de linguiça 
+
+- Mini Batata Bolinha com bacon e catupiry 
+
+- Frango com creme de Milho 
+
+- Massa
+Fettuccine ao molho branco ou sugo 
+
+- Sobremesa
+Bolo com sorvete
+
+- Encerramento
+Mesa de café 
+Petit fours',
             'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -71,16 +106,29 @@ class BuffetSeeder extends Seeder
             'status' => 1,
             'name' => 'Comida de Boteco',
             // 'code' => 'bar_food',
-            'description' => '- Arroz Branco
-- Saladas de folhas e legumes (Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, vinagrete, maionese de legumes e molhos variados);
-- Batata Frita
-- Calabresa Acebolada
-- Frango a Passarinho
-- Torresmo
-- Polenta Frita
-- Farofa com Bacon
-- Sobremesa (Bolo com Sorvete);
-- Encerramento (Mesa de Café, Petit Fours)',
+            'description' => '- Arroz branco  
+
+- Saladas de folhas e legumes
+Alface, rúcula, salada bicolor, brócolis, couve-flor, tomate, maionese de legumes e molhos variados. 
+
+-Batata frita
+
+-Calabresa acebolada
+
+-Frango a passarinho 
+
+-Torresmo
+
+-Polenta Frita 
+
+-Farofa com bacon
+
+- Sobremesa
+Bolo com sorvete
+
+- Encerramento
+Mesa de café 
+Petit fours',
             'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
@@ -92,19 +140,22 @@ class BuffetSeeder extends Seeder
             'name' => 'Coquetel',
             // 'code' => 'cocktail',
             'description' => 'Mini-Salgados:
+
 - Fritos: coxinha, maravilha de queijo, croquete de carne, crespinho de milho, croquete de calabresa, mini quibe, Risoles ( pizza, palmito, calabresa com catupiry) 
+
 - Assados : Esfiha de carne ou frango, trouxinha de calabresa ,enroladinho de salsicha, empada (frango e palmito)
+
 - Mini Hambúrguer, Mini Cachorro-quente e batata frita
-            
-Massa:
-- Raviolli de 4 queijos com molho sugo
-            
-Sobremesa:
-- Bolo com sorvete
-            
-Encerramento:
-- Mesa de café 
-- Petit fours ',
+
+- Massa
+Fettuccine ao molho branco ou sugo 
+
+- Sobremesa
+Bolo com sorvete
+
+- Encerramento
+Mesa de café 
+Petit fours',
             'price' => 440,
             'type' => 1,
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),

@@ -231,7 +231,7 @@ const logout = () => {
                                             <template #content>
                                                 <!-- Account Management -->
                                                 <div class="block px-4 py-2 text-xs text-gray-400">
-                                                    Manage Account
+                                                    Gerenciar conta
                                                 </div>
 
                                                 <DropdownLink :href="route('profile.show')">
@@ -341,18 +341,18 @@ const logout = () => {
                                 <div class="mt-3 space-y-1">
                                     <ResponsiveNavLink :href="route('profile.show')"
                                         :active="route().current('profile.show')">
-                                        Profile
+                                        Perfil
                                     </ResponsiveNavLink>
 
                                     <ResponsiveNavLink v-if="$page.props.jetstream.hasApiFeatures"
                                         :href="route('api-tokens.index')" :active="route().current('api-tokens.index')">
-                                        API Tokens
+                                        Tokens de API
                                     </ResponsiveNavLink>
 
                                     <!-- Authentication -->
                                     <form method="POST" @submit.prevent="logout">
                                         <ResponsiveNavLink as="button">
-                                            Log Out
+                                            Sair
                                         </ResponsiveNavLink>
                                     </form>
 
@@ -361,25 +361,25 @@ const logout = () => {
                                         <div class="border-t border-gray-200" />
 
                                         <div class="block px-4 py-2 text-xs text-gray-400">
-                                            Manage Team
+                                            Gerenciar equipe
                                         </div>
 
                                         <!-- Team Settings -->
                                         <ResponsiveNavLink :href="route('teams.show', $page.props.user.current_team)"
                                             :active="route().current('teams.show')">
-                                            Team Settings
+                                            Configurações da equipe
                                         </ResponsiveNavLink>
 
                                         <ResponsiveNavLink v-if="$page.props.jetstream.canCreateTeams"
                                             :href="route('teams.create')" :active="route().current('teams.create')">
-                                            Create New Team
+                                            Criar nova equipe
                                         </ResponsiveNavLink>
 
                                         <div class="border-t border-gray-200" />
 
                                         <!-- Team Switcher -->
                                         <div class="block px-4 py-2 text-xs text-gray-400">
-                                            Switch Teams
+                                            Troque de time
                                         </div>
 
                                         <template v-for="team in $page.props.user.all_teams" :key="team.id">

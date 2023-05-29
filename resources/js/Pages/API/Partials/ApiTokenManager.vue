@@ -77,30 +77,25 @@ const deleteApiToken = () => {
         <!-- Generate API Token -->
         <FormSection @submitted="createApiToken">
             <template #title>
-                Create API Token
+                Criar token de API
             </template>
 
             <template #description>
-                API tokens allow third-party services to authenticate with our application on your behalf.
+                Os tokens de API permitem que serviços de terceiros se autentiquem com nosso aplicativo em seu nome.
             </template>
 
             <template #form>
                 <!-- Token Name -->
                 <div class="col-span-6 sm:col-span-4">
-                    <InputLabel for="name" value="Name" />
-                    <TextInput
-                        id="name"
-                        v-model="createApiTokenForm.name"
-                        type="text"
-                        class="mt-1 block w-full"
-                        autofocus
-                    />
+                    <InputLabel for="name" value="Nome" />
+                    <TextInput id="name" v-model="createApiTokenForm.name" type="text" class="mt-1 block w-full"
+                        autofocus />
                     <InputError :message="createApiTokenForm.errors.name" class="mt-2" />
                 </div>
 
                 <!-- Token Permissions -->
                 <div v-if="availablePermissions.length > 0" class="col-span-6">
-                    <InputLabel for="permissions" value="Permissions" />
+                    <InputLabel for="permissions" value="Permissões" />
 
                     <div class="mt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div v-for="permission in availablePermissions" :key="permission">
@@ -115,11 +110,12 @@ const deleteApiToken = () => {
 
             <template #actions>
                 <ActionMessage :on="createApiTokenForm.recentlySuccessful" class="mr-3">
-                    Created.
+                    Criado.
                 </ActionMessage>
 
-                <PrimaryButton :class="{ 'opacity-25': createApiTokenForm.processing }" :disabled="createApiTokenForm.processing">
-                    Create
+                <PrimaryButton :class="{ 'opacity-25': createApiTokenForm.processing }"
+                    :disabled="createApiTokenForm.processing">
+                    Criar
                 </PrimaryButton>
             </template>
         </FormSection>
@@ -131,11 +127,11 @@ const deleteApiToken = () => {
             <div class="mt-10 sm:mt-0">
                 <ActionSection>
                     <template #title>
-                        Manage API Tokens
+                        Gerenciar tokens de API
                     </template>
 
                     <template #description>
-                        You may delete any of your existing tokens if they are no longer needed.
+                        Você pode excluir qualquer um dos seus tokens existentes se eles não forem mais necessários.
                     </template>
 
                     <!-- API Token List -->
@@ -148,19 +144,18 @@ const deleteApiToken = () => {
 
                                 <div class="flex items-center ml-2">
                                     <div v-if="token.last_used_ago" class="text-sm text-gray-400">
-                                        Last used {{ token.last_used_ago }}
+                                        Usado pela última vez {{ token.last_used_ago }}
                                     </div>
 
-                                    <button
-                                        v-if="availablePermissions.length > 0"
+                                    <button v-if="availablePermissions.length > 0"
                                         class="cursor-pointer ml-6 text-sm text-gray-400 underline"
-                                        @click="manageApiTokenPermissions(token)"
-                                    >
-                                        Permissions
+                                        @click="manageApiTokenPermissions(token)">
+                                        Permissões
                                     </button>
 
-                                    <button class="cursor-pointer ml-6 text-sm text-red-500" @click="confirmApiTokenDeletion(token)">
-                                        Delete
+                                    <button class="cursor-pointer ml-6 text-sm text-red-500"
+                                        @click="confirmApiTokenDeletion(token)">
+                                        Deletar
                                     </button>
                                 </div>
                             </div>
@@ -173,22 +168,23 @@ const deleteApiToken = () => {
         <!-- Token Value Modal -->
         <DialogModal :show="displayingToken" @close="displayingToken = false">
             <template #title>
-                API Token
+                Token de API
             </template>
 
             <template #content>
                 <div>
-                    Please copy your new API token. For your security, it won't be shown again.
+                    Copie seu novo token de API. Para sua segurança, não será exibido novamente.
                 </div>
 
-                <div v-if="$page.props.jetstream.flash.token" class="mt-4 bg-gray-100 px-4 py-2 rounded font-mono text-sm text-gray-500 break-all">
+                <div v-if="$page.props.jetstream.flash.token"
+                    class="mt-4 bg-gray-100 px-4 py-2 rounded font-mono text-sm text-gray-500 break-all">
                     {{ $page.props.jetstream.flash.token }}
                 </div>
             </template>
 
             <template #footer>
                 <SecondaryButton @click="displayingToken = false">
-                    Close
+                    Fechar
                 </SecondaryButton>
             </template>
         </DialogModal>
@@ -196,7 +192,7 @@ const deleteApiToken = () => {
         <!-- API Token Permissions Modal -->
         <DialogModal :show="managingPermissionsFor != null" @close="managingPermissionsFor = null">
             <template #title>
-                API Token Permissions
+                Permissões de token de API
             </template>
 
             <template #content>
@@ -212,16 +208,12 @@ const deleteApiToken = () => {
 
             <template #footer>
                 <SecondaryButton @click="managingPermissionsFor = null">
-                    Cancel
+                    Cancelar
                 </SecondaryButton>
 
-                <PrimaryButton
-                    class="ml-3"
-                    :class="{ 'opacity-25': updateApiTokenForm.processing }"
-                    :disabled="updateApiTokenForm.processing"
-                    @click="updateApiToken"
-                >
-                    Save
+                <PrimaryButton class="ml-3" :class="{ 'opacity-25': updateApiTokenForm.processing }"
+                    :disabled="updateApiTokenForm.processing" @click="updateApiToken">
+                    Salvar
                 </PrimaryButton>
             </template>
         </DialogModal>
@@ -229,25 +221,21 @@ const deleteApiToken = () => {
         <!-- Delete Token Confirmation Modal -->
         <ConfirmationModal :show="apiTokenBeingDeleted != null" @close="apiTokenBeingDeleted = null">
             <template #title>
-                Delete API Token
+                Excluir token de API
             </template>
 
             <template #content>
-                Are you sure you would like to delete this API token?
+                Tem certeza de que deseja excluir este token de API?
             </template>
 
             <template #footer>
                 <SecondaryButton @click="apiTokenBeingDeleted = null">
-                    Cancel
+                    Cancelar
                 </SecondaryButton>
 
-                <DangerButton
-                    class="ml-3"
-                    :class="{ 'opacity-25': deleteApiTokenForm.processing }"
-                    :disabled="deleteApiTokenForm.processing"
-                    @click="deleteApiToken"
-                >
-                    Delete
+                <DangerButton class="ml-3" :class="{ 'opacity-25': deleteApiTokenForm.processing }"
+                    :disabled="deleteApiTokenForm.processing" @click="deleteApiToken">
+                    Deletar
                 </DangerButton>
             </template>
         </ConfirmationModal>

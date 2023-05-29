@@ -24,6 +24,10 @@ return new class extends Migration
             $table->boolean('bar');
             $table->boolean('dj');
             $table->boolean('advisory');
+            $table->boolean('additional_meat');
+            $table->boolean('ravioli');
+            $table->boolean('additional_drinks');
+            $table->boolean('other_beers');
             $table->integer('guests_quantity');
             $table->dateTimeTz('event_date');
             $table->text('budget_comment')->nullable();

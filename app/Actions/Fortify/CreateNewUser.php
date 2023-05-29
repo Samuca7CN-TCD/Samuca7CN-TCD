@@ -26,23 +26,15 @@ class CreateNewUser implements CreatesNewUsers
             'username' => ['nullable', 'string', 'max:255', 'unique:users'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'password' => $this->passwordRules(),
-            'profile_photo' => ['nullable', 'file', 'max:64'],
             'terms' => Jetstream::hasTermsAndPrivacyPolicyFeature() ? ['accepted', 'required'] : '',
         ])->validate();
 
-        if(isset($input['profile_photo']) && !empty($input['profile_photo'])){
-            $profile_photo = base64_encode($input['profile_photo']->get());
-        }else{
-            $profile_photo = base64_encode(file_get_contents('/storage/app/public/profile_photo/default.png'));
-        }
-        
         return User::create([
             'name' => $input['name'],
             'surname' => $input['surname'],
             'username' => $input['username'],
             'email' => $input['email'],
             'password' => Hash::make($input['password']),
-            'profile_photo' => $profile_photo,
         ]);
     }
 }

@@ -17,6 +17,24 @@ class DecorationSeeder extends Seeder
     public function run()
     {
         DB::table('decorations')->insert([
+            'name' => 'Decoração da Chicago Eventos',
+            'code' => 'chicago_eventos_space_decoration',
+            'description' => 'Mesa de bolo, bancos e tapete.',
+            'price' => '1400',
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        DB::table('decorations')->insert([
+            'name' => 'Sem decoração',
+            'code' => 'secondary_space_decoration',
+            'description' => 'Nenhuma decoração acrescentada',
+            'price' => '0',
+            'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
+            'updated_at' => Carbon::now()->format('Y-m-d H:i:s')
+        ]);
+
+        /* DB::table('decorations')->insert([
             'name' => 'Decoração completa da Chicago Eventos',
             'code' => 'chicago_eventos_space_decoration',
             'description' => 'Além de toda a decoração já existente em nosso espaço, também incluímos uma decoração completa e personalizada para sua cerimônia e mesa de bolo.
@@ -47,5 +65,6 @@ class DecorationSeeder extends Seeder
             'created_at' => Carbon::now()->format('Y-m-d H:i:s'),
             'updated_at' => Carbon::now()->format('Y-m-d H:i:s') 
         ]);
+        */
     }
 }

@@ -52,6 +52,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+    Route::get('/filtered-dashboard', [DashboardController::class, 'filtered-dashboard'])->name('filtered-dashboard');
 
     // Route::get('/clients', [ClientController::class, 'index'])->name('clients');
     Route::resource('/clients', ClientController::class);

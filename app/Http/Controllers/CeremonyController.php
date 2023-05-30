@@ -90,6 +90,7 @@ class CeremonyController extends Controller
         $ceremony->paid_amount = 0;
         $ceremony->installments = json_encode(array());
         $ceremony->additions = json_encode((object) array());
+        $ceremony->total_additions = 0;
         $ceremony->expenses = array(
             'phol' => $budget->dj ? 1200 : 0,
             'decoração' => Decoration::find($budget->decoration_id)->price,

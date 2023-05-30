@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { toMonetary } from '/resources/js/shared_functions.js';
+import { router } from '@inertiajs/vue3';
 
 const props = defineProps({
     budgets: Object,
@@ -20,6 +21,12 @@ const gastos_mensais = ref(props.total_gastos_mensais);
 const gastos_cerimonias = ref(props.total_custos);
 const lucro = ref(props.total_lucro);
 
+const dashboard_date = ref({
+    begin: '2023-05-29',
+    end: '2023-05-29',
+    option: 0,
+})
+
 const registros = ref([{
     cliente: null,
     cerimonia: null,
@@ -30,7 +37,61 @@ const registros = ref([{
     lucro: 0,
 }]);
 
+const setDateRange = (option) => {
+    dashboard_date.value.option = option
 
+    const today = new Date();
+    const startDate = new Date();
+    const endDate = new Date();
+
+    switch (option) {
+        case 0: // Hoje
+            break;
+        case 1: // Amanhã
+            startDate.setDate(today.getDate() + 1);
+            endDate.setDate(today.getDate() + 1);
+            break;
+        case 2: // Primeiro dia da semana atual (domingo) até o último dia da semana atual (sábado)
+            startDate.setDate(today.getDate() - today.getDay());
+            endDate.setDate(startDate.getDate() + 6);
+            break;
+        case 3: // Próximo domingo até o último dia da semana seguinte (sábado)
+            startDate.setDate(today.getDate() + ((6 - today.getDay()) % 6) + 1);
+            endDate.setDate(startDate.getDate() + 6);
+            break;
+        case 4: // Primeiro dia do mês atual até o último dia do mês atual
+            startDate.setDate(1);
+            endDate.setMonth(today.getMonth() + 1, 0);
+            break;
+        case 5: // Primeiro dia do próximo mês até o último dia do próximo mês
+            startDate.setMonth(today.getMonth() + 1, 1);
+            endDate.setMonth(today.getMonth() + 2, 0);
+            break;
+        case 6: // 1º de janeiro do ano atual até 31 de dezembro do ano atual
+            startDate.setMonth(0, 1);
+            endDate.setMonth(11, 31);
+            break;
+        case 7: // 1º de janeiro do próximo ano até 31 de dezembro do próximo ano
+            startDate.setFullYear(today.getFullYear() + 1, 0, 1);
+            endDate.setFullYear(today.getFullYear() + 1, 11, 31);
+            break;
+        default:
+            break;
+    }
+
+    // Formatar as datas para o formato 'YYYY-MM-DD'
+    dashboard_date.value.begin = formatDate(startDate);
+    dashboard_date.value.end = formatDate(endDate);
+
+    // getDashboardValues();
+}
+
+const formatDate = (date) => {
+    const year = date.getFullYear();
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
+    return `${year}-${month}-${day}`;
+}
 
 </script>
 
@@ -74,10 +135,55 @@ const registros = ref([{
                 </div>
                 <div
                     class="w-full bg-green-600 text-white rounded-md py-5 flex flex-col align-middle items-center text-2xl">
-                    <p>Lucro total estimado</p>
+                    <p>Lucro das Cerimônias</p>
                     {{ toMonetary(lucro) }}
                 </div>
             </div>
+
+            <div class="col-row-config md:flex-row-config m-10 md:space-x-10">
+                <!-- Data -->
+                <div class="w-full md:w-1/3">
+                    <label for="dashboard-begin" class="text-xs text-slate-700">Início</label>
+                    <input type="date" id="dashboard-begin" placeholder="Data de Início"
+                        class="w-full border-slate-300 sm:text-md" v-model="dashboard_date['begin']" />
+                </div>
+
+                <div class="w-full md:w-1/3">
+                    <label for="dashboard-end" class="text-xs text-slate-700">Fim</label>
+                    <input type="date" id="dashboard-end" placeholder="Data de Fim"
+                        class="w-full border-slate-300 sm:text-md" v-model="dashboard_date['end']" />
+                </div>
+            </div>
+
+            <div class="overflow-x-auto">
+                <ul class="flex-row-config divide-x-2 border-2 border-full w-fit m-auto">
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 0 }" @click="setDateRange(0)">Hoje
+                    </li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 1 }" @click="setDateRange(1)">Amanhã
+                    </li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 2 }" @click="setDateRange(2)">Esta
+                        Semana</li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 3 }" @click="setDateRange(3)">Próxima
+                        Semana</li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 4 }" @click="setDateRange(4)">Este Mês
+                    </li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 5 }" @click="setDateRange(5)">Próximo
+                        Mês</li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 6 }" @click="setDateRange(6)">Este Ano
+                    </li>
+                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                        :class="{ 'bg-gray-200': dashboard_date['option'] == 7 }" @click="setDateRange(7)">Próximo
+                        Ano</li>
+                </ul>
+            </div>
+
             <div class="mt-10 overflow-auto">
                 <!-- Orçamentos do cliente -->
                 <table class="w-full m-auto table-auto truncate">

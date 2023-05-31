@@ -218,7 +218,7 @@ class CeremonyController extends Controller
         $ceremony->save();
         return to_route('financials.index', $id);
     }
-    /*
+
     private function generate_installments($ceremony_id, $installments)
     {
         $total_value = 0;
@@ -241,7 +241,7 @@ class CeremonyController extends Controller
         }
         return $total_value;
     }
-*/
+
     /**
      * Update the specified resource in storage.
      *

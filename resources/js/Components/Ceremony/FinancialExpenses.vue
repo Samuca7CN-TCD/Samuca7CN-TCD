@@ -74,7 +74,7 @@ const deleteItem = (selected_option_id) => {
     <div v-else class="w-full text-center">
         <p>Não há despesas cadastradas no momento!</p>
     </div>
-    <p v-if="budget.status == 1 && budget.status == 2"
+    <p v-if="budget.status == 1 || budget.status == 2"
         class="text-blue-400 hover:text-blue-600 active:text-blue-800 cursor-pointer flex-row-config space-x-1 py-5"
         @click="openModal(null)">
         <PlusIcon class="w-4 h-4" />

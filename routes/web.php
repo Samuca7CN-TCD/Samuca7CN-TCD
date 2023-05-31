@@ -20,6 +20,7 @@ use App\Http\Controllers\PlateController;
 use App\Http\Controllers\IngredientController;
 
 use App\Http\Controllers\MonthlyExpenseController;
+use App\Http\Controllers\VoucherController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,7 +53,7 @@ Route::middleware([
 ])->group(function () {
     Route::get('/', [DashboardController::class, 'index'])->name('home');
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
-    Route::get('/filtered-dashboard', [DashboardController::class, 'filtered-dashboard'])->name('filtered-dashboard');
+    Route::get('/to-receive/{begin}/{end}', [DashboardController::class, 'to_receive'])->name('to-receive');
 
     // Route::get('/clients', [ClientController::class, 'index'])->name('clients');
     Route::resource('/clients', ClientController::class);
@@ -65,6 +66,7 @@ Route::middleware([
     Route::put('/voucher/{ceremony_id}', [CeremonyController::class, 'delete_voucher'])->name('ceremonies.delete.voucher');
     Route::put('/obsevation/{ceremony_id}', [CeremonyController::class, 'update_obs'])->name('ceremonies.updade.obs');
     Route::resource('/financials', InstallmentController::class);
+    Route::get('/get-vouchers/{installment_id}', [VoucherController::class, 'get_vouchers'])->name('get-vouchers');
 
     Route::resource('/tasks', TaskController::class);
     Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');

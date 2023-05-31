@@ -6,11 +6,13 @@ import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { router, useForm } from '@inertiajs/vue3';
 import { toMonetary, formatDate, geraStringAleatoria } from '/resources/js/shared_functions.js';
+import axios from 'axios';
 
 const props = defineProps({
     ceremony: Object,
     installment: Object,
     installments: Object,
+    vouchers: Object,
 });
 
 const installment = ref({
@@ -21,16 +23,17 @@ const installment = ref({
     total_amount: props.installment.total_amount,
     deadline: props.installment.deadline,
     entry: props.installment.entry,
-    vouchers: props.installment.vouchers,
     processing: false,
 });
 
+const vouchers_list = ref(props.vouchers);
+
 const new_voucher = ref({
-    id: installment.value.vouchers.length ? installment.value.vouchers[installment.value.vouchers.length - 1].id + 1 : 0,
     installment_id: installment.value.id,
     name: null,
     value: installment.value.total_amount - installment.value.paid_amount,
     file: null,
+    payment_date: new Date().toISOString().slice(0, 10),
 });
 
 const pay = () => {
@@ -49,7 +52,6 @@ const pay = () => {
         return;
     }
 
-    new_voucher.value.id = installment.value.vouchers.length;
     installment.value.processing = true;
     router.post(route('ceremonies.update.voucher', props.ceremony.id), new_voucher.value, {
         preserveScroll: true,
@@ -59,15 +61,7 @@ const pay = () => {
 
 const deletePayment = (voucher_id) => {
     installment.value.processing = true;
-    console.log(installment.value.vouchers);
-    if (installment.value.vouchers.length == undefined) {
-        installment.value.vouchers = Object.values(installment.value.vouchers);
-    }
-    console.log(installment.value.vouchers);
-    const voucher_delete = installment.value.vouchers.find((v) => v.id == voucher_id);
-    console.log(installment.value.vouchers);
-    if (!voucher_delete) { alert('Comprovante não encontrado!'); return; }
-    router.put(route('ceremonies.delete.voucher', props.ceremony.id), voucher_delete, {
+    router.put(route('ceremonies.delete.voucher', props.ceremony.id), { id: voucher_id }, {
         preserveScroll: true,
         onSuccess: () => recalc_conditions(),
     });
@@ -85,12 +79,17 @@ const recalc_conditions = () => {
     new_voucher.value.file = null;
 
     installment.value.processing = false;
+
+    axios.get(route('get-vouchers', props.installment.id))
+        .then(response => {
+            vouchers_list.value = response.data;
+        });
 }
 
 const emit = defineEmits(['modal_open']);
 const closeModal = () => {
-    //emit('modal_open', false);
-    router.get(route('financials.index', props.ceremony.id), { preserveScroll: true, });
+    emit('modal_open', false);
+    // router.get(route('financials.index', props.ceremony.id), { preserveScroll: true, });
 }
 
 </script>
@@ -108,8 +107,8 @@ const closeModal = () => {
         </div>
         <form id="create_task" @submit.prevent="submit" class="w-full">
 
-            <div class="overflow-hidden m-5 md:m-0 p-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
-                <div class="overflow-hidden bg-white shadow sm:rounded-lg">
+            <div class="w-full overflow-hidden m-5 md:m-0 p-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
+                <div class="w-full overflow-hidden bg-white shadow sm:rounded-lg">
                     <div class="px-4 py-5 sm:px-6">
                         <h3 class="text-base font-semibold leading-6 text-gray-900">Informações da Parcela</h3>
                     </div>
@@ -136,10 +135,10 @@ const closeModal = () => {
                                     {{ formatDate(installment.deadline) }}</dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Pagamento e Comprovantes</dt>
+                                <dt class="text-sm font-medium text-gray-500">Comprovantes</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                                     <ul role="list" class="divide-y divide-gray-200 rounded-md border border-gray-200">
-                                        <li v-for="voucher in installment.vouchers" :key="voucher.id"
+                                        <li v-for="voucher in vouchers_list" :key="voucher.id"
                                             class="flex items-center justify-between py-3 pl-3 pr-4 text-sm group">
                                             <div class="flex w-0 flex-1 items-center">
                                                 <PaperClipIcon
@@ -149,13 +148,16 @@ const closeModal = () => {
                                                     class="h-5 w-5 flex-shrink-0 text-gray-400 hidden group-hover:inline-flex cursor-pointer"
                                                     title="Excluir pagamento" aria-hidden="true"
                                                     @click="deletePayment(voucher.id)" />
-                                                <span class="ml-2 w-0 flex-1 truncate text-gray-500">{{ voucher.name
-                                                }}</span>
+                                                <span class="ml-2 w-0 flex-1 truncate text-gray-500"
+                                                    :title="voucher.name">{{ voucher.name
+                                                    }}</span>
                                                 <span class="ml-2 w-0 flex-1">{{ toMonetary(parseFloat(voucher.value))
                                                 }}</span>
+                                                <span class="text-xs text-gray-500">{{
+                                                    formatDate(voucher.payment_date).substr(0, 10) }}</span>
                                             </div>
                                             <div class=" ml-4 flex-shrink-0">
-                                                <a :href="voucher.file" target="_blank"
+                                                <a :href="'../storage/installment_files/' + voucher.file" target="_blank"
                                                     class="font-medium text-indigo-600 hover:text-indigo-500">Baixar</a>
                                             </div>
                                         </li>
@@ -163,26 +165,37 @@ const closeModal = () => {
                                             class="flex items-center justify-between py-3 pl-3 pr-4 text-sm">
                                             <div class="flex w-0 flex-1 items-center">
                                                 <div class="ml-2 flex-1 space-y-2 w-full">
-                                                    <div class="w-full">
-                                                        <label for="payment_amount" class="text-gray-400">Valor de pagamento
-                                                            (R$)</label>
-                                                        <input id="payment_amount" type="number" step="0.01" min="0.00"
-                                                            :max="installment.total_amount - installment.paid_amount"
-                                                            class="w-full border-gray-300" v-model="new_voucher.value"
-                                                            placeholder="Valor" />
-                                                    </div>
-                                                    <div class="flex flex-row items-center align-middle space-x-3">
-                                                        <label for="voucher"
-                                                            class="flex-col-config p-2 w-fit bg-blue-500 rounded-xl cursor-pointer"
-                                                            title="Inserir comprovante">
-                                                            <ArrowUpOnSquareIcon class="w-6 h-6 text-white" />
-                                                        </label>
-                                                        <span class="w-full flex-wrap">{{ new_voucher.name != null ?
-                                                            new_voucher.name : 'Insira o comprovante (obrigatório)'
-                                                        }}</span>
-                                                        <input id="voucher"
-                                                            @input="new_voucher.name = $event.target.files[0].name; new_voucher.file = $event.target.files[0]"
-                                                            type="file" accept=".pdf" class="hidden" />
+                                                    <div class="w-full space-y-5">
+                                                        <div>
+                                                            <label for="payment_amount" class="text-gray-400">Valor de
+                                                                pagamento
+                                                                (R$)</label>
+                                                            <input id="payment_amount" type="number" step="0.01" min="0.00"
+                                                                :max="installment.total_amount - installment.paid_amount"
+                                                                class="w-full border-gray-300" v-model="new_voucher.value"
+                                                                placeholder="Valor" />
+                                                        </div>
+                                                        <div>
+                                                            <label for="payment_date" class="text-gray-400">Data do
+                                                                pagamento</label>
+                                                            <input type="date" id="payment_date"
+                                                                placeholder="Data do pagamento"
+                                                                class="w-full border-slate-300 sm:text-md"
+                                                                v-model="new_voucher.payment_date" />
+                                                        </div>
+                                                        <div class="flex flex-row items-center align-middle space-x-3">
+                                                            <label for="voucher"
+                                                                class="flex-col-config p-2 w-fit bg-blue-500 rounded-xl cursor-pointer"
+                                                                title="Inserir comprovante">
+                                                                <ArrowUpOnSquareIcon class="w-6 h-6 text-white" />
+                                                            </label>
+                                                            <span class="w-full flex-wrap">{{ new_voucher.name != null ?
+                                                                new_voucher.name : 'Insira o comprovante (obrigatório)'
+                                                            }}</span>
+                                                            <input id="voucher"
+                                                                @input="new_voucher.name = $event.target.files[0].name; new_voucher.file = $event.target.files[0]"
+                                                                type="file" accept=".pdf" class="hidden" />
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>

@@ -1,7 +1,6 @@
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
 import BudgetsList from '@/Components/Budget/BudgetList.vue';
-import Budget from '@/Components/Budget/Budget.vue';
 defineProps({
     submenu: Object,
     submenu_category: String,
@@ -22,8 +21,6 @@ defineProps({
                 Orçamentos
             </h2>
         </template>
-        <BudgetsList v-if="budget_list" :client="selected_client" :budgets_list="budgets_list" />
-        <Budget v-if="budget" :client="selected_client" :budget="budget" :ceremony="ceremony"
-            :budget_selects_options="budget_selects_options" />
+        <BudgetsList v-if="budget_list" :client="selected_client" :budgets_list="budget_list" />
     </AppLayout>
 </template>

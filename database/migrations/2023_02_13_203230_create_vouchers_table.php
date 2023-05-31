@@ -16,7 +16,10 @@ return new class extends Migration
         Schema::create('vouchers', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('installment_id');
-            $table->string('file_name')->unique();
+            $table->string('name');
+            $table->double('value');
+            $table->string('file')->unique();
+            $table->dateTime('payment_date');
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('installment_id')->references('id')->on('installments');

@@ -9,6 +9,8 @@ use App\Models\Menu;
 use App\Models\Submenu;
 use App\Models\Client;
 use App\Models\Ceremony;
+use App\Models\Installment;
+use App\Models\Voucher;
 use App\Models\Budget;
 use App\Models\MonthlyExpense;
 
@@ -55,6 +57,26 @@ class DashboardController extends Controller
             'total_gastos_mensais' => (float) MonthlyExpense::sum('amount'),
             'total_lucro' => (float) $valor_total->total - (float) $valor_total->expenses,
         ]);
+    }
+
+    public function to_receive($begin, $end)
+    {
+        $valor = array('to_receive' => 0);
+        if ($begin == $end) {
+            $valor = Installment::select(
+                DB::raw('(SUM(installments.total_amount) - SUM(installments.paid_amount)) as to_receive'),
+            )
+                ->where('installments.deadline', 'like', $begin . '%')
+                ->first();
+        } else {
+            $valor = Installment::select(
+                DB::raw('(SUM(installments.total_amount) - SUM(installments.paid_amount)) as to_receive'),
+            )
+                ->where('installments.deadline', '>=', $begin . ' 00:00:00')
+                ->where('installments.deadline', '<=', $end . ' 23:59:59')
+                ->first();
+        }
+        return $valor->to_receive;
     }
 
     /**

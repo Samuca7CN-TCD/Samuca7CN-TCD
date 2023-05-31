@@ -18,6 +18,11 @@ class VoucherController extends Controller
         //
     }
 
+    public function get_vouchers($installment_id)
+    {
+        return Voucher::where('installment_id', $installment_id)->get();
+    }
+
     /**
      * Show the form for creating a new resource.
      *

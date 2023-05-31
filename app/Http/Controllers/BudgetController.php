@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Budget;
 use App\Models\Ceremony;
+use App\Models\Installment;
+use App\Models\Voucher;
 use App\Models\Task;
 
 use App\Models\Client;
@@ -117,6 +119,8 @@ class BudgetController extends Controller
     {
         $budget = Budget::find($id);
         $ceremony = Ceremony::where('budget_id', $budget->id)->first();
+        if ($ceremony) $has_installment = Installment::where('ceremony_id', $ceremony->id)->first() ? true : false;
+        else $has_installment = false;
 
         $budgets = Budget::select('budgets.*', 'events.name AS event_name')
             ->where('budgets.client_id', $budget->client_id)
@@ -140,6 +144,7 @@ class BudgetController extends Controller
             "ceremony" => $ceremony,
             "budget" => $budget,
             "budget_selects_options" => $budget_selects_options,
+            "has_installment" => $has_installment,
         ]);
     }
 

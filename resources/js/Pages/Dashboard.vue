@@ -1,8 +1,9 @@
 <script setup>
 import { ref } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { toMonetary } from '/resources/js/shared_functions.js';
+import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
 import { router } from '@inertiajs/vue3';
+import axios from 'axios';
 
 const props = defineProps({
     budgets: Object,
@@ -20,6 +21,7 @@ const valor_a_receber = ref(props.total_a_receber);
 const gastos_mensais = ref(props.total_gastos_mensais);
 const gastos_cerimonias = ref(props.total_custos);
 const lucro = ref(props.total_lucro);
+const a_receber = ref(0);
 
 const dashboard_date = ref({
     begin: '2023-05-29',
@@ -80,18 +82,26 @@ const setDateRange = (option) => {
     }
 
     // Formatar as datas para o formato 'YYYY-MM-DD'
-    dashboard_date.value.begin = formatDate(startDate);
-    dashboard_date.value.end = formatDate(endDate);
+    dashboard_date.value.begin = patternDate(startDate);
+    dashboard_date.value.end = patternDate(endDate);
 
-    // getDashboardValues();
+    getDashboardValues();
+}
+const getDashboardValues = () => {
+    axios.get(route('to-receive', { begin: dashboard_date.value.begin, end: dashboard_date.value.end }))
+        .then(response => {
+            a_receber.value = response.data ? response.data : 0
+        });
 }
 
-const formatDate = (date) => {
+const patternDate = (date) => {
     const year = date.getFullYear();
     const month = (date.getMonth() + 1).toString().padStart(2, '0');
     const day = date.getDate().toString().padStart(2, '0');
     return `${year}-${month}-${day}`;
 }
+
+getDashboardValues();
 
 </script>
 
@@ -104,10 +114,11 @@ const formatDate = (date) => {
         </template>
 
         <section class="w-11/12 m-auto px-0 rounded-xl shadow-2xl min-h-[525px] my-10 bg-white select-none overflow-hidden">
-            <div class="pt-7 px-5">
-                <h2 class="text-2xl">Valor total:
-                    <span>{{ toMonetary(valor_total) }}</span>
-                </h2>
+            <div
+                class="bg-stone-900 text-white rounded-md py-5 flex flex-row space-x-5 px-14 align-middle items-center text-2xl mx-5 mt-5">
+                <p>Valor Total:</p>
+                <p class="text-xs text-white"></p>
+                {{ toMonetary(valor_total) }}
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 m-5">
                 <div class="w-full bg-orange-600 text-white rounded-md py-5 flex-col-config text-2xl">
@@ -140,48 +151,56 @@ const formatDate = (date) => {
                 </div>
             </div>
 
-            <div class="col-row-config md:flex-row-config m-10 md:space-x-10">
-                <!-- Data -->
-                <div class="w-full md:w-1/3">
-                    <label for="dashboard-begin" class="text-xs text-slate-700">Início</label>
-                    <input type="date" id="dashboard-begin" placeholder="Data de Início"
-                        class="w-full border-slate-300 sm:text-md" v-model="dashboard_date['begin']" />
+            <div class="m-10 p-10 rounded-lg bg-gray-50">
+                <div class="w-full rounded-md text-center items-center text-2xl">
+                    <p>A receber no período</p>
+                    <span>{{ toMonetary(a_receber) }}</span>
+                    <p class="text-xs text-gray-900">Selecine um período nos campos abaixo para saber quanto dinhero irá
+                        entrar</p>
                 </div>
 
-                <div class="w-full md:w-1/3">
-                    <label for="dashboard-end" class="text-xs text-slate-700">Fim</label>
-                    <input type="date" id="dashboard-end" placeholder="Data de Fim"
-                        class="w-full border-slate-300 sm:text-md" v-model="dashboard_date['end']" />
-                </div>
-            </div>
+                <div class="col-row-config md:flex-row-config my-5 md:space-x-10">
+                    <!-- Data -->
+                    <div class="w-full md:w-1/3">
+                        <label for="dashboard-begin" class="text-xs text-slate-700">Início</label>
+                        <input type="date" id="dashboard-begin" placeholder="Data de Início"
+                            class="w-full border-slate-300 sm:text-md" v-model="dashboard_date['begin']" />
+                    </div>
 
-            <div class="overflow-x-auto">
-                <ul class="flex-row-config divide-x-2 border-2 border-full w-fit m-auto">
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 0 }" @click="setDateRange(0)">Hoje
-                    </li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 1 }" @click="setDateRange(1)">Amanhã
-                    </li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 2 }" @click="setDateRange(2)">Esta
-                        Semana</li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 3 }" @click="setDateRange(3)">Próxima
-                        Semana</li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 4 }" @click="setDateRange(4)">Este Mês
-                    </li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 5 }" @click="setDateRange(5)">Próximo
-                        Mês</li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 6 }" @click="setDateRange(6)">Este Ano
-                    </li>
-                    <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
-                        :class="{ 'bg-gray-200': dashboard_date['option'] == 7 }" @click="setDateRange(7)">Próximo
-                        Ano</li>
-                </ul>
+                    <div class="w-full md:w-1/3">
+                        <label for="dashboard-end" class="text-xs text-slate-700">Fim</label>
+                        <input type="date" id="dashboard-end" placeholder="Data de Fim"
+                            class="w-full border-slate-300 sm:text-md" v-model="dashboard_date['end']" />
+                    </div>
+                </div>
+                <div class="overflow-x-auto">
+                    <ul class="flex-row-config divide-x-2 border-2 border-full w-fit m-auto">
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 0 }" @click="setDateRange(0)">Hoje
+                        </li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 1 }" @click="setDateRange(1)">Amanhã
+                        </li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 2 }" @click="setDateRange(2)">Esta
+                            Semana</li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 3 }" @click="setDateRange(3)">Próxima
+                            Semana</li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 4 }" @click="setDateRange(4)">Este Mês
+                        </li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 5 }" @click="setDateRange(5)">Próximo
+                            Mês</li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 6 }" @click="setDateRange(6)">Este Ano
+                        </li>
+                        <li class="px-5 py-2 hover:bg-gray-100 cursor-pointer"
+                            :class="{ 'bg-gray-200': dashboard_date['option'] == 7 }" @click="setDateRange(7)">Próximo
+                            Ano</li>
+                    </ul>
+                </div>
             </div>
 
             <div class="mt-10 overflow-auto">

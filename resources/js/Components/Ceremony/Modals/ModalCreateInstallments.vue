@@ -29,7 +29,7 @@ const installment = useForm({
     name: 'Parcela',
     type: 0,
     paid_amount: 0,
-    paid: 0,
+    paid: false,
     total_amount: 0,
     deadline: (new Date()).toISOString().slice(0, 19).replace('', 'T'),
     entry: false,

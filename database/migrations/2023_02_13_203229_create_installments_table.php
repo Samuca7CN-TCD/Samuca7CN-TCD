@@ -16,15 +16,16 @@ return new class extends Migration
         Schema::create('installments', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('ceremony_id');
-            $table->unsignedBigInteger('budget_id');
-            $table->boolean('entry');
+            $table->string('name');
+            $table->tinyInteger('type');
+            $table->double('paid_amount');
             $table->boolean('paid');
-            $table->double('amount');
-            $table->date('payment_deadline');
+            $table->double('total_amount');
+            $table->dateTime('deadline');
+            $table->boolean('entry');
             $table->softDeletes();
             $table->timestamps();
             $table->foreign('ceremony_id')->references('id')->on('ceremonies');
-            $table->foreign('budget_id')->references('id')->on('budgets');
         });
     }
 

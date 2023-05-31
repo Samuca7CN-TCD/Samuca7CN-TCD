@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\Ceremony;
+use App\Models\Installment;
+use App\Models\Voucher;
 use App\Models\Budget;
 use App\Models\Decoration;
 use App\Models\Buffet;
@@ -69,6 +71,7 @@ class CeremonyController extends Controller
                 $this->set_ceremony_status($budget, 0);
                 $client_budgets = Budget::where('client_id', $budget->client_id)->where('status', 1)->get();
                 if (!count($client_budgets)) $this->set_client_status($budget, false);
+                $this->deleteInstallments($budget);
                 break;
             case 3:
                 $new_budget_id = $this->clone_budget($budget);
@@ -127,6 +130,13 @@ class CeremonyController extends Controller
             $ceremony->status = $status;
             $ceremony->save();
         }
+    }
+
+    private function deleteInstallments($budget)
+    {
+        $ceremony = Ceremony::where('budget_id', $budget->id)->first();
+        $installments = Installment::where('ceremony_id', $ceremony->id)->get();
+        if ($installments) $installments->each->delete();
     }
 
     private function set_client_status($budget, $status)
@@ -198,17 +208,40 @@ class CeremonyController extends Controller
     {
         $ceremony = Ceremony::find($id);
         $budget = Budget::find($ceremony->budget_id);
-        $ceremony->installments = json_encode($request->installment_list);
-        $total = 0;
-        foreach ($request->installment_list as $installment) $total += $installment['total_amount'];
-        $ceremony->total_installments = $total;
+        // $ceremony->installments = json_encode($request->installment_list);
+        // $total = 0;
+        // foreach ($request->installment_list as $installment) $total += $installment['total_amount'];
+        $ceremony->total_installments = $this->generate_installments($ceremony->id, $request->installment_list);
         $ceremony->installment_option = $request->installment_list[0]['type'];
         if ($ceremony->installment_option == 3) $ceremony->total_negotiated_amount = $budget->budget_total_value * 0.95;
         else $ceremony->total_negotiated_amount = $budget->budget_total_value;
         $ceremony->save();
         return to_route('financials.index', $id);
     }
+    /*
+    private function generate_installments($ceremony_id, $installments)
+    {
+        $total_value = 0;
 
+        $old_installments = Installment::where('ceremony_id', $ceremony_id)->get();
+        $old_installments->each->forceDelete();
+
+        foreach ($installments as $installment) {
+            $total_value += $installment['total_amount'];
+            $installment_new = new Installment();
+            $installment_new->ceremony_id = $ceremony_id;
+            $installment_new->name = $installment['name'];
+            $installment_new->type = $installment['type'];
+            $installment_new->paid_amount = $installment['paid_amount'];
+            $installment_new->paid = $installment['paid'];
+            $installment_new->total_amount = $installment['total_amount'];
+            $installment_new->deadline = $installment['deadline'];
+            $installment_new->entry = $installment['entry'];
+            $installment_new->save();
+        }
+        return $total_value;
+    }
+*/
     /**
      * Update the specified resource in storage.
      *
@@ -260,72 +293,57 @@ class CeremonyController extends Controller
     public function update_voucher(Request $request, $id)
     {
         $ceremony = Ceremony::find($id);
-        $installments = (array) json_decode($ceremony->installments);
+        $installment = Installment::find($request->installment_id);
 
-        foreach ($installments as $installment) {
-            if ($installment->id == $request->installment_id) {
-                $file = $request->file('file');
-                $filename = $file->hashName();
-                $path = $file->storeAs('public/installment_files', $filename);
+        $file = $request->file('file');
+        $filename = $file->hashName();
+        $path = $file->storeAs('public/installment_files', $filename);
 
-                if ($path) {
-                    $paid_amount = $request->value;
-                    if (($installment->total_amount - $installment->paid_amount) - $paid_amount < 0.01) {
-                        $paid_amount = ($installment->total_amount - $installment->paid_amount);
-                        $installment->paid = true;
-                    }
-
-                    array_push($installment->vouchers, (object) array(
-                        'id' => (int) $request->id,
-                        'installment_id' => $request->installment_id,
-                        'name' => $request->name,
-                        'value' => (float) $paid_amount,
-                        'file' => '/storage/installment_files/' . $filename,
-                    ));
-
-                    $installment->paid_amount += $paid_amount;
-                    $ceremony->paid_amount += $paid_amount;
-
-                    if (($ceremony->total_negotiated_amount + $ceremony->total_additions) - $ceremony->paid_amount < 0.01) {
-                        $ceremony->paid_amount = ($ceremony->total_negotiated_amount + $ceremony->total_additions);
-                        $ceremony->status = 1; //pago
-                    }
-
-                    $ceremony->installments = json_encode($installments);
-                    $ceremony->save();
-                }
-                break;
+        if ($path) {
+            $paid_amount = $request->value;
+            if (($installment->total_amount - $installment->paid_amount) - $paid_amount < 0.01) {
+                $paid_amount = ($installment->total_amount - $installment->paid_amount);
+                $installment->paid = true;
             }
+
+            $voucher = new Voucher();
+            $voucher->installment_id = $request['installment_id'];
+            $voucher->name = $request['name'];
+            $voucher->value = $request['value'];
+            $voucher->file = $filename;
+            $voucher->payment_date = $request['payment_date'];
+            $voucher->save();
+
+            $installment->paid_amount += $paid_amount;
+            $installment->save();
+
+            $ceremony->paid_amount += $paid_amount;
+
+            if (($ceremony->total_negotiated_amount + $ceremony->total_additions) - $ceremony->paid_amount < 0.01) {
+                $ceremony->paid_amount = ($ceremony->total_negotiated_amount + $ceremony->total_additions);
+                $ceremony->status = 1; //pago
+            }
+
+            $ceremony->save();
         }
     }
 
     public function delete_voucher(Request $request, $id)
     {
         $ceremony = Ceremony::find($id);
-        $installments = (array) json_decode($ceremony->installments);
-        //dd($installments);
-        $position_i = array_search($request->installment_id, array_column($installments, 'id'));
-        $installment = $installments[$position_i];
-        //dd($installment);
-        $vouchers = (array) $installment->vouchers;
-        $position_v = array_search($request->id, array_column($vouchers, 'id'));
-        $voucher = $vouchers[$position_v];
-        //dd($installments);
+        $voucher = Voucher::find($request->id);
+        $installment = Installment::find($voucher->installment_id);
 
         $installment->paid_amount -= $voucher->value;
         $installment->paid = false;
+        $installment->save();
+
         $ceremony->paid_amount -= $voucher->value;
         $ceremony->status = 0;
-
-        //$installments[$position_i]->vouchers = array_splice($installments[$position_i]->vouchers, $position_v, 1);
-        unset($installments[$position_i]->vouchers[$position_v]);
-        $installments[$position_i]->vouchers = array_values($installments[$position_i]->vouchers);
-        $ceremony->installments = json_encode($installments);
         $ceremony->save();
-        //dd($installments);
 
-        $array_path = explode('/', $request->file);
-        Storage::delete('public/installment_files/' . end($array_path));
+        Storage::delete('public/installment_files/' . $voucher->file);
+        $voucher->delete();
     }
 
     public function update_obs(Request $request, $id)

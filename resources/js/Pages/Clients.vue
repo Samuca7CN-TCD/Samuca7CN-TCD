@@ -17,6 +17,7 @@ const props = defineProps({
     budget_selects_options: Object,
     budget: Object,
     ceremony: Object,
+    has_installment: Boolean,
 });
 
 const event_name = () => {
@@ -44,6 +45,7 @@ const formatDate = (date) => {
         <ClientsList v-if="!selected_client && !budget" :clients_list="clients_list" />
         <BudgetList v-if="selected_client && !budget" :client="selected_client" :budgets_list="client_budgets"
             :budget_selects_options="budget_selects_options" />
-        <Budget v-if="budget" :budget="budget" :ceremony="ceremony" :budget_selects_options="budget_selects_options" />
+        <Budget v-if="budget" :budget="budget" :ceremony="ceremony" :budget_selects_options="budget_selects_options"
+            :has_installment="has_installment" />
     </AppLayout>
 </template>

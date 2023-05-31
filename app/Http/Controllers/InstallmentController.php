@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\Budget;
 use App\Models\Ceremony;
+use App\Models\Installment;
+use App\Models\Voucher;
 use App\Models\Event;
 use App\Models\Decoration;
 use App\Models\Buffet;
@@ -54,6 +56,9 @@ class InstallmentController extends Controller
         $budget = Budget::find($id);
         $ceremony = Ceremony::where('budget_id', $budget->id)->first();
 
+        if ($ceremony) $installments = Installment::where('ceremony_id', $ceremony->id)->get();
+        else $installments = array();
+
         $budgets = Budget::select('budgets.*', 'events.name AS event_name')
             ->where('budgets.client_id', $budget->client_id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
@@ -73,6 +78,7 @@ class InstallmentController extends Controller
             'submenu_category' => 'budgets',
             "client_budgets" => $budgets,
             "ceremony" => $ceremony,
+            "installments" => $installments,
             "budget" => $budget,
             "budget_selects_options" => $budget_selects_options,
         ]);

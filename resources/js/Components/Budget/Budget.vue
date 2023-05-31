@@ -9,7 +9,8 @@ import loadInstallments from '../Ceremony/Modals/loadInstallments.js';
 const props = defineProps({
     budget: Object,
     ceremony: Object,
-    budget_selects_options: Object
+    budget_selects_options: Object,
+    has_installment: Boolean,
 });
 
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
@@ -103,7 +104,6 @@ const updateInstallments = () => {
     };
     installment_info.value.total_value = (props.ceremony.total_negotiated_amount + props.ceremony.total_additions);
     installment_info.value.event_date = props.budget.event_date;
-    console.log("Olá caramba");
     const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
     router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, { preserveScroll: true, });
 }
@@ -449,7 +449,7 @@ const cycleCerimony = (budget_id, option) => {
                             @click="cycleCerimony(budget.id, 0)">
                             Criar Cerimônia
                         </button>
-                        <button v-if="budget.status == 2 && JSON.parse(ceremony.installments).length"
+                        <button v-if="budget.status == 2 && has_installment"
                             class="bg-green-600 text-white py-3 px-5 rounded-lg" @click="cycleCerimony(budget.id, 1)">
                             Ativar Cerimônia
                         </button>

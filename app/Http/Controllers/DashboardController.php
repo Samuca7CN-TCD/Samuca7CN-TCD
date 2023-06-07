@@ -64,13 +64,13 @@ class DashboardController extends Controller
         $valor = array('to_receive' => 0);
         if ($begin == $end) {
             $valor = Installment::select(
-                DB::raw('(SUM(installments.total_amount) - SUM(installments.paid_amount)) as to_receive'),
+                DB::raw('(SUM(installments.amount) - SUM(installments.paid_amount)) as to_receive'),
             )
                 ->where('installments.deadline', 'like', $begin . '%')
                 ->first();
         } else {
             $valor = Installment::select(
-                DB::raw('(SUM(installments.total_amount) - SUM(installments.paid_amount)) as to_receive'),
+                DB::raw('(SUM(installments.amount) - SUM(installments.paid_amount)) as to_receive'),
             )
                 ->where('installments.deadline', '>=', $begin . ' 00:00:00')
                 ->where('installments.deadline', '<=', $end . ' 23:59:59')

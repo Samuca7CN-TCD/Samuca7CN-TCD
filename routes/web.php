@@ -60,7 +60,15 @@ Route::middleware([
     Route::resource('/budgets', BudgetController::class);
     Route::resource('/ceremonies', CeremonyController::class);
     Route::post('/ceremonies/{budget_id}/{option}', [CeremonyController::class, 'cycle_ceremony'])->name('ceremonies.cycle');
+
+    Route::post('/addition', [CeremonyController::class, 'create_addition'])->name('ceremonies.create.addition');
     Route::put('/addition/{ceremony_id}', [CeremonyController::class, 'update_addition'])->name('ceremonies.update.addition');
+    Route::delete('/addition/{ceremony_id}', [CeremonyController::class, 'delete_addition'])->name('ceremonies.delete.addition');
+
+    Route::post('/expense', [CeremonyController::class, 'create_expense'])->name('ceremonies.create.expense');
+    Route::put('/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
+    Route::delete('/expense/{ceremony_id}', [CeremonyController::class, 'delete_expense'])->name('ceremonies.delete.expense');
+
     Route::put('/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
     Route::post('/voucher/{ceremony_id}', [CeremonyController::class, 'update_voucher'])->name('ceremonies.update.voucher');
     Route::put('/voucher/{ceremony_id}', [CeremonyController::class, 'delete_voucher'])->name('ceremonies.delete.voucher');

@@ -28,6 +28,7 @@ class Budget extends Model
         'other_beers',
         'guests_quantity',
         'event_date',
+        'event_time',
         'event_place',
         'budget_total_value',
         'status',

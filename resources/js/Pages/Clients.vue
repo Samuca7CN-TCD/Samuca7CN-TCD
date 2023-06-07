@@ -39,7 +39,7 @@ const formatDate = (date) => {
                 <span class="inline" v-else>Lista de Clientes</span>
             </h2>
             <h2 v-else class="font-semibold text-xl text-gray-800 leading-tight">
-                Orçamento - {{ event_name() + ' (' + formatDate(budget.event_date) + ')' }}
+                Orçamento - {{ event_name() + ' (' + formatDate(budget.event_date + ' ' + budget.event_time) + ')' }}
             </h2>
         </template>
         <ClientsList v-if="!selected_client && !budget" :clients_list="clients_list" />

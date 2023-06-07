@@ -7,6 +7,8 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 use App\Models\Ceremony;
 use App\Models\Installment;
+use App\Models\BudgetAdditional;
+use App\Models\BudgetExpense;
 use App\Models\Voucher;
 use App\Models\Budget;
 use App\Models\Decoration;
@@ -91,29 +93,42 @@ class CeremonyController extends Controller
         $ceremony->budget_id = $budget->id;
         $ceremony->total_negotiated_amount = $budget->budget_total_value;
         $ceremony->paid_amount = 0;
-        $ceremony->installments = json_encode(array());
-        $ceremony->additions = json_encode((object) array());
+        $ceremony->total_installments = 0;
         $ceremony->total_additions = 0;
-        $ceremony->expenses = array(
-            'phol' => $budget->dj ? 1200 : 0,
-            'decoração' => Decoration::find($budget->decoration_id)->price,
-            'compra' => (Buffet::find($budget->buffet_entry_id)->cost * ($budget->guests_quantity / 10)) + (Buffet::find($budget->buffet_id)->cost * ($budget->guests_quantity / 10)),
-            'bebida' => $budget->beer ? 150 : 0,
-            'locações' => 0,
-            'garçon' => 150 * ceil($budget->guests_quantity / 30),
-            'ajudante de cozinha' => 150,
-            'nil cozinheira' => 1000,
-            'staff chicago' => 1500,
-            'fornecedores' => 0,
-            'churrasqueiro' => $budget->buffet_id == 1 ? 150 : 0,
-            'gelo' => 0,
-            'rateio luz e água' => 100,
-            'rateio aluguel' => 1000,
-        );
-        $ceremony->total_expenses = array_sum($ceremony->expenses);
-        $ceremony->expenses = json_encode($ceremony->expenses);
+        $ceremony->total_expenses = 0;
+        $ceremony->total_discount = 0;
         $ceremony->status = 0;
         $ceremony->observations = '';
+        $ceremony->save();
+
+        $default_expenses = array(
+            array("name" => "phol", "amount" => $budget->dj ? 1200 : 0),
+            array("name" => "decoração", "amount" => Decoration::find($budget->decoration_id)->price),
+            array("name" => "compra", "amount" => (Buffet::find($budget->buffet_entry_id)->cost * ($budget->guests_quantity / 10)) + (Buffet::find($budget->buffet_id)->cost * ($budget->guests_quantity / 10))),
+            array("name" => "bebidas", "amount" => $budget->beer ? 150 : 0),
+            array("name" => "locações", "amount" => 0),
+            array("name" => "garçon", "amount" => 150 * ceil($budget->guests_quantity / 30)),
+            array("name" => "ajudante de cozinha", "amount" => 150),
+            array("name" => "cozinheira", "amount" => 1000),
+            array("name" => "staff chicago", "amount" => 1500),
+            array("name" => "fornecedores", "amount" => 0),
+            array("name" => "churrasqueiro", "amount" => $budget->buffet_id == 1 ? 150 : 0),
+            array("name" => "gelo", "amount" => 0),
+            array("name" => "rateio luz e água", "amount" => 100),
+            array("name" => "rateio aluguel", "amount" => 1000),
+        );
+
+        $sum_expenses = 0;
+        foreach ($default_expenses as $exp) {
+            $expense = new BudgetExpense();
+            $expense->ceremony_id = $ceremony->id;
+            $expense->name = $exp['name'];
+            $expense->amount = $exp['amount'];
+            $expense->save();
+            $sum_expenses += $exp['amount'];
+        }
+
+        $ceremony->total_expenses = $sum_expenses;
         $ceremony->save();
     }
 
@@ -136,7 +151,14 @@ class CeremonyController extends Controller
     {
         $ceremony = Ceremony::where('budget_id', $budget->id)->first();
         $installments = Installment::where('ceremony_id', $ceremony->id)->get();
-        if ($installments) $installments->each->delete();
+        $additions = BudgetAdditional::where('ceremony_id', $ceremony->id)->get();
+        $expenses = BudgetExpense::where('ceremony_id', $ceremony->id)->get();
+
+        if ($installments) {
+            $installments->each->delete();
+            $additions->each->delete();
+            $expenses->each->delete();
+        }
     }
 
     private function set_client_status($budget, $status)
@@ -163,6 +185,7 @@ class CeremonyController extends Controller
 
         $new_budget->guests_quantity = $budget->guests_quantity;
         $new_budget->event_date = $budget->event_date;
+        $new_budget->event_time = $budget->event_time;
         $new_budget->budget_total_value = $budget->budget_total_value;
 
         $new_budget->status = 0;
@@ -242,51 +265,97 @@ class CeremonyController extends Controller
         return $total_value;
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return mixed
-     */
-    public function update_addition(Request $request, $id)
+    public function create_addition(Request $request)
     {
-        $ceremony = Ceremony::find($id);
-        $budget = Budget::find($ceremony->budget_id);
+        $ceremony = Ceremony::find($request->ceremony_id);
+        //$budget = Budget::find($ceremony->budget_id);
 
-        $additions = (array) json_decode($ceremony->additions);
+        $addition = new BudgetAdditional();
+        $addition->ceremony_id = $request->ceremony_id;
+        $addition->name = $request->name;
+        $addition->amount = $request->amount;
+        $addition->left_amount = $request->left_amount;
+        $addition->paid = $request->paid;
+        $addition->save();
 
-        if ($request->op_type < 2) $additions[$request->name] = $request->amount;
-        else unset($additions[$request->name]);
+        $ceremony->total_additions = BudgetAdditional::where('ceremony_id', $ceremony->id)->sum('amount');
 
-        $ceremony->total_additions = array_sum($additions);
-        $ceremony->additions = json_encode($additions);
-
-        $ceremony->total_negotiated_amount = $budget->budget_total_value;
-        if ($ceremony->installment_option == 3)  $ceremony->total_negotiated_amount *= 0.95;
+        //$ceremony->total_negotiated_amount = $budget->budget_total_value;
+        //if ($ceremony->installment_option == 3)  $ceremony->total_negotiated_amount *= 0.95;
 
         $ceremony->save();
+
+        return to_route('financials.index', $ceremony->id);
+    }
+
+    public function update_addition(Request $request, $id)
+    {
+        $ceremony = Ceremony::find($request->ceremony_id);
+
+        $addition = BudgetAdditional::find($id);
+        $addition->name = $request->name;
+        $addition->amount = $request->amount;
+        $addition->left_amount = $request->left_amount;
+        $addition->paid = $request->paid;
+        $addition->save();
+
+        $ceremony->total_additions = BudgetAdditional::where('ceremony_id', $ceremony->id)->sum('amount');
+        $ceremony->save();
+
+        return to_route('financials.index', $ceremony->id);
+    }
+
+    public function delete_addition(Int $id)
+    {
+        $addition = BudgetAdditional::find($id);
+        $ceremony = Ceremony::find($addition->ceremony_id);
+        $addition->delete();
+
+        $ceremony->total_additions = BudgetAdditional::where('ceremony_id', $ceremony->id)->sum('amount');
+        $ceremony->save();
+
         return to_route('financials.index', $id);
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return mixed
-     */
+    public function create_expense(Request $request)
+    {
+        $expense = new BudgetExpense();
+        $expense->ceremony_id = $request['ceremony_id'];
+        $expense->name = $request['name'];
+        $expense->amount = $request['amount'];
+        $expense->save();
+
+        $ceremony = Ceremony::find($request->ceremony_id);
+        $ceremony->total_expenses = BudgetExpense::where('ceremony_id', $ceremony->id)->sum('amount');
+        $ceremony->save();
+
+        return to_route('financials.index', $ceremony->id);
+    }
+
     public function update_expense(Request $request, $id)
     {
-        $ceremony = Ceremony::find($id);
-        $expenses = (array) json_decode($ceremony->expenses);
+        $ceremony = Ceremony::find($request->ceremony_id);
 
-        if ($request->op_type < 2) $expenses[$request->name] = $request->amount;
-        else unset($expenses[$request->name]);
+        $expense = BudgetExpense::find($id);
+        $expense->name = $request->name;
+        $expense->amount = $request->amount;
+        $expense->save();
 
-        $ceremony->total_expenses = array_sum($expenses);
-        $ceremony->expenses = json_encode($expenses);
+        $ceremony->total_expenses = BudgetExpense::where('ceremony_id', $ceremony->id)->sum('amount');
         $ceremony->save();
+
+        return to_route('financials.index', $ceremony->id);
+    }
+
+    public function delete_expense(Int $id)
+    {
+        $expense = BudgetExpense::find($id);
+        $ceremony = Ceremony::find($expense->ceremony_id);
+        $expense->delete();
+
+        $ceremony->total_expenses = BudgetExpense::where('ceremony_id', $ceremony->id)->sum('amount');
+        $ceremony->save();
+
         return to_route('financials.index', $id);
     }
 

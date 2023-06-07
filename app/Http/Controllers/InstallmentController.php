@@ -7,6 +7,8 @@ use Inertia\Inertia;
 use App\Models\Budget;
 use App\Models\Ceremony;
 use App\Models\Installment;
+use App\Models\BudgetAdditional;
+use App\Models\BudgetExpense;
 use App\Models\Voucher;
 use App\Models\Event;
 use App\Models\Decoration;
@@ -56,14 +58,22 @@ class InstallmentController extends Controller
         $budget = Budget::find($id);
         $ceremony = Ceremony::where('budget_id', $budget->id)->first();
 
-        if ($ceremony) $installments = Installment::where('ceremony_id', $ceremony->id)->get();
-        else $installments = array();
+        if ($ceremony) {
+            $installments = Installment::where('ceremony_id', $ceremony->id)->get();
+            $additions = BudgetAdditional::where('ceremony_id', $ceremony->id)->get();
+            $expenses = BudgetExpense::where('ceremony_id', $ceremony->id)->get();
+        } else {
+            $installments = array();
+            $additions = array();
+            $expenses = array();
+        }
 
         $budgets = Budget::select('budgets.*', 'events.name AS event_name')
             ->where('budgets.client_id', $budget->client_id)
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
             ->orderBy('budgets.created_at', 'desc')
             ->orderBy('budgets.event_date', 'desc')
+            ->orderBy('budgets.event_time', 'desc')
             ->get();
 
         $budget_selects_options = array(
@@ -79,8 +89,11 @@ class InstallmentController extends Controller
             "client_budgets" => $budgets,
             "ceremony" => $ceremony,
             "installments" => $installments,
+            "additions" => $additions,
+            "expenses" => $expenses,
             "budget" => $budget,
             "budget_selects_options" => $budget_selects_options,
+            "has_installment" => count($installments) ? true : false,
         ]);
     }
 

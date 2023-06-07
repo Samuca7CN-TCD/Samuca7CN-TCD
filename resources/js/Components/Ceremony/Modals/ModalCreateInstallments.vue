@@ -22,7 +22,7 @@ const installments_config = ref({
     payment_option: 1,
 });
 
-const installments = ref(loadInstallments(installments_config.value, props.budget.budget_total_value, props.budget.event_date));
+const installments = ref(loadInstallments(installments_config.value, props.budget.budget_total_value, props.budget.event_date + ' ' + props.budget.event_time));
 
 const installment = useForm({
     id: installments.value[installments.value.length] + 1,
@@ -71,7 +71,7 @@ const submit = () => {
                             parcelas</label>
                         <input type="text" id="installment_name" placeholder="Ex: Primeiro parcelamento"
                             v-model="installments_config.name"
-                            @keyup="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)"
+                            @keyup="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date + ' ' + budget.event_time)"
                             class="w-full border-slate-300 sm:text-md" />
                     </div>
 
@@ -82,7 +82,7 @@ const submit = () => {
                             parcelas</label>
                         <input type="number" step="1" min="1" max="28" id="installment_payment_day"
                             placeholder="Ex: Todo dia 10 (Dia máximo: 28)" v-model="installments_config.payment_day"
-                            @keyup="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)"
+                            @keyup="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date + ' ' + budget.event_time)"
                             class="w-full border-slate-300 sm:text-md" />
                     </div>
 
@@ -91,7 +91,7 @@ const submit = () => {
                         <label for="installment_payment_option" class="text-xs text-slate-700">Condição de pagamento</label>
                         <select id="installment_payment_option" class="w-full border-slate-300 sm:text-md"
                             v-model="installments_config.payment_option"
-                            @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)">
+                            @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date + ' ' + budget.event_time)">
                             <option value="0" disabled>Escolha uma das opções abaixo</option>
                             <option value="1">20% de entrada + 60% parcelado + 20% duas semanas antes do evento
                             </option>
@@ -107,13 +107,13 @@ const submit = () => {
                         <span class="flex flex-row space-x-2 align-middle items-center">
                             <input id="mensal_input" type="radio" class="form-radio text-stone-500" value="0"
                                 name="installment_type" v-model="installments_config.type"
-                                @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)">
+                                @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date + ' ' + budget.event_time)">
                             <label for="mensal_input" class="ml-2">Mensal</label>
                         </span>
                         <span class="flex flex-row space-x-2 align-middle items-center">
                             <input id="trimestral_input" type="radio" class="form-radio text-stone-500" value="1"
                                 name="installment_type" v-model="installments_config.type"
-                                @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date)">
+                                @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date + ' ' + budget.event_time)">
                             <label for="trimestral_input" class="ml-2">Trimestral</label>
                         </span>
                     </div>

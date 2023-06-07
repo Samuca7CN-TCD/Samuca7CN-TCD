@@ -4,7 +4,9 @@ import { ArrowUturnLeftIcon } from '@heroicons/vue/24/solid';
 import { router, useForm } from '@inertiajs/vue3';
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
 import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
-import loadInstallments from '../Ceremony/Modals/loadInstallments.js';
+import BudgetStatusButton from '@/Components/BudgetStatusButton.vue';
+import calcBudgetTotal from './Modals/calcBudgetTotal.js';
+import axios from 'axios';
 
 const props = defineProps({
     budget: Object,
@@ -48,7 +50,8 @@ const form = useForm({
 
     guests_quantity: props.budget.guests_quantity,
 
-    event_date: props.budget.event_date.replace(' ', 'T').substring(0, 16),
+    event_date: props.budget.event_date,
+    event_time: props.budget.event_time,
 
     budget_total_value: props.budget.budget_total_value,
 
@@ -57,21 +60,19 @@ const form = useForm({
     budget_link: props.budget.budget_link,
 });
 
-/*
-const ceremony_form = useForm({
-    id: props.ceremony.id,
-    budget_id: props.ceremony.budget_id,
-    ceremony_status_id: props.ceremony.ceremony_status_id,
-    total_negotiated_amount: props.ceremony.total_negotiated_amount,
-    entry_amount: props.ceremony.entry_amount,
-    remaining_amount: props.ceremony.remaining_amount,
-});
-*/
+const budget_event_datetime = ref(form.event_date + 'T' + form.event_time);
 
-const progress = (total, remaining) => {
-    let paid = total - remaining;
-    if (total == 0) return 0;
-    return paid / total;
+const setBudgetFormDateTime = () => {
+    let event_date_time = budget_event_datetime.value.split('T');
+    form.event_date = event_date_time[0];
+    form.event_time = event_date_time[1];
+    console.log(event_date_time);
+}
+
+const budgetTotal = () => {
+    setBudgetFormDateTime();
+    form.budget_total_value = calcBudgetTotal(form);
+    submit();
 }
 
 const saveObs = () => {
@@ -81,81 +82,10 @@ const saveObs = () => {
     });
 }
 
-const first_installment = props.ceremony ? ref(JSON.parse(props.ceremony.installments)[1] || JSON.parse(props.ceremony.installments)[0] || null) : ref(null);
-const installment_info = ref({
-    config: {
-        name: null,
-        payment_day: null,
-        type: null,
-        payment_option: null,
-    },
-    total_value: null,
-    event_date: null,
-});
-const options = [1, 1, 2, 3, 4];
-
-const updateInstallments = () => {
-    console.log(first_installment.value);
-    installment_info.value.config = {
-        name: first_installment.value.name || null,
-        payment_day: parseInt(formatDate(first_installment.value.deadline).split('/')[0]) || null,
-        type: first_installment.value.type || null,
-        payment_option: options[first_installment.value.type] || null,
-    };
-    installment_info.value.total_value = (props.ceremony.total_negotiated_amount + props.ceremony.total_additions);
-    installment_info.value.event_date = props.budget.event_date;
-    const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
-    router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, { preserveScroll: true, });
-}
-
 const submit = () => {
     form.put(route('budgets.update', form.id), {
         preserveScroll: true,
-        onSuccess: first_installment.value ? updateInstallments : () => { },
     });
-}
-
-/*
-const ceremonyStatus = (new_status) => {
-    ceremony_form.ceremony_status_id = new_status;
-    ceremony_form.put(route('ceremonies.update', ceremony_form.id), {
-        preserveScroll: true,
-    })
-}
-*/
-
-const calcBudgetTotal = () => {
-    let total = 2900;
-    let buffet = 59;
-    let option = {
-        bar: 15 * form.guests_quantity,
-        dj: 1200,
-        decoration: form.decoration_id == 1 ? 1400 : 0,
-        advisory: 900,
-
-        additional_meat: 7 * form.guests_quantity,
-        ravioli: 5 * form.guests_quantity,
-        additional_drinks: 5 * form.guests_quantity,
-        other_beers: 5 * form.guests_quantity,
-    }
-
-    if (form.buffet_id == 1) buffet += 20;
-    if (form.beer) buffet += 15;
-
-    total += buffet * form.guests_quantity;
-    total += option.decoration;
-
-    if (form.bar) total += option.bar;
-    if (form.dj) total += option.dj;
-    if (form.advisory) total += option.advisory;
-
-    if (form.additional_meat) total += option.additional_meat;
-    if (form.ravioli) total += option.ravioli;
-    if (form.additional_drinks) total += option.additional_drinks;
-    if (form.other_beers) total += option.other_beers;
-
-    form.budget_total_value = total;
-    submit();
 }
 
 const show_status = () => {
@@ -166,18 +96,6 @@ const show_status = () => {
         3: 'Cancelado',
         4: 'Concluído',
     }[props.budget.status]
-}
-
-const cycleCerimony = (budget_id, option) => {
-    router.post(route('ceremonies.cycle', [budget_id, option], {
-        preserveScroll: true,
-        onSuccess: () => {
-            if (option == 0) {
-                obs.value = ref(props.ceremony.observations || "");
-                obs_rows.value = ref(obs.value.split('\n').length || 1);
-            }
-        }
-    }));
 }
 </script>
 <template>
@@ -213,7 +131,7 @@ const cycleCerimony = (budget_id, option) => {
                         <div class="min-w-fit">
                             <label for="budget_event" class="text-xs text-slate-400">Evento</label>
                             <select id="budget_event" class="w-full border-slate-300 outline-0 sm:text-md"
-                                :disabled="budget.status != 2" v-model="form.event_id" @change="calcBudgetTotal">
+                                :disabled="budget.status != 2" v-model="form.event_id" @change="budgetTotal">
                                 <option :value="null">Escolha um eventos</option>
                                 <option v-for="   event    in    budget_selects_options.events   " :key="event.id"
                                     :value="event.id" :selected="form.event_id == event.id">{{ event.name }}
@@ -226,9 +144,9 @@ const cycleCerimony = (budget_id, option) => {
 
                         <!--Decoração-->
                         <div class="min-w-fit">
-                            <label for="budget_edecoration" class="text-xs text-slate-400">Decoração</label>
-                            <select ID="budget_decoration" class="w-full border-slate-300 sm:text-md"
-                                :disabled="budget.status != 2" v-model="form.decoration_id" @change="calcBudgetTotal">
+                            <label for="budget_decoration" class="text-xs text-slate-400">Decoração</label>
+                            <select id="budget_decoration" class="w-full border-slate-300 sm:text-md"
+                                :disabled="budget.status != 2" v-model="form.decoration_id" @change="budgetTotal">
                                 <option :value="null">Escolha uma decoração</option>
                                 <option v-for="   decoration    in    budget_selects_options.decorations   "
                                     :key="decoration.id" :value="decoration.id"
@@ -246,7 +164,7 @@ const cycleCerimony = (budget_id, option) => {
                         <div class="min-w-fit">
                             <label for="budget_buffet_entry" class="text-xs text-slate-400">Entrada de Buffet</label>
                             <select id="budget_buffet_entry" class="w-full border-slate-300 sm:text-md"
-                                :disabled="budget.status != 2" v-model="form.buffet_entry_id" @change="calcBudgetTotal">
+                                :disabled="budget.status != 2" v-model="form.buffet_entry_id" @change="budgetTotal">
                                 <option :value="null">Escolha uma entrada de buffet</option>
                                 <option v-for="   buffet_entry    in    budget_selects_options.buffet_entries   "
                                     :key="buffet_entry.id" :value="buffet_entry.id"
@@ -263,7 +181,7 @@ const cycleCerimony = (budget_id, option) => {
                         <div class="min-w-fit">
                             <label for="budget_buffet" class="text-xs text-slate-400">Buffet</label>
                             <select id="budget_buffet" class="w-full border-slate-300 sm:text-md"
-                                :disabled="budget.status != 2" v-model="form.buffet_id" @change="calcBudgetTotal">
+                                :disabled="budget.status != 2" v-model="form.buffet_id" @change="budgetTotal">
                                 <option :value="null">Escolha um buffet</option>
                                 <option v-for="   buffet    in    budget_selects_options.buffets   " :key="buffet.id"
                                     :value="buffet.id" :selected="form.buffet_id == buffet.id">{{ buffet.name }}
@@ -282,12 +200,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Bar-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-bar"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                        type="checkbox" :checked="form.bar" v-model="form.bar" @change="calcBudgetTotal"
+                                        type="checkbox" :checked="form.bar" v-model="form.bar" @change="budgetTotal"
                                         :disabled="budget.status != 2" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Bar</label>
+                                        for="checkbox-bar">Bar</label>
                                 </div>
                                 <div v-if="form.errors.bar" class="text-xs text-red-600 ml-3">{{
                                     form.errors.bar
@@ -298,12 +216,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Cerveja-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-beer"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.beer" v-model="form.beer"
-                                        :disabled="budget.status != 2" @change="calcBudgetTotal" />
+                                        :disabled="budget.status != 2" @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Cerveja</label>
+                                        for="checkbox-beer">Cerveja</label>
                                 </div>
                                 <div v-if="form.errors.beer" class="text-xs text-red-600 ml-3">{{
                                     form.errors.beer
@@ -314,12 +232,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--DJ-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-dj"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.dj" v-model="form.dj" :disabled="budget.status != 2"
-                                        @change="calcBudgetTotal" />
+                                        @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Dj</label>
+                                        for="checkbox-dj">Dj</label>
                                 </div>
                                 <div v-if="form.errors.dj" class="text-xs text-red-600 ml-3">{{ form.errors.dj
                                 }}
@@ -329,12 +247,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Acessoria-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-advisory"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.advisory" v-model="form.advisory"
-                                        :disabled="budget.status != 2" @change="calcBudgetTotal" />
+                                        :disabled="budget.status != 2" @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Acessoria</label>
+                                        for="checkbox-advisory">Cerimonialista</label>
                                 </div>
                                 <div v-if="form.errors.advisory" class="text-xs text-red-600 ml-3">{{
                                     form.errors.advisory }}
@@ -347,12 +265,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Carne adicional-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-additional-meat"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.additional_meat" v-model="form.additional_meat"
-                                        @change="calcBudgetTotal" />
+                                        @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Adicional de carne</label>
+                                        for="checkbox-additional-meat">Adicional de carne</label>
                                 </div>
                                 <div v-if="form.errors.additional_meat" class="text-xs text-red-600 ml-3">{{
                                     form.errors.additional_meat }}
@@ -362,12 +280,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Raviole-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-raviolli"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.ravioli" v-model="form.ravioli"
-                                        @change="calcBudgetTotal" />
+                                        @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Raviolli
+                                        for="checkbox-raviolli">Raviolli
                                         de
                                         carne ou quatro queijos</label>
                                 </div>
@@ -378,12 +296,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Bebida adicional-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-additional-drinks"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.additional_drinks" v-model="form.additional_drinks"
-                                        @change="calcBudgetTotal" />
+                                        @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Drinks
+                                        for="checkbox-additional-drinks">Drinks
                                         adicionais</label>
                                 </div>
                                 <div v-if="form.errors.additional_drinks" class="text-xs text-red-600 ml-3">{{
@@ -394,12 +312,12 @@ const cycleCerimony = (budget_id, option) => {
                             <!--Cerveja de outras marcas-->
                             <div>
                                 <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
-                                    <input
+                                    <input id="checkbox-other-beers"
                                         class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                         type="checkbox" :checked="form.other_beers" v-model="form.other_beers"
-                                        @change="calcBudgetTotal" />
+                                        @change="budgetTotal" />
                                     <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                        for="checkboxChecked">Cervejas
+                                        for="checkbox-other-beers">Cervejas
                                         outras marcas</label>
                                 </div>
                                 <div v-if="form.errors.other_beers" class="text-xs text-red-600 ml-3">{{
@@ -414,19 +332,20 @@ const cycleCerimony = (budget_id, option) => {
                         <div class="w-3/4">
                             <label for="budget_date" class="text-xs text-slate-700">Data da cerimônia</label>
                             <input type="datetime-local" id="budget_date" placeholder="Data da cerimônia" :min="min_date"
-                                class="w-full border-slate-300 sm:text-md" v-model="form.event_date"
-                                :disabled="budget.status != 2" @input="calcBudgetTotal" />
-                            <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{
-                                form.errors.event_date
-                            }}
-                            </div>
+                                class="w-full border-slate-300 sm:text-md" v-model="budget_event_datetime"
+                                :disabled="budget.status != 2" @input="budgetTotal" />
+                            <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{ form.errors.event_date
+                            }}</div>
+                            <div v-if="form.errors.event_time" class="text-xs text-red-600 ml-3">{{ form.errors.event_time
+                            }}</div>
                         </div>
+
                         <!-- Quantidade de convidados -->
                         <div class="w-1/4">
                             <label for="budget_guests_quantity" class="text-xs text-slate-700">Qtd. Convidados</label>
                             <input type="number" id="budget_guests_quantity" step="1" min="1" max="150"
                                 placeholder="Quantidade de convidados" class="w-full border-slate-300 sm:text-md"
-                                v-model="form.guests_quantity" :disabled="budget.status != 2" @input="calcBudgetTotal"
+                                v-model="form.guests_quantity" :disabled="budget.status != 2" @input="budgetTotal"
                                 minlength="8" maxlength="20" />
                             <div v-if="form.errors.guests_quantity" class="text-xs text-red-600 ml-3">{{
                                 form.errors.guests_quantity }}
@@ -443,29 +362,9 @@ const cycleCerimony = (budget_id, option) => {
                         <li v-if="budget.budget_comment"><span class="font-bold">Comentário do cliente: </span>"{{
                             budget.budget_comment }}"</li>
                     </ul>
-                    <h1 class="text-gray-900 text-xl">Valor do orçamento: {{ toMonetary(budget.budget_total_value) }}</h1>
-                    <div class="flex flex-row space-x-5 justify-end">
-                        <button v-if="budget.status == 0" class="bg-yellow-600 text-white py-3 px-5 rounded-lg"
-                            @click="cycleCerimony(budget.id, 0)">
-                            Criar Cerimônia
-                        </button>
-                        <button v-if="budget.status == 2 && has_installment"
-                            class="bg-green-600 text-white py-3 px-5 rounded-lg" @click="cycleCerimony(budget.id, 1)">
-                            Ativar Cerimônia
-                        </button>
-                        <button v-if="budget.status == 1 && ceremony.status == 1"
-                            class="bg-blue-600 text-white py-3 px-5 rounded-lg" @click="cycleCerimony(budget.id, 4)">
-                            Concluir Cerimônia
-                        </button>
-                        <button v-if="budget.status == 1 || budget.status == 2"
-                            class="bg-red-600 text-white py-3 px-5 rounded-lg" @click="cycleCerimony(budget.id, 2)">
-                            Cancelar Cerimônia
-                        </button>
-                        <button v-if="budget.status == 3" class="bg-gray-600 text-white py-3 px-5 rounded-lg"
-                            @click="cycleCerimony(budget.id, 3)">
-                            Duplicar Cerimônia
-                        </button>
-                    </div>
+                    <h1 class="text-gray-900 text-xl">Valor do orçamento: {{ toMonetary(budget.budget_total_value) }}
+                    </h1>
+                    <BudgetStatusButton :budget="budget" :ceremony="ceremony" :has_installment="has_installment" />
                 </div>
             </div>
 

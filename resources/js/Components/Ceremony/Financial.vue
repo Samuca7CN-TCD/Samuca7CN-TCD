@@ -6,6 +6,7 @@ import ModalManageInstallment from '@/Components/Ceremony/Modals/ModalManageInst
 import Ceremony from '@/Components/Ceremony/Ceremony.vue';
 import FinancialAdditions from '@/Components/Ceremony/FinancialAdditions.vue';
 import FinancialExpenses from '@/Components/Ceremony/FinancialExpenses.vue';
+import BudgetStatusButton from '@/Components/BudgetStatusButton.vue';
 import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
 import { router } from '@inertiajs/vue3';
 import axios from 'axios';
@@ -16,6 +17,7 @@ const props = defineProps({
     installments: Object,
     additions: Object,
     expenses: Object,
+    has_installment: Boolean,
 });
 
 
@@ -99,11 +101,14 @@ const saveObs = () => {
         </div>
 
         <div class="m-5 rounded-md border-2 border-stone-100">
-            <FinancialAdditions :ceremony="ceremony" :budget="budget"
-                :first_installment="(installments[1] || installments[0] || null)" :additions="additions" />
+            <FinancialAdditions :ceremony="ceremony" :budget="budget" :additions="additions" />
         </div>
         <div class="m-5 rounded-md border-2 border-stone-100">
             <FinancialExpenses :ceremony="ceremony" :budget="budget" :expenses="expenses" />
+        </div>
+
+        <div class="w-full p-10">
+            <BudgetStatusButton :budget="budget" :ceremony="ceremony" :has_installment="has_installment" />
         </div>
 
         <ModalCreateInstallments v-if="open_create_installments_modal" :ceremony="ceremony" :budget="budget"

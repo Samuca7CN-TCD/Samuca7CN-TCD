@@ -21,11 +21,12 @@ class ClientController extends Controller
      */
     public function index()
     {
-        $clients = Client::select('clients.*', 'budgets.event_date')
+        $clients = Client::select('clients.*', 'budgets.event_date', 'budgets.event_time')
             ->leftJoin('budgets', 'budgets.client_id', '=', 'clients.id')
             ->groupBy('clients.id')
             ->orderBy('clients.active', 'desc')
             ->orderBy('budgets.event_date')
+            ->orderBy('budgets.event_time')
             ->orderBy('clients.created_at', 'desc')
             ->orderBy('clients.name', 'asc')
             ->get();

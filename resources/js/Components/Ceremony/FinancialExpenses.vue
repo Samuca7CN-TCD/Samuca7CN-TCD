@@ -12,28 +12,16 @@ const props = defineProps({
 });
 
 const open_modal = ref(false);
-const selected_option = ref({
-    name: '',
-    amount: 0,
-});
-const op_type = ref(0);
 
-const openModal = (selected_option_id) => {
-    if (selected_option_id) {
-        selected_option.value.name = selected_option_id;
-        selected_option.value.amount = props.expenses[selected_option_id];
-        op_type.value = 1;
-    } else {
-        selected_option.value.name = '';
-        selected_option.value.amount = 0;
-        op_type.value = 0;
-    }
+const expense = ref({});
+
+const openModal = (exp = null) => {
+    expense.value = exp;
     open_modal.value = true;
 }
 
-const deleteItem = (selected_option_id) => {
-    op_type.value = 2;
-    router.put(route('ceremonies.update.expense', props.ceremony.id), { name: selected_option_id, amount: props.expenses[selected_option_id], op_type: op_type.value }, {
+const delete_expense = (exp_id) => {
+    router.delete(route('ceremonies.delete.expense', exp_id), {
         preserveScroll: true,
     });
 }
@@ -44,7 +32,7 @@ const deleteItem = (selected_option_id) => {
         <p class="text-4xl">Despesas</p>
         <p class="text-xl">{{ toMonetary(ceremony.total_expenses) }}</p>
     </div>
-    <div v-if="Object.values(expenses).length" class="mt-10 overflow-auto">
+    <div v-if="expenses.length" class="mt-10 overflow-auto">
         <!-- Orçamentos do cliente -->
         <table class="w-full m-auto table-auto truncate">
             <thead class="lg:border-b-2 lg:border-gray-500">
@@ -54,17 +42,17 @@ const deleteItem = (selected_option_id) => {
                 <th v-if="budget.status == 1 || budget.status == 2">Excluir</th>
             </thead>
             <tbody>
-                <tr v-for="(add, index, i = 0) in expenses" :key="index"
+                <tr v-for="(exp, i = 0) in expenses" :key="exp.id"
                     class="lg:border-b-2 lg-border-gray-100 hover:bg-gray-200 text-center"
                     :class="{ 'bg-gray-100': (i++) % 2 == 0 }">
-                    <td class="py-3 px-5 truncate" :title="index">{{ index }}</td>
-                    <td class="py-3 px-5 truncate">{{ toMonetary(add) }} </td>
+                    <td class="py-3 px-5 truncate" :title="exp.name">{{ exp.name }}</td>
+                    <td class="py-3 px-5 truncate">{{ toMonetary(exp.amount) }} </td>
                     <td v-if="budget.status == 1 || budget.status == 2" class="py-3 px-5 cursor-pointer"
-                        :title="'Editar ' + index" @click="openModal(index)">
+                        :title="'Editar ' + exp.name" @click="openModal(exp)">
                         <PencilIcon class=" w-full h-6 text-stone-500" />
                     </td>
                     <td v-if="budget.status == 1 || budget.status == 2" class="py-3 px-5 cursor-pointer"
-                        :title="'Excluir ' + index" @click="deleteItem(index)">
+                        :title="'Excluir ' + exp.name" @click="delete_expense(exp.id)">
                         <XMarkIcon class=" w-full h-6 text-stone-500" />
                     </td>
                 </tr>
@@ -80,6 +68,6 @@ const deleteItem = (selected_option_id) => {
         <PlusIcon class="w-4 h-4" />
         <span>Cadastrar despesa</span>
     </p>
-    <ModalManageExpenses v-if="open_modal" :ceremony_id="ceremony.id" :expense="selected_option" :op_type="op_type"
+    <ModalManageExpenses v-if="open_modal" :ceremony="ceremony" :expense="expense"
         @modal_open="(open) => open_modal = open" />
 </template>

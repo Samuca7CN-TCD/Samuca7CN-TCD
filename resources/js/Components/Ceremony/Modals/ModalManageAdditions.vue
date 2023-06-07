@@ -1,74 +1,47 @@
 <script setup>
-import { ref } from 'vue';
 import { PlusIcon } from '@heroicons/vue/24/outline';
 import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
-import { router, useForm } from '@inertiajs/vue3';
-import { toMonetary, formatDate } from '/resources/js/shared_functions.js';
-import loadInstallments from './loadInstallments';
+import { useForm } from '@inertiajs/vue3';
 
 const props = defineProps({
     ceremony: Object,
-    budget: Object,
-    first_installment: Object,
     addition: Object,
-    op_type: Number,
 });
 
 const form = useForm({
-    name: props.addition.name,
-    amount: props.addition.amount,
-    op_type: props.op_type,
-});
-
-const options = [1, 1, 2, 3, 4];
-
-const installment_info = ref({
-    config: props.first_installment ? {
-        name: props.first_installment.name || null,
-        payment_day: parseInt(formatDate(props.first_installment.deadline).split('/')[0]) || null,
-        type: props.first_installment.type || null,
-        payment_option: options[props.first_installment.type] || null,
-    } : null,
-    total_value: (props.ceremony.total_negotiated_amount + props.ceremony.total_additions),
-    event_date: props.budget.event_date,
+    ceremony_id: props.addition ? props.addition.ceremony_id : props.ceremony.id,
+    name: props.addition ? props.addition.name : '',
+    amount: props.addition ? props.addition.amount : 0,
+    left_amount: props.addition ? props.addition.left_amount : 0,
+    paid: props.addition ? props.addition.paid : false,
 });
 
 const emit = defineEmits(['modal_open']);
-const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
 
 const closeModal = () => {
     form.reset();
     emit('modal_open', false);
 }
 
-const submit = () => {
-    form.put(route('ceremonies.update.addition', props.ceremony.id), {
+const create_addition = () => {
+    form.post(route('ceremonies.create.addition'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
     });
 }
 
-const updateInstallments = () => {
-    if (installment_info.value.config != null) {
-        installment_info.value.config = {
-            name: props.first_installment.name || null,
-            payment_day: parseInt(formatDate(props.first_installment.deadline).split('/')[0]) || null,
-            type: props.first_installment.type || null,
-            payment_option: options[props.first_installment.type] || null,
-        };
-        installment_info.value.total_value = (props.ceremony.total_negotiated_amount + props.ceremony.total_additions);
-        installment_info.value.event_date = props.budget.event_date;
+const update_addition = () => {
+    form.put(route('ceremonies.update.addition', props.addition.id), {
+        preserveScroll: true,
+        onSuccess: () => closeModal(),
+    });
+}
 
-        const installments = loadInstallments(installment_info.value.config, installment_info.value.total_value, installment_info.value.event_date);
-        router.put(route('ceremonies.update', props.ceremony.id), { installment_list: installments }, {
-            preserveScroll: true,
-            onSuccess: () => closeModal()
-        });
-    } else {
-        closeModal();
-    }
+const submit = () => {
+    if (props.addition) update_addition();
+    else create_addition();
 }
 
 </script>

@@ -13,6 +13,9 @@ defineProps({
     budget: Object,
     ceremony: Object,
     installments: Object,
+    additions: Object,
+    expenses: Object,
+    has_installment: Boolean,
 });
 </script>
 <template>
@@ -22,7 +25,7 @@ defineProps({
                 Orçamentos
             </h2>
         </template>
-        <Financial :budget="budget" :ceremony="ceremony" :installments="installments"
-            :additions="JSON.parse(ceremony.additions)" :expenses="JSON.parse(ceremony.expenses)" />
+        <Financial :budget="budget" :ceremony="ceremony" :installments="installments" :additions="additions"
+            :expenses="expenses" :has_installment="has_installment" />
     </AppLayout>
 </template>

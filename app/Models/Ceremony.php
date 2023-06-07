@@ -15,12 +15,10 @@ class Ceremony extends Model
         'budget_id',
         'total_negotiated_amount',
         'paid_amount',
-        'installments',
         'total_installments',
-        'additions',
         'total_additions',
-        'expenses',
         'total_expenses',
+        'total_discount',
         'status',
         'observations'
     ];

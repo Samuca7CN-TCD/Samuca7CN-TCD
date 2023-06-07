@@ -42,12 +42,12 @@ const goToBudget = (budget_id) => {
                         :class="{ 'bg-gray-100': (index % 2 != 0) }" @click="goToBudget(budget.id)">
                         <td class="py-3 px-5">
                             <div class="w-3 h-3 rounded-full" :class="{
-                                                                'bg-gray-700': budget.status == 0,
-                                                                'bg-green-700': budget.status == 1,
-                                                                'bg-yellow-700': budget.status == 2,
-                                                                'bg-red-700': budget.status == 3,
-                                                                'bg-blue-700': budget.status == 4,
-                                                            }">
+                                'bg-gray-700': budget.status == 0,
+                                'bg-green-700': budget.status == 1,
+                                'bg-yellow-700': budget.status == 2,
+                                'bg-red-700': budget.status == 3,
+                                'bg-blue-700': budget.status == 4,
+                            }">
                             </div>
                         </td>
                         <td class="py-3 px-5 truncate">
@@ -55,7 +55,7 @@ const goToBudget = (budget_id) => {
                         </td>
                         <td class="py-3 px-5 truncate">{{ budget.guests_quantity }} convidados</td>
                         <td class="py-3 px-5 truncate">{{ toMonetary(budget.budget_total_value) }} </td>
-                        <td class="py-3 px-5 truncate">{{ formatDate(budget.event_date) }}</td>
+                        <td class="py-3 px-5 truncate">{{ formatDate(budget.event_date + ' ' + budget.event_time) }}</td>
                         <td class="py-3 px-5 truncate">{{ formatDate(budget.created_at) }}</td>
                     </tr>
                 </tbody>

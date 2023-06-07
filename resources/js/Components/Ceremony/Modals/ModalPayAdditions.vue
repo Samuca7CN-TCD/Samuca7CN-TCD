@@ -10,40 +10,37 @@ import axios from 'axios';
 
 const props = defineProps({
     ceremony: Object,
-    installment: Object,
-    installments: Object,
-    vouchers: Object,
+    addition: Object,
+    additions: Object,
+    add_vouchers: Object,
 });
 
-const installment = ref({
-    id: props.installment.id,
-    name: props.installment.name,
-    paid_amount: props.installment.paid_amount,
-    paid: props.installment.paid,
-    total_amount: props.installment.total_amount,
-    deadline: props.installment.deadline,
-    entry: props.installment.entry,
-    processing: false,
+const addition = ref({
+    ceremony_id: props.addition ? props.addition.ceremony_id : props.ceremony.id,
+    name: props.addition ? props.addition.name : '',
+    amount: props.addition ? props.addition.amount : 0,
+    left_amount: props.addition ? props.addition.left_amount : 0,
+    paid: props.addition ? props.addition.paid : false,
 });
 
-const vouchers_list = ref(props.vouchers);
+const vouchers_list = ref(props.add_vouchers);
 
 const new_voucher = ref({
-    installment_id: installment.value.id,
+    budget_additional_id: addition.value.id,
     name: null,
-    value: installment.value.total_amount - installment.value.paid_amount,
+    value: addition.value.total_amount - addition.value.paid_amount,
     file: null,
     payment_date: new Date().toISOString().slice(0, 10),
 });
 
 const pay = () => {
-    if (installment.value.paid || new_voucher.value.value > installment.value.total_amount - installment.value.paid_amount) {
+    if (addition.value.paid || new_voucher.value.value > addition.value.total_amount - addition.value.paid_amount) {
         alert('Você não pode pagar mais do que o valor restante!');
         return;
     }
 
     if (!new_voucher.value.value || new_voucher.value.value < 0) {
-        alert('Insira um valor entre R$ 0,00 e ' + toMonetary(installment.value.total_amount - installment.value.paid_amount));
+        alert('Insira um valor entre R$ 0,00 e ' + toMonetary(addition.value.total_amount - addition.value.paid_amount));
         return;
     }
 
@@ -52,7 +49,7 @@ const pay = () => {
         return;
     }
 
-    installment.value.processing = true;
+    addition.value.processing = true;
     router.post(route('ceremonies.update.voucher', props.ceremony.id), new_voucher.value, {
         preserveScroll: true,
         onSuccess: () => recalc_conditions(),
@@ -60,7 +57,7 @@ const pay = () => {
 }
 
 const deletePayment = (voucher_id) => {
-    installment.value.processing = true;
+    addition.value.processing = true;
     router.put(route('ceremonies.delete.voucher', props.ceremony.id), { id: voucher_id }, {
         preserveScroll: true,
         onSuccess: () => recalc_conditions(),
@@ -68,19 +65,19 @@ const deletePayment = (voucher_id) => {
 }
 
 const recalc_conditions = () => {
-    const response = props.installments.find((i) => i.id == installment.value.id);
-    installment.value.paid_amount = response.paid_amount;
-    installment.value.paid = response.paid;
-    installment.value.total_amount = response.total_amount;
-    installment.value.vouchers = response.vouchers;
+    const response = props.additions.find((i) => i.id == addition.value.id);
+    addition.value.paid_amount = response.paid_amount;
+    addition.value.paid = response.paid;
+    addition.value.total_amount = response.total_amount;
+    addition.value.vouchers = response.vouchers;
 
     new_voucher.value.name = null;
     new_voucher.value.value = response.total_amount - response.paid_amount;
     new_voucher.value.file = null;
 
-    installment.value.processing = false;
+    addition.value.processing = false;
 
-    axios.get(route('get-vouchers', props.installment.id))
+    axios.get(route('get-vouchers', props.addition.id))
         .then(response => {
             vouchers_list.value = response.data;
         });
@@ -98,10 +95,10 @@ const closeModal = () => {
         <div class="mt-5 mx-5">
             <div class="flex flex-row align-middle items-center space-x-2">
                 <span class="p-2 rounded-full">
-                    <CheckBadgeIcon class="w-6 h-6 text-gray-500" :class="{ 'text-green-500': installment.paid }" />
+                    <CheckBadgeIcon class="w-6 h-6 text-gray-500" :class="{ 'text-green-500': addition.paid }" />
                 </span>
-                <h2 class="text-2xl bold">{{ installment.name }}
-                    <p class="text-xs">{{ installment.entry ? ' (Entrada)' : '' }}</p>
+                <h2 class="text-2xl bold">{{ addition.name }}
+                    <p class="text-xs">{{ addition.entry ? ' (Entrada)' : '' }}</p>
                 </h2>
             </div>
         </div>
@@ -117,22 +114,22 @@ const closeModal = () => {
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Valor total da parcela</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ toMonetary(installment.total_amount) }}</dd>
+                                    {{ toMonetary(addition.total_amount) }}</dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Valor pago</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ toMonetary(installment.paid_amount) }}</dd>
+                                    {{ toMonetary(addition.paid_amount) }}</dd>
                             </div>
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Valor restante</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ toMonetary(installment.total_amount - installment.paid_amount) }}</dd>
+                                    {{ toMonetary(addition.total_amount - addition.paid_amount) }}</dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Prazo de Pagamento</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ formatDate(installment.deadline) }}</dd>
+                                    {{ formatDate(addition.deadline) }}</dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Comprovantes</dt>
@@ -157,11 +154,11 @@ const closeModal = () => {
                                                     formatDate(voucher.payment_date).substr(0, 10) }}</span>
                                             </div>
                                             <div class=" ml-4 flex-shrink-0">
-                                                <a :href="'../storage/installment_files/' + voucher.file" target="_blank"
+                                                <a :href="'../storage/addition_files/' + voucher.file" target="_blank"
                                                     class="font-medium text-indigo-600 hover:text-indigo-500">Baixar</a>
                                             </div>
                                         </li>
-                                        <li v-if="!installment.paid"
+                                        <li v-if="!addition.paid"
                                             class="flex items-center justify-between py-3 pl-3 pr-4 text-sm">
                                             <div class="flex w-0 flex-1 items-center">
                                                 <div class="ml-2 flex-1 space-y-2 w-full">
@@ -171,7 +168,7 @@ const closeModal = () => {
                                                                 pagamento
                                                                 (R$)</label>
                                                             <input id="payment_amount" type="number" step="0.01" min="0.00"
-                                                                :max="installment.total_amount - installment.paid_amount"
+                                                                :max="addition.total_amount - addition.paid_amount"
                                                                 class="w-full border-gray-300" v-model="new_voucher.value"
                                                                 placeholder="Valor" />
                                                         </div>
@@ -212,8 +209,8 @@ const closeModal = () => {
                     </div>
                 </div>
                 <div class="w-full px-4 py-3 sm:px-6 mt-5 text-right">
-                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': installment.processing }"
-                        :disabled="installment.processing" @click="closeModal">
+                    <SecondaryButton :type="'button'" class="ml-4" :class="{ 'opacity-25': addition.processing }"
+                        :disabled="addition.processing" @click="closeModal">
                         Fechar
                     </SecondaryButton>
                 </div>

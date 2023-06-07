@@ -21,15 +21,12 @@ return new class extends Migration
             $table->tinyInteger('status');
             $table->text('observations')->nullable();
 
-            $table->json('installments')->nullable();
             $table->double('total_installments')->nullable();
             $table->tinyInteger('installment_option');
 
-            $table->json('additions')->nullable();
             $table->double('total_additions')->nullable();
-
-            $table->json('expenses')->nullable();
             $table->double('total_expenses')->nullable();
+            $table->double('total_discount')->nullable();
 
             $table->softDeletes();
             $table->timestamps();

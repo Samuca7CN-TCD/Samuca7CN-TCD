@@ -8,30 +8,40 @@ import { router, useForm } from '@inertiajs/vue3';
 import { toMonetary } from '/resources/js/shared_functions.js';
 
 const props = defineProps({
-    ceremony_id: Number,
+    ceremony: Object,
     expense: Object,
-    op_type: Number,
 });
 
 const form = useForm({
-    name: props.expense.name,
-    amount: props.expense.amount,
-    op_type: props.op_type,
+    ceremony_id: props.expense ? props.expense.ceremony_id : props.ceremony.id,
+    name: props.expense ? props.expense.name : '',
+    amount: props.expense ? props.expense.amount : 0,
 });
 
 const emit = defineEmits(['modal_open']);
-const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
 
 const closeModal = () => {
     form.reset();
     emit('modal_open', false);
 }
 
-const submit = () => {
-    form.put(route('ceremonies.update.expense', props.ceremony_id), {
+const create_expense = () => {
+    form.post(route('ceremonies.create.expense'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
     });
+}
+
+const update_expense = () => {
+    form.put(route('ceremonies.update.expense', props.expense.id), {
+        preserveScroll: true,
+        onSuccess: () => closeModal(),
+    });
+}
+
+const submit = () => {
+    if (props.expense) update_expense();
+    else create_expense();
 }
 </script>
 <template>

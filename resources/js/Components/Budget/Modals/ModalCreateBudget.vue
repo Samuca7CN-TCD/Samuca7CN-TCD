@@ -5,7 +5,7 @@ import Modal from '@/Components/Modal.vue';
 import PrimaryButton from '@/Components/PrimaryButton.vue';
 import SecondaryButton from '@/Components/SecondaryButton.vue';
 import { useForm } from '@inertiajs/vue3';
-import { defineAsyncComponent } from 'vue';
+import calcBudgetTotal from './calcBudgetTotal.js';
 
 const props = defineProps({
     client_id: Number,
@@ -14,10 +14,11 @@ const props = defineProps({
 
 const emit = defineEmits(['modal_open']);
 const dateZeroFiller = (number) => { return number.toString().padStart(2, '0'); }
-let budget_event_date = new Date(Date.now() + 2592000000);
+const budget_datetime = new Date(Date.now() + 15770000000);
 const min_date = ref(new Date());
 min_date.value = min_date.value.getFullYear() + '-' + dateZeroFiller(min_date.value.getMonth() + 1) + '-' + dateZeroFiller(min_date.value.getDate()) + 'T' + dateZeroFiller(min_date.value.getHours()) + ':' + dateZeroFiller(min_date.value.getMinutes());
-budget_event_date = budget_event_date.getFullYear() + '-' + dateZeroFiller(budget_event_date.getMonth() + 1) + '-' + dateZeroFiller(budget_event_date.getDate()) + 'T' + dateZeroFiller(budget_event_date.getHours()) + ':' + dateZeroFiller(budget_event_date.getMinutes());
+const budget_event_date = budget_datetime.getFullYear() + '-' + dateZeroFiller(budget_datetime.getMonth() + 1) + '-' + dateZeroFiller(budget_datetime.getDate());
+const budget_event_time = dateZeroFiller(budget_datetime.getHours()) + ':' + dateZeroFiller(budget_datetime.getMinutes());
 
 const form = useForm({
     client_id: props.client_id,
@@ -39,6 +40,7 @@ const form = useForm({
 
     guests_quantity: 0,
     event_date: budget_event_date,
+    event_time: budget_event_time,
     budget_total_value: 0.0,
     status: 0,
 
@@ -47,39 +49,19 @@ const form = useForm({
     budget_link: null,
 });
 
-const calcBudgetTotal = () => {
-    let total = 2900;
-    let buffet = 59;
-    let option = {
-        bar: 15 * form.guests_quantity,
-        dj: 1200,
-        decoration: form.decoration_id == 1 ? 1400 : 0,
-        advisory: 900,
+const budget_event_datetime = ref(form.event_date + 'T' + form.event_time);
 
-        additional_meat: 7 * form.guests_quantity,
-        ravioli: 5 * form.guests_quantity,
-        additional_drinks: 5 * form.guests_quantity,
-        other_beers: 5 * form.guests_quantity,
-    }
-
-    if (form.buffet_id == 1) buffet += 20;
-    if (form.beer) buffet += 15;
-
-    total += buffet * form.guests_quantity;
-    total += option.decoration;
-
-    if (form.bar) total += option.bar;
-    if (form.dj) total += option.dj;
-    if (form.advisory) total += option.advisory;
-
-    if (form.additional_meat) total += option.additional_meat;
-    if (form.ravioli) total += option.ravioli;
-    if (form.additional_drinks) total += option.additional_drinks;
-    if (form.other_beers) total += option.other_beers;
-
-    form.budget_total_value = total;
+const setBudgetFormDateTime = () => {
+    let event_date_time = budget_event_datetime.value.split('T');
+    form.event_date = event_date_time[0];
+    form.event_time = event_date_time[1];
 }
-calcBudgetTotal();
+
+const budgetTotal = () => {
+    setBudgetFormDateTime();
+    form.budget_total_value = calcBudgetTotal(form);
+}
+budgetTotal();
 
 const closeModal = () => {
     form.reset();
@@ -88,7 +70,7 @@ const closeModal = () => {
 }
 
 const submit = () => {
-    calcBudgetTotal();
+    budgetTotal();
     form.post(route('budgets.store'), {
         preserveScroll: true,
         onSuccess: () => closeModal(),
@@ -113,7 +95,7 @@ const submit = () => {
 
                     <!--Evento-->
                     <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.event_id" @change="calcBudgetTotal">
+                        <select class="w-full border-none sm:text-xs" v-model="form.event_id" @change="budgetTotal">
                             <option :value="null">Escolha um eventos</option>
                             <option v-for="event in budget_selects_options.events" :key="event.id" :value="event.id"
                                 :selected="form.event_id == event.id">{{ event.name }}
@@ -125,8 +107,7 @@ const submit = () => {
 
                     <!--Decoração-->
                     <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.decoration_id"
-                            @change="calcBudgetTotal">
+                        <select class="w-full border-none sm:text-xs" v-model="form.decoration_id" @change="budgetTotal">
                             <option :value="null">Escolha uma decoração</option>
                             <option v-for="decoration in budget_selects_options.decorations" :key="decoration.id"
                                 :value="decoration.id" :selected="form.decoration_id == decoration.id">{{ decoration.name }}
@@ -153,7 +134,7 @@ const submit = () => {
 
                     <!--Buffet-->
                     <div class="border-2 min-w-fit">
-                        <select class="w-full border-none sm:text-xs" v-model="form.buffet_id" @change="calcBudgetTotal">
+                        <select class="w-full border-none sm:text-xs" v-model="form.buffet_id" @change="budgetTotal">
                             <option :value="null">Escolha um buffet</option>
                             <option v-for="buffet in budget_selects_options.buffets" :key="buffet.id" :value="buffet.id"
                                 :selected="form.buffet_id == buffet.id">{{ buffet.name }}
@@ -170,7 +151,7 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.bar" v-model="form.bar" @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.bar" v-model="form.bar" @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Bar</label>
                             </div>
@@ -183,7 +164,7 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.beer" v-model="form.beer" @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.beer" v-model="form.beer" @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Cerveja</label>
                             </div>
@@ -196,7 +177,7 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.dj" v-model="form.dj" @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.dj" v-model="form.dj" @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Dj</label>
                             </div>
@@ -210,9 +191,9 @@ const submit = () => {
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                     type="checkbox" :checked="form.advisory" v-model="form.advisory"
-                                    @change="calcBudgetTotal" />
+                                    @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
-                                    for="checkboxChecked">Acessoria</label>
+                                    for="checkboxChecked">Cerimonialista</label>
                             </div>
                             <div v-if="form.errors.advisory" class="text-xs text-red-600 ml-3">{{ form.errors.advisory }}
                             </div>
@@ -226,7 +207,7 @@ const submit = () => {
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                     type="checkbox" :checked="form.additional_meat" v-model="form.additional_meat"
-                                    @change="calcBudgetTotal" />
+                                    @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer"
                                     for="checkboxChecked">Adicional de carne</label>
                             </div>
@@ -240,8 +221,7 @@ const submit = () => {
                             <div class="mb-[0.125rem] block min-h-[1.5rem] pl-[1.5rem]">
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
-                                    type="checkbox" :checked="form.ravioli" v-model="form.ravioli"
-                                    @change="calcBudgetTotal" />
+                                    type="checkbox" :checked="form.ravioli" v-model="form.ravioli" @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer" for="checkboxChecked">Raviolli
                                     de
                                     carne ou quatro queijos</label>
@@ -256,7 +236,7 @@ const submit = () => {
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                     type="checkbox" :checked="form.additional_drinks" v-model="form.additional_drinks"
-                                    @change="calcBudgetTotal" />
+                                    @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer" for="checkboxChecked">Drinks
                                     adicionais</label>
                             </div>
@@ -271,7 +251,7 @@ const submit = () => {
                                 <input
                                     class="relative float-left mt-[0.15rem] mr-[6px] -ml-[1.5rem] h-[1.125rem] w-[1.125rem] appearance-none rounded-[0.25rem] border-[0.125rem] border-solid border-neutral-300 dark:border-neutral-600 outline-none before:pointer-events-none before:absolute before:h-[0.875rem] before:w-[0.875rem] before:scale-0 before:rounded-full before:bg-transparent before:opacity-0 before:shadow-[0px_0px_0px_13px_transparent] before:content-[''] checked:border-indigo-700 dark:checked:border-indigo-700 checked:bg-indigo-700 dark:checked:bg-indigo-700 checked:before:opacity-[0.16] checked:after:absolute checked:after:ml-[0.25rem] checked:after:-mt-px checked:after:block checked:after:h-[0.8125rem] checked:after:w-[0.375rem] checked:after:rotate-45 checked:after:border-[0.125rem] checked:after:border-t-0 checked:after:border-l-0 checked:after:border-solid checked:after:border-white checked:after:bg-transparent checked:after:content-[''] hover:cursor-pointer hover:before:opacity-[0.04] hover:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:shadow-none focus:transition-[border-color_0.2s] focus:before:scale-100 focus:before:opacity-[0.12] focus:before:shadow-[0px_0px_0px_13px_rgba(0,0,0,0.6)] focus:before:transition-[box-shadow_0.2s,transform_0.2s] focus:after:absolute focus:after:z-[1] focus:after:block focus:after:h-[0.875rem] focus:after:w-[0.875rem] focus:after:rounded-[0.125rem] focus:after:content-[''] checked:focus:before:scale-100 checked:focus:before:shadow-[0px_0px_0px_13px_#3b71ca] checked:focus:before:transition-[box-shadow_0.2s,transform_0.2s] checked:focus:after:ml-[0.25rem] checked:focus:after:-mt-px checked:focus:after:h-[0.8125rem] checked:focus:after:w-[0.375rem] checked:focus:after:rotate-45 checked:focus:after:rounded-none checked:focus:after:border-[0.125rem] checked:focus:after:border-t-0 checked:focus:after:border-l-0 checked:focus:after:border-solid checked:focus:after:border-white checked:focus:after:bg-transparent"
                                     type="checkbox" :checked="form.other_beers" v-model="form.other_beers"
-                                    @change="calcBudgetTotal" />
+                                    @change="budgetTotal" />
                                 <label class="inline-block pl-[0.15rem] hover:cursor-pointer" for="checkboxChecked">Cervejas
                                     outras marcas</label>
                             </div>
@@ -285,8 +265,11 @@ const submit = () => {
                         <div class="w-3/4">
                             <label for="budget_date" class="text-xs text-slate-700">Data da cerimônia</label>
                             <input type="datetime-local" id="budget_date" placeholder="Data da cerimônia" :min="min_date"
-                                class="w-full border-slate-300 sm:text-md" v-model="form.event_date" />
+                                class="w-full border-slate-300 sm:text-md" v-model="budget_event_datetime" />
                             <div v-if="form.errors.event_date" class="text-xs text-red-600 ml-3">{{ form.errors.event_date
+                            }}
+                            </div>
+                            <div v-if="form.errors.event_time" class="text-xs text-red-600 ml-3">{{ form.errors.event_time
                             }}
                             </div>
                         </div>
@@ -295,7 +278,7 @@ const submit = () => {
                             <label for="budget_guests_quantity" class="text-xs text-slate-700">Qtd. Convidados</label>
                             <input type="number" id="budget_guests_quantity" step="1" min="1" max="150"
                                 placeholder="Quantidade de convidados" class="w-full border-slate-300 sm:text-md"
-                                v-model="form.guests_quantity" @input="calcBudgetTotal" minlength="8" maxlength="20" />
+                                v-model="form.guests_quantity" @input="budgetTotal" minlength="8" maxlength="20" />
                             <div v-if="form.errors.guests_quantity" class="text-xs text-red-600 ml-3">{{
                                 form.errors.guests_quantity }}
                             </div>

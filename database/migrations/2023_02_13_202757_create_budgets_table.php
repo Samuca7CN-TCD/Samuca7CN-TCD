@@ -29,7 +29,8 @@ return new class extends Migration
             $table->boolean('additional_drinks');
             $table->boolean('other_beers');
             $table->integer('guests_quantity');
-            $table->dateTimeTz('event_date');
+            $table->date('event_date');
+            $table->time('event_time');
             $table->text('budget_comment')->nullable();
             $table->string('budget_token')->nullable();
             $table->float('budget_total_value');

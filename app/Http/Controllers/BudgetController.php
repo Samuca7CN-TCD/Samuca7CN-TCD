@@ -64,8 +64,9 @@ class BudgetController extends Controller
             'additional_drinks' => ['required', 'boolean'],
             'other_beers' => ['required', 'boolean'],
 
-            'guests_quantity' => ['required', 'numeric'],
-            'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
+            'guests_quantity' => ['required', 'numeric', 'min:50', 'max:150'],
+            'event_date' => ['required', 'date_format:Y-m-d', 'unique:budgets'],
+            'event_time' => ['required', 'date_format:H:i'],
             'budget_total_value' => ['nullable', 'numeric'],
 
             'status' => ['required', 'numeric'],
@@ -76,14 +77,6 @@ class BudgetController extends Controller
         ]));
 
         /*
-        $ceremony = Ceremony::create([
-            'budget_id' => $budget->id,
-            'ceremony_status_id' => 1,
-            'total_negotiated_amount' => $budget->budget_total_value,
-            'entry_amount' => 0.0,
-            'remaining_amount' => $budget->budget_total_value,
-        ]);
-
         $client = Client::find($request->client_id);
         $event = Event::find($request->event_id);
         $decoration = Decoration::find($request->decoration_id);
@@ -127,6 +120,7 @@ class BudgetController extends Controller
             ->leftJoin('events', 'events.id', '=', 'budgets.event_id')
             ->orderBy('budgets.created_at', 'desc')
             ->orderBy('budgets.event_date', 'desc')
+            ->orderBy('budgets.event_time', 'desc')
             ->get();
 
         $budget_selects_options = array(
@@ -169,6 +163,13 @@ class BudgetController extends Controller
     public function update(Request $request, $id)
     {
         $budget = Budget::find($id);
+
+        if ($budget->event_date != $request['event_date'] || $budget->event_time != $request['event_time']) {
+            $ceremony = Ceremony::where('budget_id', $budget->id)->first();
+            $installments = Installment::where('ceremony_id', $ceremony->id)->get();
+            $installments->each->delete();
+        }
+
         $budget->update($request->validate([
             'client_id' => ['required', 'numeric'],
 
@@ -187,8 +188,9 @@ class BudgetController extends Controller
             'additional_drinks' => ['required', 'boolean'],
             'other_beers' => ['required', 'boolean'],
 
-            'guests_quantity' => ['required', 'numeric', 'min:1'],
-            'event_date' => ['required', 'date_format:Y-m-d\TH:i'],
+            'guests_quantity' => ['required', 'numeric', 'min:50', 'max:150'],
+            'event_date' => ['required', 'date_format:Y-m-d', 'unique:budgets'],
+            'event_time' => ['required', 'date_format:H:i'],
             'budget_total_value' => ['nullable', 'numeric'],
 
             'budget_comment' => ['nullable', 'string'],

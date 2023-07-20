@@ -8,6 +8,7 @@ use Inertia\Inertia;
 use App\Models\Ceremony;
 use App\Models\Installment;
 use App\Models\BudgetAdditional;
+use App\Models\BudgetAdditionalVoucher;
 use App\Models\BudgetExpense;
 use App\Models\Voucher;
 use App\Models\Budget;
@@ -242,6 +243,14 @@ class CeremonyController extends Controller
         return to_route('financials.index', $id);
     }
 
+    private function verify_ceremony_status($ceremony)
+    {
+        if (($ceremony->total_negotiated_amount + $ceremony->total_additions) - $ceremony->paid_amount < 0.01) {
+            $ceremony->paid_amount = ($ceremony->total_negotiated_amount + $ceremony->total_additions);
+            $ceremony->status = 1; //pago
+        }
+    }
+
     private function generate_installments($ceremony_id, $installments)
     {
         $total_value = 0;
@@ -274,7 +283,7 @@ class CeremonyController extends Controller
         $addition->ceremony_id = $request->ceremony_id;
         $addition->name = $request->name;
         $addition->amount = $request->amount;
-        $addition->left_amount = $request->left_amount;
+        $addition->left_amount = $request->amount;
         $addition->paid = $request->paid;
         $addition->save();
 
@@ -303,6 +312,69 @@ class CeremonyController extends Controller
         $ceremony->save();
 
         return to_route('financials.index', $ceremony->id);
+    }
+
+    public function pay_addition(Request $request, $id)
+    {
+        $ceremony = Ceremony::find($id);
+        $addition = BudgetAdditional::find($request->budget_additional_id);
+        $file = $request->file('file');
+        $filename = $file->hashName();
+        $path = $file->storeAs('public/addition_files', $filename);
+
+        if ($path) {
+            $paid_amount = $request->value;
+            $addition_paid_amount = $addition->amount - $addition->left_amount;
+
+            if (($addition->amount - $addition_paid_amount) - $paid_amount < 0.01) {
+                $paid_amount = ($addition->amount - $addition_paid_amount);
+                $addition->paid = true;
+            }
+
+            $voucher = new BudgetAdditionalVoucher();
+            $voucher->budget_additional_id = $request['budget_additional_id'];
+            $voucher->name = $request['name'];
+            $voucher->value = $request['value'];
+            $voucher->file = $filename;
+            $voucher->payment_date = $request['payment_date'];
+            $voucher->save();
+
+            $addition->left_amount -= $paid_amount;
+            $addition->save();
+
+            $ceremony->paid_amount -= $paid_amount;
+
+            $this->verify_ceremony_status($ceremony);
+            $ceremony->save();
+
+            return Inertia::json($voucher);
+        }
+    }
+
+    public function get_addition_vouchers($addition_id)
+    {
+        $vouchers = BudgetAdditionalVoucher::where('budget_additional_id', $addition_id)->get();
+        return $vouchers;
+    }
+
+    public function delete_addition_voucher(Request $request, $id)
+    {
+        $ceremony = Ceremony::find($id);
+        $voucher = BudgetAdditionalVoucher::find($request->id);
+        $addition = BudgetAdditional::find($voucher->budget_additional_id);
+
+        $addition->left_amount += $voucher->value;
+        $addition->paid = false;
+        $addition->save();
+
+        $ceremony->paid_amount -= $voucher->value;
+        $ceremony->status = 0;
+        $ceremony->save();
+
+        Storage::delete('public/addition$addition_files/' . $voucher->file);
+        $voucher->delete();
+
+        return to_route('financials.index', $id);
     }
 
     public function delete_addition(Int $id)
@@ -388,10 +460,7 @@ class CeremonyController extends Controller
 
             $ceremony->paid_amount += $paid_amount;
 
-            if (($ceremony->total_negotiated_amount + $ceremony->total_additions) - $ceremony->paid_amount < 0.01) {
-                $ceremony->paid_amount = ($ceremony->total_negotiated_amount + $ceremony->total_additions);
-                $ceremony->status = 1; //pago
-            }
+            $this->verify_ceremony_status($ceremony);
 
             $ceremony->save();
         }

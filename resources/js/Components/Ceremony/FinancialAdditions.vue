@@ -1,9 +1,11 @@
 <script setup>
 import { ref } from 'vue';
 import ModalManageAdditions from './Modals/ModalManageAdditions.vue';
+import ModalPayAdditions from './Modals/ModalPayAdditions.vue';
 import { PencilIcon, XMarkIcon, PlusIcon, CheckBadgeIcon, BanknotesIcon } from '@heroicons/vue/24/solid';
 import { router } from '@inertiajs/vue3';
 import { toMonetary } from '/resources/js/shared_functions.js';
+import axios from 'axios';
 
 const props = defineProps({
     ceremony: Object,
@@ -12,22 +14,29 @@ const props = defineProps({
 });
 
 const open_modal = ref(false);
+const open_payment_modal = ref(false);
 
 const addition = ref({});
-
+const add_vouchers = ref({});
 const openModal = (add = null) => {
     addition.value = add;
     open_modal.value = true;
+}
+
+const pay_additon = (add) => {
+    axios.get(route('get-addition-vouchers', add.id))
+        .then(response => {
+            add_vouchers.value = response.data;
+        });
+
+    addition.value = add;
+    open_payment_modal.value = true;
 }
 
 const delete_additon = (add_id) => {
     router.delete(route('ceremonies.delete.addition', add_id), {
         preserveScroll: true,
     });
-}
-
-const pay_additon = (add_id) => {
-
 }
 </script>
 <template>
@@ -58,9 +67,9 @@ const pay_additon = (add_id) => {
                     </td>
                     <td class="py-3 px-5 truncate" :title="add.name">{{ add.name }}</td>
                     <td class="py-3 px-5 truncate">{{ toMonetary(add.amount) }} </td>
-                    <td class="py-3 px-5 truncate">{{ toMonetary(add.amount - add.left_amount) }} </td>
+                    <td class="py-3 px-5 truncate">{{ toMonetary(add.left_amount) }} </td>
                     <td v-if="budget.status == 1" class="py-3 px-5 cursor-pointer" :title="'Pagar ' + add.name"
-                        @click="pay_additon(add.id)">
+                        @click="pay_additon(add)">
                         <BanknotesIcon class=" w-full h-6 text-stone-500" />
                     </td>
                     <td v-if="budget.status == 2" class="py-3 px-5 cursor-pointer" :title="'Editar ' + add.name"
@@ -86,4 +95,6 @@ const pay_additon = (add_id) => {
     </p>
     <ModalManageAdditions v-if="open_modal" :ceremony="ceremony" :addition="addition"
         @modal_open="(open) => open_modal = open" />
+    <ModalPayAdditions v-if="open_payment_modal" :ceremony="ceremony" :addition="addition" :add_vouchers="add_vouchers"
+        @modal_payment_open="(open) => open_payment_modal = open" />
 </template>

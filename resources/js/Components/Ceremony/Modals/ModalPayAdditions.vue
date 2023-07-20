@@ -11,36 +11,37 @@ import axios from 'axios';
 const props = defineProps({
     ceremony: Object,
     addition: Object,
-    additions: Object,
     add_vouchers: Object,
 });
 
 const addition = ref({
-    ceremony_id: props.addition ? props.addition.ceremony_id : props.ceremony.id,
-    name: props.addition ? props.addition.name : '',
-    amount: props.addition ? props.addition.amount : 0,
-    left_amount: props.addition ? props.addition.left_amount : 0,
-    paid: props.addition ? props.addition.paid : false,
+    id: props.addition.id,
+    ceremony_id: props.addition.ceremony_id,
+    name: props.addition.name,
+    amount: props.addition.amount,
+    left_amount: props.addition.left_amount,
+    paid: props.addition.paid,
+    processing: false,
 });
 
-const vouchers_list = ref(props.add_vouchers);
+const add_vouchers = ref(props.add_vouchers);
 
 const new_voucher = ref({
     budget_additional_id: addition.value.id,
     name: null,
-    value: addition.value.total_amount - addition.value.paid_amount,
+    value: addition.value.left_amount,
     file: null,
     payment_date: new Date().toISOString().slice(0, 10),
 });
 
 const pay = () => {
-    if (addition.value.paid || new_voucher.value.value > addition.value.total_amount - addition.value.paid_amount) {
+    if (addition.value.paid || new_voucher.value.value > addition.value.left_amount) {
         alert('Você não pode pagar mais do que o valor restante!');
         return;
     }
 
     if (!new_voucher.value.value || new_voucher.value.value < 0) {
-        alert('Insira um valor entre R$ 0,00 e ' + toMonetary(addition.value.total_amount - addition.value.paid_amount));
+        alert('Insira um valor entre R$ 0,00 e ' + toMonetary(addition.value.left_amount));
         return;
     }
 
@@ -50,42 +51,43 @@ const pay = () => {
     }
 
     addition.value.processing = true;
-    router.post(route('ceremonies.update.voucher', props.ceremony.id), new_voucher.value, {
+    console.log(new_voucher.value);
+    router.post(route('ceremonies.pay.addition.voucher', props.ceremony.id), new_voucher.value, {
         preserveScroll: true,
-        onSuccess: () => recalc_conditions(),
+        //onSuccess: () => recalc_conditions(),
+    }).then(response => {
+        addition.value.amount = response.amount;
+        addition.value.left_amount = response.left_amount;
+        addition.value.paid = response.paid;
+
+        new_voucher.value.name = null;
+        new_voucher.value.value = response.left_amount;
+        new_voucher.value.file = null;
+
+        addition.value.processing = false;
+
+        axios.get(route('get-addition-vouchers', props.addition.id))
+            .then(response => {
+                add_vouchers.value = response.data;
+            }).catch(error => {
+                console.error(error);
+            });
+    }).catch(error => {
+        console.error(error);
     });
 }
 
 const deletePayment = (voucher_id) => {
     addition.value.processing = true;
-    router.put(route('ceremonies.delete.voucher', props.ceremony.id), { id: voucher_id }, {
+    router.put(route('ceremonies.delete.addition.voucher', props.ceremony.id), { id: voucher_id }, {
         preserveScroll: true,
-        onSuccess: () => recalc_conditions(),
+        //onSuccess: () => recalc_conditions(),
     });
 }
 
-const recalc_conditions = () => {
-    const response = props.additions.find((i) => i.id == addition.value.id);
-    addition.value.paid_amount = response.paid_amount;
-    addition.value.paid = response.paid;
-    addition.value.total_amount = response.total_amount;
-    addition.value.vouchers = response.vouchers;
-
-    new_voucher.value.name = null;
-    new_voucher.value.value = response.total_amount - response.paid_amount;
-    new_voucher.value.file = null;
-
-    addition.value.processing = false;
-
-    axios.get(route('get-vouchers', props.addition.id))
-        .then(response => {
-            vouchers_list.value = response.data;
-        });
-}
-
-const emit = defineEmits(['modal_open']);
+const emit = defineEmits(['modal_payment_open']);
 const closeModal = () => {
-    emit('modal_open', false);
+    emit('modal_payment_open', false);
     // router.get(route('financials.index', props.ceremony.id), { preserveScroll: true, });
 }
 
@@ -98,7 +100,6 @@ const closeModal = () => {
                     <CheckBadgeIcon class="w-6 h-6 text-gray-500" :class="{ 'text-green-500': addition.paid }" />
                 </span>
                 <h2 class="text-2xl bold">{{ addition.name }}
-                    <p class="text-xs">{{ addition.entry ? ' (Entrada)' : '' }}</p>
                 </h2>
             </div>
         </div>
@@ -107,35 +108,30 @@ const closeModal = () => {
             <div class="w-full overflow-hidden m-5 md:m-0 p-5 sm:rounded-md bg-white sm:p-3 flex-col-config divide-y-2">
                 <div class="w-full overflow-hidden bg-white shadow sm:rounded-lg">
                     <div class="px-4 py-5 sm:px-6">
-                        <h3 class="text-base font-semibold leading-6 text-gray-900">Informações da Parcela</h3>
+                        <h3 class="text-base font-semibold leading-6 text-gray-900">Informações do Adicional</h3>
                     </div>
                     <div class="border-t border-gray-200">
                         <dl>
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Valor total da parcela</dt>
+                                <dt class="text-sm font-medium text-gray-500">Valor total</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ toMonetary(addition.total_amount) }}</dd>
+                                    {{ toMonetary(addition.amount) }}</dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Valor pago</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ toMonetary(addition.paid_amount) }}</dd>
+                                    {{ toMonetary(addition.amount - addition.left_amount) }}</dd>
                             </div>
                             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Valor restante</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ toMonetary(addition.total_amount - addition.paid_amount) }}</dd>
-                            </div>
-                            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                                <dt class="text-sm font-medium text-gray-500">Prazo de Pagamento</dt>
-                                <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
-                                    {{ formatDate(addition.deadline) }}</dd>
+                                    {{ toMonetary(addition.left_amount) }}</dd>
                             </div>
                             <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                                 <dt class="text-sm font-medium text-gray-500">Comprovantes</dt>
                                 <dd class="mt-1 text-sm text-gray-900 sm:col-span-2 sm:mt-0">
                                     <ul role="list" class="divide-y divide-gray-200 rounded-md border border-gray-200">
-                                        <li v-for="voucher in vouchers_list" :key="voucher.id"
+                                        <li v-for="voucher in add_vouchers" :key="voucher.id"
                                             class="flex items-center justify-between py-3 pl-3 pr-4 text-sm group">
                                             <div class="flex w-0 flex-1 items-center">
                                                 <PaperClipIcon
@@ -168,9 +164,8 @@ const closeModal = () => {
                                                                 pagamento
                                                                 (R$)</label>
                                                             <input id="payment_amount" type="number" step="0.01" min="0.00"
-                                                                :max="addition.total_amount - addition.paid_amount"
-                                                                class="w-full border-gray-300" v-model="new_voucher.value"
-                                                                placeholder="Valor" />
+                                                                :max="addition.left_amount" class="w-full border-gray-300"
+                                                                v-model="new_voucher.value" placeholder="Valor" />
                                                         </div>
                                                         <div>
                                                             <label for="payment_date" class="text-gray-400">Data do

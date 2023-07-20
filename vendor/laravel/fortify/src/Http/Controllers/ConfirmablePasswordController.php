@@ -31,7 +31,7 @@ class ConfirmablePasswordController extends Controller
     }
 
     /**
-     * Show the Confirme sua senha view.
+     * Show the confirm password view.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Laravel\Fortify\Contracts\ConfirmPasswordViewResponse
@@ -50,9 +50,7 @@ class ConfirmablePasswordController extends Controller
     public function store(Request $request)
     {
         $confirmed = app(ConfirmPassword::class)(
-            $this->guard,
-            $request->user(),
-            $request->input('password')
+            $this->guard, $request->user(), $request->input('password')
         );
 
         if ($confirmed) {
@@ -60,7 +58,7 @@ class ConfirmablePasswordController extends Controller
         }
 
         return $confirmed
-            ? app(PasswordConfirmedResponse::class)
-            : app(FailedPasswordConfirmationResponse::class);
+                    ? app(PasswordConfirmedResponse::class)
+                    : app(FailedPasswordConfirmationResponse::class);
     }
 }

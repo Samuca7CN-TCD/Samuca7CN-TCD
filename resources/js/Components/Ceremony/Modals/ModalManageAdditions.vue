@@ -53,9 +53,11 @@ const submit = () => {
                 <span class="bg-blue-100 p-2 rounded-full text-blue-400">
                     <PlusIcon class="w-5 h-5" />
                 </span>
-                <h2 class="text-2xl bold">Cadastrar Parcelas</h2>
+                <h2 class="text-2xl bold">Cadastrar Adições</h2>
             </div>
-            <p class="text-xm text-gray-500 mt-3">Formulário para cadastro do parcelamento do pagamento da cerimônia</p>
+            <p class="text-xm text-gray-500 mt-3">Formulário para cadastro do serviços ou produtos à parte do valor total da
+                cerimônia
+            </p>
         </div>
         <form id="create_task" @submit.prevent="submit" class="w-full">
 

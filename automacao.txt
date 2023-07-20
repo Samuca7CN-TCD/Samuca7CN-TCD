@@ -1,0 +1,431 @@
+const SHEET_DATA_ID = '1KhGxmJYldTS-forA01yMGRPkQhdqsJrQ2FSzIcEZBIo';
+const DESTINY_FOLDER_ID = '1OLFoAhwuk5fttIlbDy9BaKVL9Mc3dBCf';
+const IMGS_FOLDER_ID = '1C8dcje1k6YiSWf5Jbtr-qiVB_4C8ALA5';
+const PAGES_CODS = ['menu_buffet_bg', 'buffet_service_bg', 'menu_bar_bg', 'decoration_imgs_bg', 'dj_service_bg'];
+const WHATSAPP_API_TOKEN = '9173500604e41f3324000088fe62b522561cd50ac4e00503c58a8a5659d5d31d944919f7ddbc6fb1';
+//const WHATSAPP_API_TOKEN = '58a6c60751e34d87fae0c79b763589a31e3fe03aa51a6bf9d5b5c710506678b9d7564d145efec6a6';
+
+function createAndSendDocument() {
+  try {
+    const sheet = SpreadsheetApp.openById(SHEET_DATA_ID);
+    const sheetValues = getSheetValues(sheet);
+    const dataHora = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "dd/MM/yyyy hh:mm:ss a");
+    const fileName = sheetValues.name + ' - Orçamento de ' + sheetValues.event + " - " + dataHora;
+    const destinyFolder = DriveApp.getFolderById(DESTINY_FOLDER_ID);
+    const docToken = setEvent(sheetValues);
+    const destinyDoc = DocumentApp.openById(DriveApp.getFileById(docToken).makeCopy(fileName, destinyFolder).getId());
+    const destinyDocBody = destinyDoc.getBody();
+
+    //excluirArquivosAntigos(DESTINY_FOLDER_ID);
+
+    destinyDocBody.replaceText('<<name>>', sheetValues.name);
+    setIndexText(sheetValues, destinyDocBody);
+    replaceEntriesAndDrinksImg(sheetValues, destinyDocBody);
+    destinyDocBody.replaceText('<<qtd_guests>>', sheetValues.guests_amount);
+    setSelectedPages(sheetValues, destinyDocBody);
+    replaceTotalValues(sheetValues, destinyDocBody);
+    destinyDoc.saveAndClose();
+    pdf = convertPDF(destinyDoc, destinyFolder, fileName);
+    // pdf.addViewer(sheetValues.email);
+    sendWhatsApp(sheetValues, pdf);
+    sendEmail(sheetValues, pdf);
+  } catch (err) {
+    console.log('Failed with error %s', err.message);
+  }
+}
+
+function getSheetValues(sheet){
+  const lastRow = sheet.getLastRow();
+  let sheetValues = sheet.getRange('A' + lastRow + ':AE' + lastRow).getValues()[0];
+  sheetValues =  {
+    event: sheetValues[0],
+    name: (sheetValues[1] || sheetValues[2] || sheetValues[3]),
+    date: (sheetValues[4] || sheetValues[5] || sheetValues[6]),
+    guests_amount: sheetValues[7],
+
+    buffet_entry: sheetValues[8],
+    buffet_type: sheetValues[9],
+    additionals: (sheetValues[21] || sheetValues[22] || sheetValues[23] || sheetValues[24]),
+    meat_additional: sheetValues[27],
+    raviolli_additional: sheetValues[26],
+    beers_additional: sheetValues[25],
+    drinks_additional: sheetValues[28],
+
+    beer_option: sheetValues[10],
+    bar_option: sheetValues[11],
+    dj_option: sheetValues[12],
+    place_option: sheetValues[20][0] == 'M' ? true : false,
+    decoration_option: (sheetValues[13] || sheetValues[14] || sheetValues[15]),
+    advisory_option: sheetValues[16][0] == 'Q' ? true : false,
+
+    whatsapp_phone_number: sheetValues[17],
+    email: sheetValues[18],
+
+    token: sheetValues[30],
+  }
+
+  /*
+  if(!sheetValues.additionals){
+    sheetValues.additionals = []
+  }else{
+    sheetValues.additionals = sheetValues.additionals.split(', ');
+  }
+  */
+
+  console.log(sheetValues);
+  return sheetValues;
+}
+
+function setEvent(sheetValues){
+  var docToken = '';
+  switch(sheetValues.event.toLowerCase()){
+    case 'casamento':
+      docToken = '1HAzuYTdo4Gg_z9oUBRSU_cmP50E0_BDYbnOGl1xcedk';
+    break;
+    case 'debutante':
+      docToken = '18YJUy3_XaydSAMfXwqcAEbAP31L4SjZ-fWE83_l3frQ';
+    break;
+    case 'confraternização':
+      docToken = '1En6LB7Dw1Ex_DveUxBwNp4jduy7TzCz5YoqW-Htts1A';
+    break;
+    default:
+      docToken = '1En6LB7Dw1Ex_DveUxBwNp4jduy7TzCz5YoqW-Htts1A';
+  };
+  return docToken;
+}
+
+function setIndexText(sheetValues, destinyDocBody){
+  const index_text = [
+    ['espaço', 'Ambiente moderno e pré-decorado no estilo industrial boho. Incluso mesas e cadeiras, ar condicionado, seguranças, bombeiro, banheirista, cozinha industrial e sala de apoio (camarim).\nDuração de 5 horas de Evento (mais 1hr de cortesia no caso de cerimônia no local)\nCapacidade para 150 convidados'],
+    ['buffet', 'Buffet próprio do espaço, com 5 sugestões de cardápio, 2 opções de entrada, bebidas, bolo e mesa de Café.'],
+    ['assessoria', 'Assessoria completa para o dia do seu evento, incluso duas reuniões prévias de alinhamento.'],
+    ['decoração', 'Mesa de bolo com opções de modelos, flores permanentes (a escolher) e bancos e tapete para a cerimôni externa.'],
+    ['dj', 'Iluminação cênica, bancada e Dj por 5 horas de festa (cerimônia não incluso).'],
+    ['bar', 'Contempla Coquetéis alcoólicos e não alcoólicos, servidos por 5 horas de evento.']
+  ];
+  
+    index_text.forEach(function(section, i){
+      if(section[0] == 'espaço' || section[0] == 'buffet'){
+        setIndexItem(destinyDocBody, i + 1, section);
+      }else{
+        if(verifyOption(sheetValues, section[0])){
+          setIndexItem(destinyDocBody, i + 1, section);
+        }else{
+          setIndexItem(destinyDocBody, i + 1,  -1);
+        }
+      }
+    });
+}
+
+function verifyOption(sheetValues, section_name){
+  switch(section_name){
+    case 'assessoria': return sheetValues.advisory_option ? true : false;
+    case 'decoração': return sheetValues.decoration_option ? true : false;
+    case 'dj': return sheetValues.dj_option ? true : false;
+    case 'bar': return sheetValues.bar_option ? true : false;
+    default: return false;
+  }
+}
+
+function setIndexItem(destinyDocBody, i, section){
+  if(section == -1){
+    destinyDocBody.findText('<<index_title' + i + '>>').getElement().getParent().removeFromParent();
+    destinyDocBody.findText('<<index_description' + i + '>>').getElement().getParent().removeFromParent();
+  }else{
+    destinyDocBody.replaceText('<<index_title' + i + '>>', section[0].toUpperCase());
+    destinyDocBody.replaceText('<<index_description' + i + '>>', section[1] + '\n');
+  }
+}
+
+function replaceEntriesAndDrinksImg(sheetValues, destinyDocBody){
+  var img_space = destinyDocBody.findText('<<entry_img>>').getElement();
+  let img_cod = '14UvGASQZV8sfEMHKVoW1Bfrayt2Mlp77';
+
+  if(sheetValues.buffet_entry[0] == 'T') img_cod = '1dty66Roh7OjkErNmw88WTm9kILFbmdMK';
+  replaceTextForImg(img_space, 'id', img_cod);
+  
+  img_space = destinyDocBody.findText('<<drinks_img>>').getElement();
+  img_cod = '1t7czhKASjqhzJqwZOlOrLx_fjr3XwEWw';
+
+  if(sheetValues.beer_option) img_cod = '1yRNzDF7r3TvbuP3vG0LvnBntMEJks7Ka';
+  replaceTextForImg(img_space, 'id', img_cod);
+}
+
+function setSelectedPages(sheetValues, destinyDocBody){
+  let img_space, image;
+  PAGES_CODS.forEach(function(page, i){
+    img_space = destinyDocBody.findText('<<' + page + '>>').getElement();
+    image = verifyPage(sheetValues, page);
+    // console.log(image);
+    replaceTextForImg(img_space, 'name', image, [794, 1123]);
+  });
+}
+
+function verifyPage(sheetValues, page){
+  switch(page){
+    case PAGES_CODS[0]: return 'menu_' + sheetValues.buffet_type.toLowerCase().replaceAll(' ', '_').trim() + '.png';
+    case PAGES_CODS[1]: return 'buffet_service.png';
+    case PAGES_CODS[2]: return sheetValues.bar_option ? 'menu_bar.png' : false;
+    case PAGES_CODS[3]: 
+      let event = sheetValues.event.toLowerCase();
+      if(event == 'casamento' || event == 'debutante')
+        return sheetValues.decoration_option ? 'decoration_imgs.png' : false;
+      else return false;
+    case PAGES_CODS[4]: return sheetValues.dj_option ? 'dj_service.png' : false;
+    default: return false;
+  }
+}
+
+function replaceTextForImg(text, cod_type, img_cod, img_tam = 0){
+  text.asText().setText('');
+  if(!img_cod){
+    text.getParent().removeFromParent();
+    return;
+  }
+  var style = {};
+  style[DocumentApp.Attribute.MARGIN_TOP] = 0;
+  style[DocumentApp.Attribute.MARGIN_LEFT] = 0;
+  style[DocumentApp.Attribute.MARGIN_RIGHT] = 0;
+  style[DocumentApp.Attribute.MARGIN_BOTTOM] = 0;
+  style[DocumentApp.Attribute.SPACING_AFTER] = 0;
+  style[DocumentApp.Attribute.SPACING_BEFORE] = 0;
+  var img = text.getParent().asParagraph().insertInlineImage(0, getImage(cod_type, img_cod));
+  if(img_tam) img.setWidth(img_tam[0]).setHeight(img_tam[1]).setAttributes(style);
+}
+
+function getImage(type, img_cod){
+  if(type == 'name'){
+    const imgs_place = DriveApp.getFolderById(IMGS_FOLDER_ID);
+    return imgs_place.getFilesByName(img_cod).next();
+  }
+  return DriveApp.getFileById(img_cod);
+}
+
+function setBuffetValues(sheetValues){
+  let buffet_total = 59;
+  let buffet_option_description = 'Opção ';
+
+  if(sheetValues.buffet_type.toLowerCase() == 'churrasco'){
+    buffet_total += 20;
+    buffet_option_description += 'churrasco '
+  }else{
+    buffet_option_description += 'buffet '
+  }
+
+  if(sheetValues.beer_option){
+    buffet_total += 15;
+    buffet_option_description += 'com cerveja'
+  }else{
+    buffet_option_description += 'sem cerveja'
+  }
+
+  buffet_option_description = '(' + buffet_option_description + ')';
+
+  return {total:buffet_total, option_description: buffet_option_description};
+}
+
+function getOptionValues(sheetValues){
+  let place = 2900;
+  let buffet = setBuffetValues(sheetValues), buffet_aux = buffet.total;
+  let decoration = 1400;
+  let bar = 15;
+
+  // console.log([place, buffet, bar, decoration]);
+
+  if(!sheetValues.bar_option || !sheetValues.decoration_option){
+    place = 1.1 * place
+    buffet.total = 1.1 * buffet.total
+    decoration = 1.1 * decoration
+    bar = 1.1 * bar
+  }
+
+  if(sheetValues.guests_amount < 100){
+    place += 0.1 * 2900;
+    buffet.total += 0.1 * buffet_aux;
+    decoration += 0.1 * 1400;
+    bar += 0.1 * 15;
+  }
+
+  return [place, buffet, bar, decoration];
+}
+
+function replaceTotalValues(sheetValues, destinyDocBody){
+  const values = getOptionValues(sheetValues);
+  // console.log(values);
+
+  let total = values[0];
+  let price = 0;
+  let buffet_values = values[1]
+
+  destinyDocBody.replaceText('<<place_value>>', total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}));
+
+  destinyDocBody.replaceText('<<buffet_value>>', 'Buffet: ' + buffet_values.total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) + ' por pessoa ');
+  total += buffet_values.total * sheetValues.guests_amount;
+
+  if(sheetValues.bar_option){
+    price = values[2];
+    destinyDocBody.replaceText('<<bar_value>>', 'Bar: ' + price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) + ' por pessoa (drinks all Night)');
+    total += price * sheetValues.guests_amount;
+  }else{
+    destinyDocBody.findText('<<bar_value>>').getElement().getParent().removeFromParent();
+  }
+
+  if(sheetValues.dj_option){
+    price = 1200.0;
+    destinyDocBody.replaceText('<<dj_value>>', 'DJ: R$ ' + price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) + ' (estrutura, iluminação e som)');
+    total += price;
+  }else{
+    destinyDocBody.findText('<<dj_value>>').getElement().getParent().removeFromParent();
+  }
+  
+  /* Opção de Decoração ANTIGA if(sheetValues.decoration_option){let text = '';if(sheetValues.place_option){price = 1900.0;text = 'Decoração: ' + price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) + ' (ambiente + decoração)';}else{price = 1500.0;text = 'Decoração: ' + price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) + ' (mesa de bolo e centros de mesa)'}destinyDocBody.replaceText('<<decoration_value>>', text);total += price;}else{destinyDocBody.findText('<<decoration_value>>').getElement().getParent().removeFromParent();}*/
+
+  if(sheetValues.decoration_option){
+    price = values[3];
+    let text = 'Decoração: ' + price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}) + ' (mesa de bolo, bancos e tapete)';
+    destinyDocBody.replaceText('<<decoration_value>>', text);
+    total += price;
+  }else{
+    destinyDocBody.findText('<<decoration_value>>').getElement().getParent().removeFromParent();
+  }
+
+  if(sheetValues.advisory_option){
+    price = 900.0
+    destinyDocBody.replaceText('<<advisory_value>>', 'Cerimonialista: ' + price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}));
+    total += price;
+  }else{
+    destinyDocBody.findText('<<advisory_value>>').getElement().getParent().removeFromParent();
+  }
+
+  destinyDocBody.replaceText('<<total_value>>', total.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}));
+  destinyDocBody.replaceText('<<total_description>>', buffet_values.option_description);
+
+  // Setar valores adicionais
+  let total_additional = 0;
+  let additional_price = 0;
+  let add_flag = false;
+  const additionals = [
+    {
+      name: 'meat',
+      value: sheetValues.meat_additional,
+      price: 7,
+      tag_id: 1,
+      text: 'Adicional de Carne',
+    },
+    {
+      name: 'raviolli',
+      value: sheetValues.raviolli_additional,
+      price: 5,
+      tag_id: 2,
+      text: 'Adicional de Raviolli',
+    },
+    {
+      name: 'beers',
+      value: sheetValues.beers_additional,
+      price: 5,
+      tag_id: 3,
+      text: 'Cervejas de outras marcas',
+    },
+    {
+      name: 'drinks',
+      value: sheetValues.drinks_additional,
+      price: 5,
+      tag_id: 4,
+      text: 'Drinks Adicionais',
+    },
+  ];
+
+  additionals.forEach((add) => {
+    if(add.value){
+      additional_price = (add.price * sheetValues.guests_amount);
+      total_additional += additional_price;
+      destinyDocBody.replaceText('<<additional_' +add.tag_id + '>>', ' - ' + add.text + ': ' + additional_price.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}));
+      add_flag = true;
+    }
+  });
+
+  if(add_flag){
+    for(let i = 1; i < 5; i++){
+      let add_element = destinyDocBody.findText('<<additional_' + i + '>>');
+      if(add_element) add_element.getElement().getParent().removeFromParent();
+    }
+    destinyDocBody.replaceText('<<total_additional_title>>', "Total Adicionais");
+    destinyDocBody.replaceText('<<total_additional_value>>', total_additional.toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}));
+  }else{
+    destinyDocBody.replaceText('<<additional_1>>', 'Você não selecionou adicionais');
+    for(let i = 2; i < 5; i++) destinyDocBody.findText('<<additional_' + i + '>>').getElement().getParent().removeFromParent();
+    destinyDocBody.replaceText('<<total_additional_value>>', (0.00).toLocaleString('pt-br',{style: 'currency', currency: 'BRL'}));
+  }
+
+  // Setar data e hora do evento
+  sheetValues.date.setHours(sheetValues.date.getHours() + 4);
+  destinyDocBody.replaceText('<<event_date>>', Utilities.formatDate(sheetValues.date, Session.getScriptTimeZone(), "dd/MM/yyyy"));
+}
+
+function convertPDF(destinyDoc, destinyFolder, fileName){
+  const pdfBlob = destinyDoc.getAs(MimeType.PDF);
+  const pdf = destinyFolder.createFile(pdfBlob.setName(fileName));
+  DriveApp.getFileById(destinyDoc.getId()).setTrashed(true);
+  return pdf;
+}
+
+function getEmailBody(name, url){
+  return '<!DOCTYPE html><html><head><style type="text/css"> *{margin:0px;padding:0px}.container{width:100%}.container-cont{max-width:700px;margin:auto;margin-top:50px;padding:30px;border-radius:25px;box-shadow:0px 0px 50px #c8c8c8;border:1px solid #c8c8c8;font-family:sans-serif}h1{margin-bottom:10px}p{padding:5px;font-size:20px}a{text-decoration:none;}button{cursor:pointer;color:white;padding:15px;background-color:black;margin-top:10px;outline:none;border:none;border-radius:3px}</style></head><body><div class="container"><div class="container-cont"><h1>Olá '+name+'!</h1><p>Aqui é o Villy, muito prazer!</p><p>Segue abaixo sua proposta personalizada!</p><p>O legal do pacote é a praticidade de vocês não se preocuparem em gerenciar vários fornecedores, e terem praticamente todo o necessário para o evento por um valor bem bacana e acessível</p><p>Entrem em nossa galeria de fotos para verem um pouquinho mais e caso queiram só falar que agendamos uma visita sem compromisso ok?</p><p>E o que surgir de dúvidas só chamar que estamos a disposição!</p><p>Desde já agradecemos</p><a href="'+url+'"><button>Ver meu orçamento</button></a></div></div></body></html>';
+}
+
+function sendEmail(sheetValues, pdf){
+  const subject = pdf.getName();
+  const url =  pdf.getDownloadUrl();
+  const bodyHTML = getEmailBody(sheetValues.name, url);
+  GmailApp.sendEmail(sheetValues.email, subject, url,{
+      name: 'Chicago Eventos',
+      htmlBody: bodyHTML
+  });
+}
+
+function sendWhatsApp(sheetValues, pdf){
+  const url = 'https://api.wzap.chat/v1/messages';
+  pdf_url = DriveApp.getFileById(pdf.getId()).getDownloadUrl();
+
+  const data = {
+    'phone': sheetValues.whatsapp_phone_number,
+    'message': '*Olá ' + sheetValues.name + '*\n_(Esta é uma mensagem automática)_\n\nAqui é o Villy, muito prazer! 🙏\nSegue abaixo sua *Proposta de ' + sheetValues.event + '* personalizada! 😊\nO legal do pacote é a praticidade de vocês não se preocuparem em gerenciar vários fornecedores, e terem praticamente todo o necessário para o evento por um valor bem bacana e acessível 😉\n*Entrem em nossa galeria de fotos* para verem um pouquinho mais e caso queiram só falar que agendamos uma visita sem compromisso ok?\nE o que surgir de dúvidas só chamar que estamos a disposição!\n*Desde já agradecemos* 🙏\n\n Baixar Orçamento: ' + pdf_url + '\n\nVer galeria: https://shre.ink/galeriaChicagoEventos\n\n*Chicago Eventos*',
+    /*'header':'Olá ' + sheetValues.name,
+    'footer':'Chicago Eventos',
+    'buttons':[{'id':'go_to_budget', 'kind':'url', 'text':'Baixar Orçamento', 'value':pdf_url},
+               {'id':'go_to_galery', 'kind':'url', 'text':'Ver galeria', 'value':'https://shre.ink/galeriaChicagoEventos'},
+               {'id':'meet_in_place', 'text':'Agendar minha visita'}],*/
+  };
+
+  const options = {
+    'method' : 'post',
+    'contentType': 'application/json',
+    'headers': { 'token': WHATSAPP_API_TOKEN },
+    'payload': JSON.stringify(data)
+  };
+  const response = UrlFetchApp.fetch(url, options);
+  const text = response.getResponseCode();
+  Logger.log(text);
+}
+
+function excluirArquivosAntigos() {
+  var idPasta = DESTINY_FOLDER_ID;
+  var pasta = DriveApp.getFolderById(idPasta);
+  var agora = new Date();
+  var prazo = 30 * 24 * 60 * 60 * 1000; // 45 dias em milissegundos
+  
+  // Itera por todos os arquivos da pasta
+  var arquivos = pasta.getFiles();
+  while (arquivos.hasNext()) {
+    var arquivo = arquivos.next();
+    var dataCriacao = arquivo.getDateCreated();
+    
+    // Calcula a diferença em milissegundos entre a data atual e a data de criação do arquivo
+    var diferenca = agora.getTime() - dataCriacao.getTime();
+    
+    // Se o arquivo foi criado há mais de 45 dias, exclui-o
+    if (diferenca > prazo) {
+      arquivo.setTrashed(true);
+    }
+  }
+}

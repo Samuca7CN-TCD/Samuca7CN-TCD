@@ -65,6 +65,9 @@ Route::middleware([
     Route::put('/addition/{ceremony_id}', [CeremonyController::class, 'update_addition'])->name('ceremonies.update.addition');
     Route::delete('/addition/{ceremony_id}', [CeremonyController::class, 'delete_addition'])->name('ceremonies.delete.addition');
 
+    Route::post('/addition/voucher/{ceremony_id}', [CeremonyController::class, 'pay_addition'])->name('ceremonies.pay.addition.voucher');
+    Route::delete('/addition/voucher/delete/{ceremony_id}', [CeremonyController::class, 'delete_addition_voucher'])->name('ceremonies.delete.addition.voucher');
+
     Route::post('/expense', [CeremonyController::class, 'create_expense'])->name('ceremonies.create.expense');
     Route::put('/expense/{ceremony_id}', [CeremonyController::class, 'update_expense'])->name('ceremonies.update.expense');
     Route::delete('/expense/{ceremony_id}', [CeremonyController::class, 'delete_expense'])->name('ceremonies.delete.expense');
@@ -75,6 +78,7 @@ Route::middleware([
     Route::put('/obsevation/{ceremony_id}', [CeremonyController::class, 'update_obs'])->name('ceremonies.updade.obs');
     Route::resource('/financials', InstallmentController::class);
     Route::get('/get-vouchers/{installment_id}', [VoucherController::class, 'get_vouchers'])->name('get-vouchers');
+    Route::get('/get-addition-vouchers/{addition_id}', [CeremonyController::class, 'get_addition_vouchers'])->name('get-addition-vouchers');
 
     Route::resource('/tasks', TaskController::class);
     Route::post('/tasks/duplicate/', [TaskController::class, 'task_duplicate'])->name('task.duplicate');

@@ -390,7 +390,7 @@ class BuffetPlateSeeder extends Seeder
 
         DB::table('buffet_plates')->insert([
             'status' => 1,
-            'name' => 'Mini-Salgados (Fritos, Assados, Mini Hambúrguer, Mini Cachorro-quente e Batata Frita)',
+            'name' => 'Mini-Salgados (Fritos, Assados, Mini Hambúrguer e Batata Frita)',
             'description' => null,
             'cost' => 0.00,
             'qtd_per_ten_people' => 1,

@@ -14,9 +14,9 @@ export default function loadInstallments(config, total_value, event_date) {
     // Esquematização da divisão dos valores
     switch (option) {
         case 1:
-            valor_entrada = valor_total * 0.2;
-            valor_fechamento = valor_total * 0.2;
-            valor_restante = valor_total * 0.6;
+            valor_entrada = valor_total * 0.15;
+            valor_fechamento = valor_total * 0.15;
+            valor_restante = valor_total * 0.7;
             installment_type = 0;
             break;
         case 2:

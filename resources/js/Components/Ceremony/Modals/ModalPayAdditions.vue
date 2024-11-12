@@ -11,6 +11,7 @@ import axios from 'axios';
 const props = defineProps({
     ceremony: Object,
     addition: Object,
+    additions: Object,
     add_vouchers: Object,
 });
 
@@ -51,30 +52,29 @@ const pay = () => {
     }
 
     addition.value.processing = true;
-    console.log(new_voucher.value);
     router.post(route('ceremonies.pay.addition.voucher', props.ceremony.id), new_voucher.value, {
         preserveScroll: true,
-        //onSuccess: () => recalc_conditions(),
-    }).then(response => {
-        addition.value.amount = response.amount;
-        addition.value.left_amount = response.left_amount;
-        addition.value.paid = response.paid;
-
-        new_voucher.value.name = null;
-        new_voucher.value.value = response.left_amount;
-        new_voucher.value.file = null;
-
-        addition.value.processing = false;
-
-        axios.get(route('get-addition-vouchers', props.addition.id))
-            .then(response => {
-                add_vouchers.value = response.data;
-            }).catch(error => {
-                console.error(error);
-            });
-    }).catch(error => {
-        console.error(error);
+        onSuccess: () => recalc_conditions(),
     });
+}
+
+const recalc_conditions = () => {
+    const response = props.additions.find((i) => i.id == addition.value.id);
+    addition.value.amount = response.amount;
+    addition.value.left_amount = response.left_amount;
+    addition.value.paid = response.paid;
+
+    new_voucher.value.name = null;
+    new_voucher.value.value = response.left_amount;
+    new_voucher.value.file = null;
+
+    addition.value.processing = false;
+    axios.get(route('get-addition-vouchers', props.addition.id))
+        .then(response => {
+            add_vouchers.value = response.data;
+        }).catch(error => {
+            console.error(error);
+        });
 }
 
 const deletePayment = (voucher_id) => {
@@ -193,7 +193,7 @@ const closeModal = () => {
                                             </div>
                                             <div class="ml-4 flex-shrink-0">
                                                 <p class="font-medium text-indigo-600 hover:text-indigo-500 cursor-pointer"
-                                                    @click=" pay()">
+                                                    @click="pay()">
                                                     Adicionar</p>
                                             </div>
                                         </li>

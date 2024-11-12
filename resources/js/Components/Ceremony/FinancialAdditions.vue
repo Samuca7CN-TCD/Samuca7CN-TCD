@@ -27,10 +27,9 @@ const pay_additon = (add) => {
     axios.get(route('get-addition-vouchers', add.id))
         .then(response => {
             add_vouchers.value = response.data;
+            addition.value = add;
+            open_payment_modal.value = true;
         });
-
-    addition.value = add;
-    open_payment_modal.value = true;
 }
 
 const delete_additon = (add_id) => {
@@ -95,6 +94,6 @@ const delete_additon = (add_id) => {
     </p>
     <ModalManageAdditions v-if="open_modal" :ceremony="ceremony" :addition="addition"
         @modal_open="(open) => open_modal = open" />
-    <ModalPayAdditions v-if="open_payment_modal" :ceremony="ceremony" :addition="addition" :add_vouchers="add_vouchers"
-        @modal_payment_open="(open) => open_payment_modal = open" />
+    <ModalPayAdditions v-if="open_payment_modal" :ceremony="ceremony" :addition="addition" :additions="additions"
+        :add_vouchers="add_vouchers" @modal_payment_open="(open) => open_payment_modal = open" />
 </template>

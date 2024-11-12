@@ -145,7 +145,7 @@ Petit fours',
 
 - Assados : Esfiha de carne ou frango, trouxinha de calabresa ,enroladinho de salsicha, empada (frango e palmito)
 
-- Mini Hambúrguer, Mini Cachorro-quente e batata frita
+- Mini Hambúrguer e batata frita
 
 - Massa
 Fettuccine ao molho branco ou sugo 

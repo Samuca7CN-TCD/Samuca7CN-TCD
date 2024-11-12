@@ -38,10 +38,10 @@ export default function calcBudgetTotal(form) {
     if (form.dj) total += option.dj;
     if (form.advisory) total += option.advisory;
 
-    if (form.additional_meat) total += option.additional_meat;
+    if (form.buffet_id == 1 && form.additional_meat) total += option.additional_meat;
     if (form.ravioli) total += option.ravioli;
-    if (form.additional_drinks) total += option.additional_drinks;
-    if (form.other_beers) total += option.other_beers;
+    if (form.bar && form.additional_drinks) total += option.additional_drinks;
+    if (form.beer && form.other_beers) total += option.other_beers;
 
     return total;
 }

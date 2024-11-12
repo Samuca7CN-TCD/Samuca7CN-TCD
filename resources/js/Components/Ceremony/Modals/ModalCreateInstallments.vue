@@ -93,7 +93,7 @@ const submit = () => {
                             v-model="installments_config.payment_option"
                             @change="installments = loadInstallments(installments_config, ceremony.total_negotiated_amount, budget.event_date + ' ' + budget.event_time)">
                             <option value="0" disabled>Escolha uma das opções abaixo</option>
-                            <option value="1">20% de entrada + 60% parcelado + 20% duas semanas antes do evento
+                            <option value="1">15% de entrada + 70% parcelado + 15% duas semanas antes do evento
                             </option>
                             <option value="2">50% entrada + 50% uma mês antes do evento</option>
                             <option value="3">100% pix com 5% de desconto</option>
